@@ -157,7 +157,7 @@ body {
       transform: translate(-50%, 0);
     }
 
-    ${down('sm')} {
+    @media (max-width: 950px) {
       padding: 64px;
       padding-bottom: 28px;
     }
@@ -191,8 +191,8 @@ body {
     justify-content: space-between;
     height: 100%;
 
-    ${down('sm')} {
-      width: 120%;
+    @media (max-width: 950px) {
+      width: 115%;
       height: 94px;
       overflow: scroll;
       position: relative;

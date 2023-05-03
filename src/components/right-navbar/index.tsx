@@ -4,7 +4,11 @@ import DocsButton from './docs-button'
 import HomeButton from './home-button'
 import * as S from './styles'
 
-export default function RightNav() {
+interface TRightNav {
+  isBlog?: boolean
+}
+
+export default function RightNav({isBlog}: TRightNav) {
   /* or calculate dynamically based on number of buttons since they're fixed height */
   const button_container_height: number = 184
   const [top_offset, setTopOffset] = useState(`calc(50% - ${button_container_height / 2}px)`)
@@ -33,10 +37,25 @@ export default function RightNav() {
 
   return (
     <S.StickyContainer top_offset={top_offset}>
-      <S.ButtonContainer>
-        <HomeButton />
-        <RequestAccessButton />
-        <DocsButton />
+      <S.ButtonContainer isBlog={isBlog}>
+        {
+          isBlog ? (
+            <>
+              <HomeButton isBlog={isBlog}/>
+                <div>
+                  <RequestAccessButton />
+                  <DocsButton />
+                </div>
+            </>
+          ) : (
+            <>
+              <HomeButton isBlog={isBlog}/>
+              <RequestAccessButton />
+              <DocsButton />
+            </>
+          )
+        }
+
       </S.ButtonContainer>
     </S.StickyContainer>
   )

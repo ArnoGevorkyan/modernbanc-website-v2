@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { down } from 'styled-breakpoints'
 
 type StickyContainerProps = {
@@ -9,6 +9,7 @@ export const StickyContainer = styled.div<StickyContainerProps>`
   position: fixed;
   top: ${({ top_offset }) => top_offset};
   right: 58px;
+  z-index: 100;
 
   ${down('lg')} {
     right: 25px;
@@ -31,7 +32,14 @@ export const ButtonContainer = styled.div`
   align-items: flex-end;
   gap: 20px;
 
+  ${({ isBlog }: any) => isBlog && `
+    justify-content: space-between;
+    align-items: flex-start;
+`}
+
+
   ${down('sm')} {
     flex-direction: row;
   }
+
 `

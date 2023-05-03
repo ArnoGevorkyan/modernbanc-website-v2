@@ -3,10 +3,14 @@ import { ContactUsIcon } from '~/components/icons/contactus-icon'
 import { HomeLogo } from '~/components/icons/home-logo'
 import S from './styles'
 
-const HomeButton = () => {
+interface THomeButton {
+  isBlog?: boolean
+}
+
+const HomeButton = ({isBlog}: THomeButton) => {
   return (
     <Link href="/" passHref shallow>
-      <S.Button>
+      <S.Button isBlog={isBlog}>
         <div className="glass" />
         <span>Home </span>
         <div className="spacer" />

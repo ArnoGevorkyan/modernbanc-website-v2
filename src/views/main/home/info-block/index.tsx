@@ -1,9 +1,13 @@
 import { useState } from 'react'
 import S from './styles'
 import Computer from '../computer'
+import { down } from 'styled-breakpoints'
+import { useBreakpoint } from 'styled-breakpoints/react-styled'
 
 const InfoBlock = ({ children }) => {
   const [active, setActive] = useState();
+  const is_mobile = useBreakpoint(down('sm'))
+
 
   return (
     <S.Container>
@@ -11,7 +15,7 @@ const InfoBlock = ({ children }) => {
         <div className='block-title'>
           <S.Title>Built on a single source of truth.</S.Title>
           <S.Text>Unify your financial data. Automate your payments and financial operations. Build PCI-compliant journeys Modernbanc provides a single fully integrated system to achieve that.</S.Text>
-          {children}
+          {is_mobile ? '' : children}
         </div>
         <Computer />
       </S.Block>

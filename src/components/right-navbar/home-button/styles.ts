@@ -14,6 +14,21 @@ export const Button = styled.button`
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 12px;
   border: 3px solid rgba(204, 204, 204, 1);
+  position: relative;
+
+  ${({ isBlog }: any) => isBlog && `
+    &::after {
+      content: "Back to Home";
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 19px;
+      letter-spacing: 0.01em;
+      color: #000000;
+      position: absolute;
+      width: 105px;
+      left: 55px;
+    }
+`}
 
   /* &:hover {
     background: linear-gradient(
@@ -77,6 +92,7 @@ export const Button = styled.button`
     outline: none;
     box-shadow: 0 0 0 2px black;
   }
+
 `
 
 export const IconContainer = styled.div`

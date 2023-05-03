@@ -16,7 +16,8 @@ export const Container = styled.div`
   ${down('xxl')} {
     padding: 80px 0 50px 0;
   }
-  ${down('sm')} {
+
+  @media (max-width: 950px) {
     padding: 100px 0 50px 0;
 
     position: relative;
@@ -37,16 +38,17 @@ export const Title = styled.span`
   ${down('xl')} {
     max-width: 700px;
   }
-  ${down('sm')} {
+
+  @media (max-width: 950px) {
     text-align: left;
-    font-size: 24px;
-    line-height: 100%;
+    font-size: 48px;
+    line-height: 110%;
   }
 `
 
 export const TitleDecor = styled.span`
 color: #666666;
-` 
+`
 
 export const Subtitle = styled.span`
   text-align: center;
@@ -60,7 +62,7 @@ export const Subtitle = styled.span`
   max-width: 858px;
   line-height: 160%;
 
-  ${down('sm')} {
+  @media (max-width: 950px) {
     font-size: 16px;
     line-height: 120%;
     width: auto;
@@ -88,7 +90,7 @@ export const ComputerAndCablesContainer = styled.div`
     margin-bottom: 0;
     transform: scale(0.9);
   }
-  ${down('sm')} {
+  @media (max-width: 950px) {
     display: none;
     visibility: hidden;
   }
@@ -114,7 +116,7 @@ export const LeftCablesContainer = styled.div`
   ${down('md')} {
     margin-left: -50%;
   }
-  ${down('sm')} {
+  @media (max-width: 950px) {
     display: none;
   }
 
@@ -149,7 +151,7 @@ export const RightCablesContainer = styled.div`
   margin-left: 28.31px;
   z-index: -4;
 
-  ${down('sm')} {
+  @media (max-width: 950px) {
     display: none;
   }
 `
@@ -161,4 +163,8 @@ export const Section = styled.section`
   align-items: center;
   justify-content: center;
   flex-direction: column;
+
+  @media (max-width: 950px) {
+    align-items: flex-start;
+  }
 `

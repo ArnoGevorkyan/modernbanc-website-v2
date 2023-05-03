@@ -90,7 +90,7 @@ const Selectors = () => {
                 </svg>
               </S.ContentButton>
             </div>
-            <img src="/display2@2x.png" alt="Financial and accounting platform." width="525" />
+            <img src="/display2@2x.png" alt="Financial and accounting platform." width="525" className='content-image' />
           </S.Content>
         </SwiperSlide>
         <SwiperSlide>

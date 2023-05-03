@@ -42,7 +42,7 @@ const Container = styled.button`
     box-shadow: 0 0 0 1.5px black;
   }
 
-  ${down('sm')} {
+  @media (max-width: 950px) {
     width: 80%;
     background: #373737;
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.25);

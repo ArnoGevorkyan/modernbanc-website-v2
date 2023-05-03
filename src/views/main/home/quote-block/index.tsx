@@ -11,7 +11,7 @@ const QuoteBlock = ({ text, name, position, image }: TQuoteProps) => {
   return (
     <S.Container>
       <S.Block>
-        <img src={image} alt={position} width="45" height="45" />
+        <img className='image' src={image} alt={position} width="45" height="45" />
         <S.Wrapper>
           <S.Text>{name}</S.Text>
           <S.PositionText>{position}</S.PositionText>

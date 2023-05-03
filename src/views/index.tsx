@@ -54,7 +54,7 @@ export const Layout: React.FC<TLayoutProps> = ({ children }) => {
         </MainLayout>
       )} */}
       {renderLayout()}
-      <RightNav />
+      {is_blog_page ? <RightNav isBlog={true} /> : <RightNav/>}
     </div>
   )
 }

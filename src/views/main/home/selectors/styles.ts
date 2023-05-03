@@ -19,7 +19,7 @@ const Selectors = styled.section`
   position: relative;
   margin-bottom: 13px;
 
-  ${down('sm')} {
+  @media (max-width: 950px) {
     flex-direction: column-reverse;
   }
 `
@@ -49,7 +49,7 @@ const Block = styled.div`
   width: 54%;
   padding-left: 27px;
 
-  ${down('sm')} {
+  @media (max-width: 950px) {
     width: 100%;
     margin-bottom: 20px;
   }
@@ -87,6 +87,17 @@ const Content = styled.div.attrs((props: { left: string; }) => props)`
     height: 100%;
     margin-top: auto;
   }
+
+  @media (max-width: 950px) {
+    flex-direction: column;
+    height: 492px;
+
+    .content-image {
+      height: auto;
+      margin-left: auto;
+    }
+  }
+
 `
 
 
@@ -99,9 +110,10 @@ const ContentTitle = styled.h2`
   margin-top: 69px;
   margin-bottom: 30px;
 
-  ${down('sm')} {
+  @media (max-width: 950px) {
     font-size: 24px;
     line-height: 100%;
+    margin-top: 30px;
   }
 `
 
@@ -117,6 +129,11 @@ const Item = styled.li`
   line-height: 160%;
   color: #111827;
   margin-bottom: 10px;
+
+  @media (max-width: 950px) {
+    font-size: 14px;
+    line-height: 105%;
+  }
 `
 
 const ContentButton = styled.button`
@@ -134,6 +151,24 @@ const ContentButton = styled.button`
 
   span {
     margin-right: 10px;
+  }
+
+
+  @media (max-width: 950px) {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translate(-50%, 0);
+
+    background: #373737;
+    border: 3px solid #CCCCCC;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.25);
+    border-radius: 2px;
+    color: #ffffff;
+
+    width: 90%;
+    display: flex;
+    justify-content: center;
   }
 
 `

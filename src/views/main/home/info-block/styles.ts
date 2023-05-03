@@ -1,25 +1,6 @@
-import { CurrencyDollarIcon } from '@heroicons/react/solid'
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 import { down } from 'styled-breakpoints'
 
-const beam = keyframes`
-  from {
-    box-shadow: inset 0px 0px 50px rgba(137, 139, 154, 0.28);
-  }
-  to {
-    box-shadow: inset 0px 0px 80px rgba(140, 140, 140, 0.47);
-  }
-`
-
-const shine = keyframes`
-  from {
-    background-position: -200% center;
-  }
-  to {
-    background-position: 200% center;
-
-  }
-`
 
 const Container = styled.div`
   backdrop-filter: blur(2px);
@@ -53,6 +34,12 @@ const Container = styled.div`
     &::after {
       top: 1100px;
     }
+
+    @media (max-width: 950px) {
+      &::after {
+        top: 1640px;
+      }
+    }
   }
 `
 
@@ -70,6 +57,12 @@ const Block = styled.div`
   @media (max-width: 1250px) {
     width: 80%;
   }
+
+  @media (max-width: 950px) {
+
+    flex-direction: column;
+    align-items: center;
+  }
 `
 
 
@@ -81,6 +74,11 @@ const Title = styled.h3`
   color: #111827;
   margin-top: 70px;
   margin-bottom: 10px;  
+
+  @media (max-width: 950px) {
+    font-size: 24px;
+    line-height: 100%;
+  }
 `
 
 const Text = styled.p`
@@ -90,6 +88,12 @@ const Text = styled.p`
   font-weight: 400;
   font-size: 20px;
   line-height: 160%;
+
+  @media (max-width: 950px) {
+    font-size: 14px;
+    line-height: 17px;
+    width: 100%;
+  }
 `
 
 
@@ -99,6 +103,11 @@ const List = styled.ul`
   justify-content: space-between;
   margin-bottom: 146px;
   width: 60%;
+
+  @media (max-width: 950px) {
+    flex-direction: column;
+    width: 80%;
+  }
 `
 
 const Item = styled.li`
@@ -107,6 +116,11 @@ const Item = styled.li`
   backdrop-filter: blur(2px);
   border-radius: 4px;
   padding: 30px;
+
+  @media (max-width: 950px) {
+    width: 100%;
+    margin-bottom: 20px;
+  }
 `
 
 const ContentButton = styled.button`
@@ -153,6 +167,12 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+
+  @media (max-width: 950px) {
+    width: 80%;
+    margin-bottom: 20px;
+  }
 `
 
 const WrapperList = styled.ul`
@@ -161,6 +181,10 @@ const WrapperList = styled.ul`
   jusrify-content: space-between;
   width: 100%;
   margin-top: 23px;
+
+  @media (max-width: 950px) {
+    flex-direction: column;
+  }
 `
 
 const WrapperItem = styled.li`  
@@ -169,6 +193,10 @@ const WrapperItem = styled.li`
   padding: 30px;
   padding-top: 42px;
   poadding-bottom: 73px;
+
+  @media (max-width: 950px) {
+    margin-bottom: 20px;
+  }
 `
 
 const WrapperTitle = styled.h3`

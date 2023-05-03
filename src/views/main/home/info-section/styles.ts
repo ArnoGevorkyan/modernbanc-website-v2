@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { down } from 'styled-breakpoints'
 
 const Container = styled.div`
   display: flex;
@@ -12,6 +13,11 @@ const Container = styled.div`
 
   margin-top: 127px;
   padding-bottom: 42px;
+
+  @media (max-width: 950px) {
+    width: 100%;
+    border: none;
+  }
 `
 
 const Title = styled.h2`
@@ -22,6 +28,14 @@ const Title = styled.h2`
   color: #111827;
   margin-top: 48px;
   margin-bottom: 10px;  
+
+  @media (max-width: 950px) {
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 100%; 
+    text-align: left;
+    width: 80%;
+  }
 `
 
 const Text = styled.p`
@@ -31,6 +45,14 @@ const Text = styled.p`
   text-align: center;
   color: #666666;
   margin-bottom: 32px;
+
+  @media (max-width: 950px) {
+    font-size: 16px;
+    line-height: 120%;
+    text-align: left;
+    width: 80%;
+
+  }
 `
 
 export default {

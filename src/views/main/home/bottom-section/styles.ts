@@ -56,7 +56,7 @@ export const TermsPrivacyContactContainer = styled.div`
   align-items: stretch;
   width: 100%;
   gap: 20px;
-  ${down('sm')} {
+  @media (max-width: 950px) {
     flex-wrap: wrap;
     gap: 20px;
   }

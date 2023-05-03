@@ -39,8 +39,9 @@ const Computer = styled.div`
   right: 30px;
   box-shadow: 14.5928px -14.5928px 0px #e6e6e6, 30px -30px 0px #e7e7e7;
 
-  ${down('sm')} {
-    width: 77vw !important;
+  @media (max-width: 950px) {
+    width: 235px;
+    margin-top: 50px;
   }
 
   &:after {
@@ -82,7 +83,7 @@ const ScreenContainer = styled.div`
 
 const Screen = styled.div`
   height: 220px !important;
-  ${down('sm')} {
+  @media (max-width: 950px) {
     height: 150px !important;
   }
   width: 100%;

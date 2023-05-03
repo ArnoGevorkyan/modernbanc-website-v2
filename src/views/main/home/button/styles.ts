@@ -27,11 +27,26 @@ const Container = styled.div.attrs((props: { center: boolean; textColor: string 
       color: ${(props) => props.textColor || '#9a9a9a'};
     }
   }
-  ${down('sm')} {
+
+  div {
+    display: flex;
+    justify-content: ${(props) => (props.center ? 'center' : 'flex-start')};
+  }
+
+  @media (max-width: 950px) {
     /* padding: 3.5px 4px;
     padding-left: 2px; */
+    padding: 20.25px 4px;
     width: 100%;
     justify-content: flex-start;
+
+    div {
+      flex-direction: column;
+      justify-content: ${(props) => (props.center ? 'center' : 'flex-start')};
+      align-items: center;
+
+    }
+
   }
 `
 
@@ -46,7 +61,7 @@ const Icon = styled.div`
   .svg {
     color: #d4d4d8;
   }
-  ${down('sm')} {
+  @media (max-width: 950px) {
     height: 18px;
     width: 18px;
   }
@@ -57,9 +72,6 @@ const Title = styled.span.attrs((props: { textColor: string }) => props)`
   font-size: 0.938rem;
   font-weight: 500;
   color: ${(props) => props.textColor || '#a1a1aa'};
-  ${down('sm')} {
-    /* font-size: 0.75rem; */
-  }
 `
 
 export default { Container, Icon, Title }
