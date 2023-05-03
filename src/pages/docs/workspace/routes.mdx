@@ -1,0 +1,515 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+# Routes
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="Route" />
+
+### What are routes?
+
+Routes are doors for amounts to come in and out of your accounts. In the real world, you'd think of routes as payment methods, e.g., one account can have multiple routes such as `ach` or a `card`.
+
+### Route Variables
+
+Like many other objects, Routes can store [variables](/docs/workspace/variables), which helps describe or differentiate the route.
+For example, if it's an ACH route, you can add `account_number` and `routing_number`, or if it's a card, you can put `card_number` or `card_holder_name`.
+
+### Routes with Definitions
+
+When you know you'll be creating similar routes (e.g., cards), you can create a reusable definition for them. It's helpful for categorization or when you
+want to enforce definitions for variables for all routes under this definition.
+
+For more information about how routes can be defined by definition, visit [here](/docs/workspace/definitions).
+
+# Usage
+
+#### Create a route
+<Tabs width="min">
+  <Tab title="UI">
+    - Coming soon!
+  </Tab>
+  <Tab title="API">
+    <Operation method="post" title="Create route" path="/v1/routes" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Route - bank account, request.">
+        ```json showLineNumbers {} custom_tag
+          curl --location --request POST 'http://127.0.0.1:8080/v1/routes' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "definition_id" : "9b65715e-9fc0-4c3b-b060-2744806fd8ff",
+              "unit_id": "244e744c-c2fe-4070-95b1-42b5b786df31",
+              "name": "Route with bank account definition",
+              "description": "route with bank account definition",
+              "variables": {
+                  "account_number": "|111111111|",
+                  "routing_number": 222222222
+              }
+          }'
+        ```
+      </Tab>
+      <Tab title="Route - bank account, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2022-12-15T15:10:03.493Z",
+            "updated_at": "2022-12-15T15:10:03.493Z",
+            "id": "15bd9eea-a7f7-48d0-85dc-e9800e0cdbdb",
+            "archived_at": null,
+            "name": "Route with bank account definition",
+            "description": "route with bank account definition",
+            "identifier_prefix": "RTE",
+            "identifier_value": "0APDQC3C0",
+            "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+            "unit_id": "244e744c-c2fe-4070-95b1-42b5b786df31",
+            "environment_id": "fb33fb0e-8216-4314-8951-ce6403b41371",
+            "definition_id": "9b65715e-9fc0-4c3b-b060-2744806fd8ff",
+            "resource_id": null,
+            "variables": {
+                "account_number": "|111111111|",
+                "routing_number": 222222222
+            },
+            "labels": []
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Route - credit card, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'http://127.0.0.1:8080/v1/routes' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "definition_id" : "da8e4e4e-3c2f-42f9-a870-1ad1f9e9fbc3",
+            "unit_id" : "244e744c-c2fe-4070-95b1-42b5b786df31",
+            "name": "Route with bank account definition",
+            "description": "",
+            "variables": {
+                "credit_card_name": "User XYZ - Credit Card",
+                "credit_card_number": 1234123412341234,
+                "credit_card_expiration": "12/25",
+                "credit_card_cvv": 777
+
+            }
+        }'
+        ```
+      </Tab>
+      <Tab title="Route - credit card, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2022-12-15T15:28:12.328Z",
+            "updated_at": "2022-12-15T15:28:12.328Z",
+            "id": "05f697e5-5b71-4223-9942-816e7975f0da",
+            "archived_at": null,
+            "name": "Route with bank account definition",
+            "description": "",
+            "identifier_prefix": "RTE",
+            "identifier_value": "NA10LV20E",
+            "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+            "unit_id": "244e744c-c2fe-4070-95b1-42b5b786df31",
+            "environment_id": "fb33fb0e-8216-4314-8951-ce6403b41371",
+            "definition_id": "da8e4e4e-3c2f-42f9-a870-1ad1f9e9fbc3",
+            "resource_id": null,
+            "variables": {
+                "credit_card_name": "User XYZ - Credit Card",
+                "credit_card_number": 1234123412341234,
+                "credit_card_expiration": "12/25",
+                "credit_card_cvv": 777
+            },
+            "labels": []
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+#### List routes
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Routes` page, or press `G` and then `O`.
+    - You can view all routes, and can narrow the results by applying `Filters` or `Sorts`.
+  </Tab>
+  <Tab title="API">
+    <Operation method="get" title="Get route" path="/v1/routes/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Get route, request.">
+      ```json
+      curl --location -g --request GET 'https://api.modernbanc.com/v1/routes/RTE-CQZJK4H16?include=name: true, unit: { identifier: true }'
+      ```
+      </Tab>
+      <Tab title="Get route, response.">
+      ```json
+      {
+          "result": {
+              "id": "893789d7-6914-48da-ac41-4bcf23ed39f1",
+              "name": "Route with bank account definition",
+              "unit": {
+                  "id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                  "identifier": "usd"
+              }
+          }
+      }
+      ```
+      </Tab>
+    </Tabs>
+    <Operation method="get" title="List route" path="/v1/routes" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="List route, request.">
+        ```json
+        curl --location --request GET 'https://api.modernbanc.com/v1/routes?take=3'
+        ```
+      </Tab>
+      <Tab title="List route, response.">
+        ```json
+        {
+            "result": [
+                {
+                    "created_at": "2023-01-10T01:52:59.932Z",
+                    "updated_at": "2023-01-10T01:52:59.932Z",
+                    "id": "9b6b4605-43bb-494b-ba79-3ce1c78b4b77",
+                    "archived_at": null,
+                    "name": "Route with bank account definition",
+                    "description": "route with bank account definition",
+                    "description_data": {
+                        "root": {
+                            "type": "root",
+                            "format": "",
+                            "indent": 0,
+                            "version": 1,
+                            "children": [
+                                {
+                                    "type": "paragraph",
+                                    "format": "",
+                                    "indent": 0,
+                                    "version": 1,
+                                    "children": [
+                                        {
+                                            "mode": "normal",
+                                            "text": "route with bank account definition",
+                                            "type": "text",
+                                            "style": "",
+                                            "detail": 0,
+                                            "format": 0,
+                                            "version": 1
+                                        }
+                                    ],
+                                    "direction": "ltr"
+                                }
+                            ],
+                            "direction": "ltr"
+                        }
+                    },
+                    "identifier_prefix": "RTE",
+                    "identifier_value": "L1CWGRAXY",
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                    "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                    "definition_id": "d5a2d308-cccd-41cf-9ec4-3433723a1042",
+                    "external_id": null,
+                    "account_id": null,
+                    "resource_id": null,
+                    "variables": {
+                        "account_number": "|111111111|",
+                        "routing_number": 222222222
+                    }
+                },
+                {
+                    "created_at": "2023-01-10T01:52:29.129Z",
+                    "updated_at": "2023-01-10T01:52:29.129Z",
+                    "id": "893789d7-6914-48da-ac41-4bcf23ed39f1",
+                    "archived_at": null,
+                    "name": "Route with bank account definition",
+                    "description": "route with bank account definition",
+                    "description_data": {
+                        "root": {
+                            "type": "root",
+                            "format": "",
+                            "indent": 0,
+                            "version": 1,
+                            "children": [
+                                {
+                                    "type": "paragraph",
+                                    "format": "",
+                                    "indent": 0,
+                                    "version": 1,
+                                    "children": [
+                                        {
+                                            "mode": "normal",
+                                            "text": "route with bank account definition",
+                                            "type": "text",
+                                            "style": "",
+                                            "detail": 0,
+                                            "format": 0,
+                                            "version": 1
+                                        }
+                                    ],
+                                    "direction": "ltr"
+                                }
+                            ],
+                            "direction": "ltr"
+                        }
+                    },
+                    "identifier_prefix": "RTE",
+                    "identifier_value": "CQZJK4H16",
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                    "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                    "definition_id": "d5a2d308-cccd-41cf-9ec4-3433723a1042",
+                    "external_id": null,
+                    "account_id": null,
+                    "resource_id": null,
+                    "variables": {
+                        "account_number": "|111111111|",
+                        "routing_number": 222222222
+                    }
+                }
+            ],
+            "pagination": {
+                "skip": 0,
+                "take": 3,
+                "has_next_page": false,
+                "has_previous_page": false,
+                "total_count": 2
+            }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+#### Update route
+<Tabs width="min">
+  <Tab title="UI">
+    - Coming soon!
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Update route" path="/v1/routes/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Update route, request.">
+        ```json
+          curl --location --request PUT 'https://api.modernbanc.com/v1/routes/RTE-L1CWGRAXY' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "variables" : {
+                  "metadata": {
+                      "bank": null
+                  }
+              }
+          }'
+        ```
+      </Tab>
+      <Tab title="Update route, response.">
+        ```json
+          {
+            "result": {
+                "created_at": "2023-01-10T01:52:59.932Z",
+                "updated_at": "2023-03-31T18:47:14.206Z",
+                "id": "9b6b4605-43bb-494b-ba79-3ce1c78b4b77",
+                "archived_at": null,
+                "name": "Route with bank account definition",
+                "description": "route with bank account definition",
+                "description_data": {
+                    "root": {
+                        "type": "root",
+                        "format": "",
+                        "indent": 0,
+                        "version": 1,
+                        "children": [
+                            {
+                                "type": "paragraph",
+                                "format": "",
+                                "indent": 0,
+                                "version": 1,
+                                "children": [
+                                    {
+                                        "mode": "normal",
+                                        "text": "route with bank account definition",
+                                        "type": "text",
+                                        "style": "",
+                                        "detail": 0,
+                                        "format": 0,
+                                        "version": 1
+                                    }
+                                ],
+                                "direction": "ltr"
+                            }
+                        ],
+                        "direction": "ltr"
+                    }
+                },
+                "identifier_prefix": "RTE",
+                "identifier_value": "L1CWGRAXY",
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                "definition_id": "d5a2d308-cccd-41cf-9ec4-3433723a1042",
+                "external_id": null,
+                "account_id": null,
+                "resource_id": null,
+                "variables": {
+                    "metadata": {},
+                    "account_number": "|111111111|",
+                    "routing_number": 222222222
+                },
+                "account": null,
+                "definition": {
+                    "created_at": "2023-01-10T01:50:52.158Z",
+                    "updated_at": "2023-01-10T01:50:52.158Z",
+                    "id": "d5a2d308-cccd-41cf-9ec4-3433723a1042",
+                    "name": "Route Definition - Bank Account",
+                    "description": "Object structure for making external transfers using bank accounts in routes",
+                    "description_data": {
+                        "root": {
+                            "type": "root",
+                            "format": "",
+                            "indent": 0,
+                            "version": 1,
+                            "children": [
+                                {
+                                    "type": "paragraph",
+                                    "format": "",
+                                    "indent": 0,
+                                    "version": 1,
+                                    "children": [
+                                        {
+                                            "mode": "normal",
+                                            "text": "Object structure for making external transfers using bank accounts in routes",
+                                            "type": "text",
+                                            "style": "",
+                                            "detail": 0,
+                                            "format": 0,
+                                            "version": 1
+                                        }
+                                    ],
+                                    "direction": "ltr"
+                                }
+                            ],
+                            "direction": "ltr"
+                        }
+                    },
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "variable_definitions": {
+                        "type": "object",
+                        "required": [
+                            "account_number",
+                            "routing_number"
+                        ],
+                        "properties": {
+                            "account_number": {
+                                "type": "string",
+                                "description": "Account number"
+                            },
+                            "routing_number": {
+                                "type": "integer",
+                                "description": "Account routing number"
+                            }
+                        }
+                    }
+                },
+                "unit": {
+                    "created_at": "2022-07-22T13:08:48.869Z",
+                    "updated_at": "2022-07-22T13:11:41.975Z",
+                    "id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                    "archived_at": null,
+                    "name": "United States dollar",
+                    "description": "ISO Code: 840",
+                    "description_data": null,
+                    "identifier": "usd",
+                    "max_precision": 12,
+                    "default_precision": 2,
+                    "default_mode": "floats",
+                    "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                    "color": "#00FFFF",
+                    "symbol": "$",
+                    "background": null
+                },
+                "labels": []
+            }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+#### Archive route
+<Tabs width="min">
+  <Tab title="UI">
+    - Coming soon!
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Archive route" path="/v1/routes/{id}/archive" style={{ marginBottom: '20px' }} />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Archive route, request.">
+        ```json
+        curl --location --request PUT 'https://api.modernbanc.com/v1/routes/8a8b5286-0315-4039-a904-ddf6cb8b97c2/archive' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "archive" : true
+        }'
+        ```
+      </Tab>
+      <Tab title="Archive route, request.">
+        ```json
+        {
+            "result": {
+                "id": "8a8b5286-0315-4039-a904-ddf6cb8b97c2",
+                "identifier_prefix": "RTE",
+                "identifier_value": "OD7SLPD9V",
+                "resource_id": null,
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                "definition_id": "cab76ba5-2b8a-4ca8-bbf8-82c5f70f40d5",
+                "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                "external_id": null,
+                "account_id": null,
+                "variables": {
+                    "credit_card_cvv": 777,
+                    "credit_card_name": "User XYZ - Credit Card",
+                    "credit_card_number": 1234123412341234,
+                    "credit_card_expiration": "12/25"
+                },
+                "name": "Route with credit card definition",
+                "description": null,
+                "created_at": "2023-03-31T18:30:11.186Z",
+                "updated_at": "2023-03-31T18:35:25.926Z",
+                "archived_at": "2023-03-31T18:35:25.893Z",
+                "description_data": null
+            }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+
+
+{/* - Navigate to the `Routes` page, or press `G` and then `O`.
+- Select the route you want to update.
+- Click the `Edit` button on the top nav.
+- Make your wanted edits.
+- Click the `Save` button on the top nav.
+- To publish, click the `Publish` button on the top nav.
+  - Once a route is published, you will not be able to edit it.
+  - If you need to make changes, you can create a new version of the route by clicking the `Create version` button on the top right. */}

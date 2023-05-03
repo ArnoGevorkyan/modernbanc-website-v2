@@ -1,0 +1,10 @@
+node_modules/
+.cache/
+**.env.**
+**/node_modules.**/
+node_modules/**
+.idea/**
+**/logs/
+.next
+yarn-error.log
+open-api-parser/output

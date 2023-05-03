@@ -1,0 +1,11 @@
+{
+    "index_name": "docs",
+    "start_urls": [
+        "https://v2.modernbanc.com/docs"
+    ],
+    "sitemap_urls": [],
+    "selectors": {
+        "lvl0": "h1",
+        "text": "p"
+    }
+}

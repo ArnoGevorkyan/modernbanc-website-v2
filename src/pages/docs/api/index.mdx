@@ -1,0 +1,29 @@
+# API Basics
+
+Modernbanc API is located at `api.modernbanc.com/v1/`.
+
+It offers **simplicity of REST** while offerring benefits you'd expect from GraphQL:
+
+- All get multiple objects endpoints support [pagination](/pagination) and [filters](/filters)
+- For all get endpoints you can [include](/include) only the fields you want.
+- You can ensure one operation never runs twice **(important for payments!)** by using [idempotency keys](/idempotency).
+
+<br />
+
+---
+
+#### Headers
+
+For all workspace-related endpoints please attach `x-workspace` header with `identifier` field of your workspace.
+
+For objects that support environments (have `environment_id` in them) also make sure to attach environment identifier in `x-environment` header.
+
+For example to list accounts in test environment you'd send a request like below:
+
+```shell showLineNumbers
+curl --request GET \
+  --url 'https://api.modernbanc.com/v1/accounts'
+  -H 'Authorization: ApiKey YOUR_API_KEY'
+  -H "x-workspace: acme"
+  -H "x-environment: test"
+```

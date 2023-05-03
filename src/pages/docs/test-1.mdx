@@ -1,0 +1,377 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+<Label text="Header 1" />
+
+# Header 1
+
+# Header 1 with line height.
+
+<br />
+
+<Label text="Header 2" />
+
+## Header 2
+
+## Header 2 with line height
+
+<br />
+
+<Label text="Header 3" />
+
+### Header 3
+
+### Header 3 with line height
+
+<br />
+
+<Label text="Header 4" />
+
+#### Header 4
+
+#### Header 4 with line height
+
+<br />
+
+<Label text="Paragraph" />
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Hendrerit sodales senectus diam eleifend tincidunt. Sit mi nibh etiam in molestie at sodales amet.
+
+<br />
+
+<Label text="Unordered List" />
+
+Example with bullet points:
+
+- Hello world
+- Second bullet
+
+<br />
+
+<Label text="Ordered List" />
+
+And some more text but with numbered points:
+
+1. Hello world
+2. Second point
+
+<br />
+
+<Label text="Horizontal Divider" />
+
+---
+
+<Label text="Link Outside Site" />
+
+[Modernbanc Site Outbound](https://www.modernbanc.com/)
+
+<br />
+
+<Label text="Link Inside Site" />
+Uses gatsby's link component to prevent site from refreshing when page is already available Go to Welcome Two
+
+<br />
+
+<Label text="Inline Code Snippet" />
+
+To make `hello world` to get started
+
+<br />
+
+<Label text="highlighted upper-case text" />
+
+_SOME RANDOM HIGHLIGHTED TEXT_
+
+<br />
+
+<Label text="Toggle" />
+
+<Toggle title="Closed Toggle" initial_is_open={false}>
+
+Random content inside toggle
+_SOME RANDOM HIGHLIGHTED TEXT_
+
+</Toggle>
+
+<Toggle title="Opened Toggle" initial_is_open={true}>
+
+Random content inside toggle
+_SOME RANDOM HIGHLIGHTED TEXT_
+
+</Toggle>
+
+<br />
+
+<Label text="Process" />
+
+<Process title="Step name one" index={1}>
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Hendrerit sodales senectus diam eleifend tincidunt. Sit mi nibh etiam in molestie at sodales amet.
+
+Example with bullet points:
+
+- Hello world
+- Second bullet
+
+</Process>
+
+<Process title="Step name two" index={2}>
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Hendrerit sodales senectus diam eleifend tincidunt. Sit mi nibh etiam in molestie at sodales amet.
+
+Example with bullet points:
+
+- Hello world
+- Second bullet
+
+</Process>
+
+<br />
+
+<Label text="CODE BLOCK" />
+
+```bash showLineNumbers {3} custom_tag
+{
+  "result": ...data goes here,
+  "pagination": "pagination data" // Optional
+}
+```
+
+<CodeBlock title="Example of account details" >
+```js
+{
+  "lorem": "ipsum",
+  "dolor": ["sit", "amet", "consectetur"],
+  "adipiscing": {
+    "elit": true
+  }
+}
+```
+
+</CodeBlock>
+
+```shell
+curl --url https://api.modernbanc.com -H 'Authorization: Bearer YOUR_API_KEY'
+```
+
+<br />
+
+<Label text="Bordered Tab Bar" />
+
+<Tabs bordered>
+
+<Tab title="Tab 1">
+
+### Tab special
+
+X is really great for multiple purposes. You can describe anything, now here comes another topic
+
+</Tab>
+
+<Tab title="Tab 2">
+
+### Tab 2
+
+X is really great for multiple purposes. You can describe anything, now here comes another topic
+
+</Tab>
+
+<Tab title="Tab 3">
+
+### Tab 3
+
+X is really great for multiple purposes. You can describe anything, now here comes another topic
+
+</Tab>
+</Tabs>
+
+<br />
+
+<Label text="Tab Bar" />
+
+<Tabs>
+<Tab title="Tab 1">
+
+### Tab 1
+
+X is really great for multiple purposes. You can describe anything, now here comes another topic
+
+</Tab>
+
+<Tab title="Tab 2">
+
+### Tab 2
+
+X is really great for multiple purposes. You can describe anything, now here comes another topic
+
+</Tab>
+
+<Tab title="Tab 3">
+
+### Tab 3
+
+X is really great for multiple purposes. You can describe anything, now here comes another topic
+
+</Tab>
+</Tabs>
+
+<br />
+
+<Label text="Segmented Control" />
+
+<SegmentedControl>
+<Tab title="CLI">
+
+### CLI
+
+X is really great for multiple purposes. You can describe anything, now here comes another topic
+
+</Tab>
+
+<Tab title="API">
+
+### API
+
+X is really great for multiple purposes. You can describe anything, now here comes another topic
+
+</Tab>
+
+<Tab title="Instructions">
+
+### Instructions
+
+X is really great for multiple purposes. You can describe anything, now here comes another topic
+
+</Tab>
+</SegmentedControl>
+
+<br />
+
+<Label text="API MODEL" />
+
+<Schema title="Account" />
+
+<Schema title="Address" />
+
+<br />
+
+<Label text="API ENDPOINT" />
+
+<Operation method="post" title="Create account" path="/v1/accounts" />
+
+<Operation method="get" title="Get accounts" path="/v1/accounts" />
+
+<br />
+
+<Label text="TABLE" />
+
+<Table outer_border responsive_cell>
+<thead>
+<tr>
+<th>Name</th>
+<th>Code</th>
+<th>Message</th>
+</tr>
+</thead>
+
+<tbody>
+<tr key="0">
+<td>
+
+**Not found**
+
+</td>
+<td>400</td>
+<td>The authorization code is invalid</td>
+</tr>
+
+<tr key="1">
+<td>
+
+**Invalid request**
+
+</td>
+<td>400</td>
+<td>The request does not match the docs. Example: the request is missing a query parameter.</td>
+</tr>
+
+<tr key="2">
+<td>
+
+**Invalid token**
+
+</td>
+<td>401</td>
+<td>The request does not match the docs. Example: the request is missing a query parameter.</td>
+</tr>
+
+<tr key="3">
+<td>
+
+**Unathorized request**
+
+</td>
+<td>401</td>
+<td>
+  
+The authorization code is invalid
+<Toggle title="Closed Toggle" initial_is_open={false}>
+
+Random content inside toggle
+_SOME RANDOM HIGHLIGHTED TEXT_
+
+</Toggle>
+
+</td>
+</tr>
+</tbody>
+</Table>
+
+<br />
+
+<Label text="Images or Embed" />
+
+<Image
+  title="Title"
+  description="Description"
+  max_height="500px"
+  src="https://images.pexels.com/photos/10665216/pexels-photo-10665216.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+/>
+
+<Image
+  title="Title"
+  description="Description"
+  src="https://2544907808-files.gitbook.io/~/files/v0/b/gitbook-legacy-files/o/assets%2F-MDWxwaFACpkDMD7_yBY%2F-MdclDQXaT-B82rvTOhs%2F-MdcoknQelqVrIRIAGfT%2FBrainstorm%20(1).png?alt=media&token=52926c6d-9d5d-4432-8d15-a21d81fd3a38
+"
+/>
+<br />
+
+<Label text="Loom Embed" />
+
+<VideoEmbed
+  title="Loom sample"
+  description="How to loom"
+  videoLink="https://www.loom.com/embed/e5b8c04bca094dd8a5507925ab887002?hide_owner=true&hide_share=true&hide_title=true&hideEmbedTopBar=true"
+/>
+
+<br />
+
+<Label text="Youtube Embed" />
+
+<VideoEmbed title="Youtube sample" description="This is a spiderman meme" videoLink="https://www.youtube.com/embed/FKPiqAFt3Rk" />

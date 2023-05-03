@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["es2021"],
+    "module": "commonjs",
+    "declaration": true,
+    "noUnusedParameters": false,
+    "noUnusedLocals": false,
+    "outDir": "./lib",
+    "strict": true,
+    "downlevelIteration": true,
+    "jsx": "react",
+    "resolveJsonModule": true,
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*", "tests/**/*", "input/extension.tsx"],
+  "exclude": ["node_modules", "/output/**", "**/extended-open-api.tsx"]
+}

@@ -1,0 +1,31 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed
+} from '~/views/docs/components/content/all'
+
+### Multiple Payment Types
+
+---
+
+Modernbanc makes it easy to support as many payment types as you want. Research shows that users who are able to use their preferred type of payment at the point-of-sale are as much as twice as likely to complete a purchase.
+
+![payment methods.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/5889114d-9e4e-4597-9b3e-93515797652f/payment_methods.png)
+
+High level steps to integrate multiple payments providers in your app:
+
+1. Create a **workflow** to run the logic to handle the **transactions** information, payment type in ****\*\*****units****\*\*****, and **triggers** to determine if payment went through
+2. create **entities** to link buyer and merchant accounts using **********\*\***********connections**********\*\***********
+3. Setup **connections** for each payment type
+4. Handle taking input for the purchase: purchase amount, currency, and preferred payment

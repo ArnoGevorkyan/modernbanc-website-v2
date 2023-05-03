@@ -1,0 +1,62 @@
+import { Schema, Operation } from '~/views/docs/components/content/all'
+
+# Workspace
+
+Workspaces are where you store and work with all your financial data, build workflow and create secrets.
+You can add other team members to your workspace to collaborate with them.
+
+To start interacting with the workspace via API, you'll need to generate API keys first.
+
+#### Components
+
+- [Accounts](/docs/workspace/accounts) - Accounts are containers to track and store amounts.
+- [Units](/docs/workspace/units) - Units are like currencies.
+- [Balances](/docs/workspace/balances) - Balances are amounts in accounts.
+- [Routes](/docs/workspace/routes) - Routes are doors in and out of accounts.
+- [Definitions](/docs/workspace/definitions) - Definitions are like schemas for your objects.
+- [Transactions](/docs/workspace/transactions) - Transactions move amounts between accounts.
+- [Triggers](/docs/workspace/triggers) - Triggers allows you to schedule, accept webhooks, or listen for events.
+- [Workflows](/docs/workspace/workflows) - Workflows help you run custom logic in your workspace.
+- [Connections](/docs/workspace/connections) - Connections allow your workspace to connect to external APIs/Databases via queries.
+- [Entities](/docs/workspace/entities) - Entities are individuals/companies that can link to accounts.
+
+#### Advanced
+
+- [Variables](/docs/workspace/encryption) - Add extra data to objects in your workspace.
+- [Encryption](/docs/workspace/encryption) - Encrypt and store any data in your workspace (extra feature).
+- [Resources](/docs/workspace/resources) - Resources are mini-apps. They're reusable containers for your functionality.
+
+### Defaults
+
+Every new workspace will have these defaults:
+
+- Two default environments: `test` and `live`. (We'll allow deleting these or creating new ones soon)
+- Three default roles: `Admin`, `Developer`, and `Viewer`.
+- Coming soon: 250+ pre-defined units, inc. most common currencies, crypto-currencies, and other popular units of measurement.
+
+### Environments
+
+<Schema style={{ marginTop: '14px', marginBottom: '10px' }} title="WorkspaceEnvironment" />
+
+You can create [Accounts](/docs/workspace/accounts), [Routes](/docs/workspace/routes), [Transactions](/docs/workspace/transactions) and [Entities](/docs/workspace/entities) in different environments.
+
+Environments are beneficial when you want to test your app or run workflows without worrying
+about it affecting production or other environments.
+
+Once you create these objects in one environment, you cannot move them to a different one.
+
+### Roles
+
+<Schema style={{ marginTop: '14px', marginBottom: '10px' }} title="WorkspaceRole" />
+
+Modernbanc has a very granular permission system to suit any organization, regardless of size.
+
+You can create roles and attach a combo of functionality (e.g., `accounts`, `entities`) and permissions (e.g., `create`, `update`) and `environment_id` (where relevant).
+
+<Operation method="post" title="Create role" path="/v1/workspaces/roles" />
+<Operation method="get" title="Get role" path="/v1/workspaces/roles/{id}" />
+<Operation method="get" title="List roles" path="/v1/workspaces/roles" />
+<Operation method="put" title="Update role" path="/v1/workspaces/roles/{id}" />
+<Operation method="delete" title="Delete role" path="/v1/workspaces/roles/{id}" />
+
+You can assign roles either to users or API keys.

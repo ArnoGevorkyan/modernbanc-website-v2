@@ -1,0 +1,78 @@
+import { Table, Image } from '~/views/docs/components/content/all'
+
+# Filters
+
+You can filter the results for all **GET** multiple objects endpoints via `where` query parameter.
+This makes it easy to retrieve specific information, like any accounts assigned to a particular entity,
+or all transactions completed after a given date.
+
+For example, to return all transactions for a certain account you can use the following query:
+
+```shell
+GET /transactions?where={account_id:"some_random_id1"}
+```
+
+As you noticed in above example, we accept `where` params as JSON, however you
+don't have to wrap it in top-level brackets and can do simpler queries like this.
+
+```shell
+GET /transactions?where=account_id:"some_random_id1"
+```
+
+Filtering works the same way on all properties of all objects and below are the available comparators for different types:
+
+<Table inner_border="all" outer_border={true} responsive_cell>
+  <thead>
+    <tr>
+      <th>Property type</th>
+      <th>Available comparators</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr key="0">
+      <td>String</td>
+      <td>`eq` (equals to X), `in` (equals to one of the strings in array X)</td>
+    </tr>
+    <tr key="1">
+      <td>Number</td>
+      <td>`eq` (equals to X)</td>
+    </tr>
+    <tr key="1">
+      <td>Enum</td>
+      <td>`eq` (equals to X)</td>
+    </tr>
+    <tr key="2">
+      <td>Date</td>
+      <td>`eq` (equals to X)</td>
+    </tr>
+  </tbody>
+</Table>
+
+You can filter by more than one property at once, e.g:
+
+```json showLineNumbers
+GET /transactions?
+where={
+  account_id: "some_random_id1",
+  entity_id: "some_other_id"
+}
+```
+
+By default all properties at the same level are part of the same `AND` logical group.
+
+But you can combine filters into more complex ones with `AND` and `OR` operators.
+
+```json showLineNumbers
+GET /transactions?
+where={
+  OR: [
+    {
+      account_id: "some_random_id1",
+    },
+    {
+      entity_id: "some_random_id2",
+      route_id: "some_random_id3",
+    }
+  ]
+}
+```

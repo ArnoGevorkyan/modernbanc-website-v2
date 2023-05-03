@@ -1,0 +1,461 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed
+} from '~/views/docs/components/content/all'
+import { CollapseCode } from '~/views/docs/components/content/collapse-code'
+
+# Complex Workflows
+
+Now let's go into an even more complex example, recording your payments that happened on Stripe in Modernbanc.
+
+To do this, we must set up a workflow with a webhook trigger so we have a URL for Stripe to point to when they send us events. Then, we can parse the event, and create the wanted interactions within our Modernbanc workspace using a workflow.
+
+<br />
+
+<Process title="Create webhook trigger for Stripe events" index={1}>
+  <Operation method="post" title="Create trigger" path="/v1/triggers" />
+  <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+    <Tab title="Create webhook trigger, response.">
+        ```bash showLineNumbers {} custom_tag
+        curl --location --request POST 'http://api.modernbanc.com/v1/triggers' \
+        --header 'Content-Type: application/json' \
+        --header 'Authorization: ApiKey YOUR_API_KEY_HERE' \
+        --header 'x-workspace: mdb' \
+        --header 'x-environment: test' \
+        --data-raw '{
+            "name": "Stripe Webhook Trigger",
+            "description": "Listens for incoming webhooks from Stripe",
+            "version": {
+                "status": "published",
+                "start_date": "2023-01-10T03:54:50.146Z",
+                "type": "webhook"
+            }
+        }'
+        ```
+    </Tab>
+    <Tab title='Create webhook trigger, request.'>
+      ```bash showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-11T13:51:19.911Z",
+            "updated_at": "2023-01-11T13:51:19.911Z",
+            "id": "8b7fd231-91e6-4148-9bf0-1db8f212e51f",
+            "archived_at": null,
+            "name": "Stripe Webhook Trigger",
+            "description": "Listens for incoming webhooks from Stripe",
+            "description_data": {
+                "root": {
+                    "type": "root",
+                    "format": "",
+                    "indent": 0,
+                    "version": 1,
+                    "children": [
+                        {
+                            "type": "paragraph",
+                            "format": "",
+                            "indent": 0,
+                            "version": 1,
+                            "children": [
+                                {
+                                    "mode": "normal",
+                                    "text": "Listens for incoming webhooks from Stripe",
+                                    "type": "text",
+                                    "style": "",
+                                    "detail": 0,
+                                    "format": 0,
+                                    "version": 1
+                                }
+                            ],
+                            "direction": "ltr"
+                        }
+                    ],
+                    "direction": "ltr"
+                }
+            },
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "source_trigger_id": null,
+            "identifier_prefix": "WFT",
+            "identifier_value": "16",
+            "versions": [
+                {
+                    "created_at": "2023-01-11T13:51:19.911Z",
+                    "updated_at": "2023-01-11T13:51:19.911Z",
+                    "id": "39752256-2f69-4fc6-b881-0ba49ee05ed8",
+                    "archived_at": null,
+                    "name": "Stripe Webhook Trigger 0.0.1",
+                    "description": null,
+                    "description_data": null,
+                    "trigger_id": "8b7fd231-91e6-4148-9bf0-1db8f212e51f",
+                    "version": "0.0.1",
+                    "status": "published",
+                    "type": "webhook",
+                    "start_date": "2023-01-10T03:54:50.146Z",
+                    "is_valid": true,
+                    "end_date": null,
+                    "schedule": null,
+                    "workspace_event_type": null,
+                    "workspace_event_model": null,
+                    "workspace_event_timing": null,
+                    "link": {
+                        "created_at": "2023-01-11T13:51:19.911Z",
+                        "updated_at": "2023-01-11T13:51:19.911Z",
+                        "id": "ba324ecb-1f87-4033-8d66-c22a4a488f6c",
+                        "trigger_id": "8b7fd231-91e6-4148-9bf0-1db8f212e51f",
+                        "trigger_version_id": "39752256-2f69-4fc6-b881-0ba49ee05ed8",
+                        "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                        "variables": null
+                    }
+                }
+            ]
+        }
+      }
+      ```
+    </Tab>
+  </Tabs>
+</Process>
+
+<Process title="Create workflow and attach trigger" index={2}>
+  Creating a workflow and attaching our webhook trigger generates a URL that we can use to receive events from Stripe.
+<br/>
+  <Operation method="post" title="Create workflow" path="/v1/workflows" />
+  <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+    <Tab title="Create workflow, request.">
+      ```bash showLineNumbers {} custom_tag
+      curl --location --request POST 'https://api.modernbanc.com/v1/workflows' \
+      --header 'Content-Type: application/json' \
+      --data-raw '{
+          "name": "Stripe webhook event with Modernbanc actions",
+          "description": "Workflow to accept webhook events from Stripe. Alerts our Slack channel, parses the information from the Stripe standardized event json object, and proceeds with the intended functionality within Modernbanc, such as updating accounts or transactions.",
+          "version": {
+              "status": "published",
+              "variables": {},
+              "steps": [
+                  {
+                      "name": "Connection Query - call slack webhook",
+                      "parameters": {
+                          "type": "http_api",
+                          "query": {
+                              "url": "https://hooks.slack.com/services/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",
+                              "method": "post",
+                              "headers": {
+                                  "Content-Type": "application/json"
+                              },
+                              "body": {
+                                  "text": "Stripe webhook received! {{_trigger_version.input.body}}"
+                              }
+                          },
+                          "fail_execution_on_error_response": true
+                      },
+                      "type": "connection_query",
+                      "trigger_version_ids": [
+                          "39752256-2f69-4fc6-b881-0ba49ee05ed8"
+                      ]
+                  }
+              ],
+              "active_in_current_environment": true
+          }
+      }'
+      ```
+    </Tab>
+    <Tab title="Create workflow, response.">
+      ```bash showLineNumbers {} custom_tag
+      {
+          "result": {
+              "created_at": "2023-01-11T13:55:09.689Z",
+              "updated_at": "2023-01-11T13:55:09.689Z",
+              "id": "0f70cd62-6e73-4a3a-95a5-ad05c750db09",
+              "archived_at": null,
+              "name": "Stripe webhook event with Modernbanc actions",
+              "description": "Workflow to accept webhook events from Stripe. Alerts our Slack channel, parses the information from the Stripe standardized event json object, and proceeds with the intended functionality within Modernbanc, such as updating accounts or transactions.",
+              "description_data": {
+                  "root": {
+                      "type": "root",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1,
+                      "children": [
+                          {
+                              "type": "paragraph",
+                              "format": "",
+                              "indent": 0,
+                              "version": 1,
+                              "children": [
+                                  {
+                                      "mode": "normal",
+                                      "text": "Workflow to accept webhook events from Stripe. Alerts our Slack channel, parses the information from the Stripe standardized event json object, and proceeds with the intended functionality within Modernbanc, such as updating accounts or transactions.",
+                                      "type": "text",
+                                      "style": "",
+                                      "detail": 0,
+                                      "format": 0,
+                                      "version": 1
+                                  }
+                              ],
+                              "direction": "ltr"
+                          }
+                      ],
+                      "direction": "ltr"
+                  }
+              },
+              "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+              "identifier_prefix": "WFL",
+              "identifier_value": "13",
+              "versions": [
+                  {
+                      "created_at": "2023-01-11T13:55:09.689Z",
+                      "updated_at": "2023-01-11T13:55:09.689Z",
+                      "id": "6e2a0ebb-0d98-424f-a588-b0f78bfb9f40",
+                      "archived_at": null,
+                      "name": "Stripe webhook event with Modernbanc actions 0.0.1",
+                      "description": null,
+                      "description_data": null,
+                      "workflow_id": "0f70cd62-6e73-4a3a-95a5-ad05c750db09",
+                      "version": "0.0.1",
+                      "is_valid": true,
+                      "replace": null,
+                      "status": "published",
+                      "steps": [
+                          {
+                              "id": "ee241de1-1bb1-4798-86c4-00fde1557180",
+                              "name": "Connection Query - call slack webhook",
+                              "description": null,
+                              "step_number": 1,
+                              "variables": null,
+                              "type": "connection_query",
+                              "parameters": {
+                                  "type": "http_api",
+                                  "query": {
+                                      "url": "https://hooks.slack.com/services/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",
+                                      "body": {
+                                          "text": "Stripe webhook received! {{_trigger_version.input.body}}"
+                                      },
+                                      "method": "post",
+                                      "headers": {
+                                          "Content-Type": "application/json"
+                                      }
+                                  },
+                                  "fail_execution_on_error_response": true
+                              },
+                              "condition_path": null,
+                              "connection_version_id": null,
+                              "workflow_version_id": "6e2a0ebb-0d98-424f-a588-b0f78bfb9f40",
+                              "parent_step_id": null,
+                              "parent_action_version_id": null,
+                              "child_action_version_id": null,
+                              "created_at": "2023-01-11T13:55:09.689Z",
+                              "updated_at": "2023-01-11T13:55:09.689Z",
+                              "archived_at": null,
+                              "trigger_versions": [
+                                  {
+                                      "created_at": "2023-01-11T13:51:19.911Z",
+                                      "updated_at": "2023-01-11T13:51:19.911Z",
+                                      "id": "39752256-2f69-4fc6-b881-0ba49ee05ed8",
+                                      "archived_at": null,
+                                      "name": "Stripe Webhook Trigger 0.0.1",
+                                      "description": null,
+                                      "description_data": null,
+                                      "trigger_id": "8b7fd231-91e6-4148-9bf0-1db8f212e51f",
+                                      "version": "0.0.1",
+                                      "status": "published",
+                                      "type": "webhook",
+                                      "start_date": "2023-01-10T03:54:50.146Z",
+                                      "is_valid": true,
+                                      "end_date": null,
+                                      "schedule": null,
+                                      "workspace_event_type": null,
+                                      "workspace_event_model": null,
+                                      "workspace_event_timing": null,
+                                      "link": {
+                                          "created_at": "2023-01-11T13:51:19.911Z",
+                                          "updated_at": "2023-01-11T13:51:19.911Z",
+                                          "id": "ba324ecb-1f87-4033-8d66-c22a4a488f6c",
+                                          "trigger_id": "8b7fd231-91e6-4148-9bf0-1db8f212e51f",
+                                          "trigger_version_id": "39752256-2f69-4fc6-b881-0ba49ee05ed8",
+                                          "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                                          "variables": null
+                                      }
+                                  }
+                              ],
+                              "steps": []
+                          }
+                      ],
+                      "link": {
+                          "created_at": "2023-01-11T13:55:09.689Z",
+                          "updated_at": "2023-01-11T13:55:09.689Z",
+                          "id": "6cff1981-394a-4f75-8aa5-624e910c7d76",
+                          "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                          "workflow_id": "0f70cd62-6e73-4a3a-95a5-ad05c750db09",
+                          "workflow_version_id": "6e2a0ebb-0d98-424f-a588-b0f78bfb9f40",
+                          "environment_config": {
+                              "created_at": "2023-01-11T13:55:09.689Z",
+                              "updated_at": "2023-01-11T13:55:09.689Z",
+                              "id": "47d9eb97-1ea4-4354-a171-e3492d360faa",
+                              "workflow_link_id": "6cff1981-394a-4f75-8aa5-624e910c7d76",
+                              "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                              "status": "active",
+                              "variables": {}
+                          }
+                      }
+                  }
+              ]
+          }
+      }
+      ```
+    </Tab>
+  </Tabs>
+</Process>
+
+<Process title="Grab our Modernbanc workflow webhook URL" index={3}>
+  Click on the `Webhook` button on the workflow page. On the right, a webhook URL will be displayed. Copy it.
+  <Image
+    title="Modernbanc webhook URL"
+    description=""
+    max_height="500px"
+    src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/setting-up/quickstart/complex-workflows/0-grab-mdb-webhook-url.png"
+  />
+</Process>
+
+<Process title="Setup Stripe webhook" index={4}>
+
+Now that we have our webhook URL, we need to add it to the Stripe dashboard [here](https://dashboard.stripe.com/test/webhooks/create).
+
+{' '}
+<br />
+
+{' '}
+<Image
+  title="Stripe dashboard"
+  description="Create a webhook with our URL"
+  max_height="500px"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/setting-up/quickstart/complex-workflows/1-create-stripe-webhook.png"
+/>
+
+{' '}
+<Image
+  title="Stripe dashboard"
+  description="Webhook creation success view"
+  max_height="500px"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/setting-up/quickstart/complex-workflows/2-stripe-webhook-created-success-in-dashboard.png"
+/>
+
+For this example, we will listen for 2 events: `payment_intent.created` and `payment_intent.succeeded`. You can see the full list of events [here](https://stripe.com/docs/api/events/types).
+
+</Process>
+
+<Process title="Parsing the Stripe event object" index={4}>
+
+Stripe event objects are standardized. You can see a full example object [here](https://stripe.com/docs/webhooks/stripe-events#events-overview).
+
+Using the Stripe CLI, we can create a transaction that emits an event using this terminal command: `stripe trigger payment_intent.created`.
+
+{' '}
+<Image
+  title="Stripe dashboard"
+  description="Webhook creation success view"
+  max_height="500px"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/setting-up/quickstart/complex-workflows/3-terminal-stripe-trigger-command.png"
+/>
+
+</Process>
+
+<Process title="Use Stripe event data to create a transaction" index={5}>
+  Our slack channel now receives a notification with the Stripe event object information.
+  <Image
+    title="Stripe dashboard"
+    description="Webhook creation success view"
+    max_height="500px"
+    src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/setting-up/quickstart/complex-workflows/4-successful-stripe-event-to-slack.png"
+  />
+
+With our workflow, we can access the event object passed to the webhook trigger using `{{_trigger_version._input.body}}`. Let's take a look at the object we received, and test out accessing the values within our workflow.
+
+```bash showLineNumbers
+{
+  "id": "evt_3MI3WyJwZkDD8BxT0jFwW9Bj",
+  "object": "event",
+  "api_version": "2022-11-15",
+  "created": 1671772252,
+  "data": {
+    "object": {
+      "id": "pi_3MI3WyJwZkDD8BxT0AG7dtbD",
+      "object": "payment_intent",
+      "amount": 2000,
+      "amount_capturable": 0,
+      "amount_details": {
+        "tip": {
+        }
+      },
+      "amount_received": 0,
+      "application": null,
+      "application_fee_amount": null,
+      "automatic_payment_methods": null,
+      "canceled_at": null,
+      "cancellation_reason": null,
+      "capture_method": "automatic",
+      "client_secret": "pi_3MI3WyJwZkDD8BxT0AG7dtbD_secret_CQ2OE650e5kjOjy3kqBBehEiv",
+      "confirmation_method": "automatic",
+      "created": 1671772252,
+      "currency": "usd",
+      "customer": null,
+      "description": "(created by Stripe CLI)",
+      "invoice": null,
+      "last_payment_error": null,
+      "livemode": false,
+      "metadata": {
+      },
+      "next_action": null,
+      "on_behalf_of": null,
+      "payment_method": null,
+      "payment_method_options": {
+        "card": {
+          "installments": null,
+          "mandate_options": null,
+          "network": null,
+          "request_three_d_secure": "automatic"
+        }
+      },
+      "payment_method_types": [
+        "card"
+      ],
+      "processing": null,
+      "receipt_email": null,
+      "review": null,
+      "setup_future_usage": null,
+      "shipping": null,
+      "source": null,
+      "statement_descriptor": null,
+      "statement_descriptor_suffix": null,
+      "status": "requires_payment_method",
+      "transfer_data": null,
+      "transfer_group": null,
+      "latest_charge": null
+    }
+  },
+  "livemode": false,
+  "pending_webhooks": 1,
+  "request": {
+    "id": "req_Eq55ktWpS8DhfI",
+    "idempotency_key": "32511018-930b-48cd-8a95-d668098b2b5d"
+  },
+  "type": "payment_intent.created"
+}
+```
+
+TODO: parse data and create a transaction
+
+</Process>
+
+<hr />
+
+Congratulations, you now have an understanding of how you can use Modernbanc to listen and react to external events!

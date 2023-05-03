@@ -1,0 +1,26 @@
+import { Table, Image } from '~/views/docs/components/content/all'
+
+# Pagination
+
+All **get endpoints that return multiple objects** can be paginated. Modernbanc supports cursor-based pagination. Available query parameters are:
+
+<Table inner_border="all" responsive_cell>
+<tbody>
+    <tr key="0">
+        <td>`take`</td><td>How many objects to take in this request. (e.g `?take=10{:js}`)</td>
+    </tr>
+    <tr key="1">
+        <td>`skip`</td><td>How many objects to skip before starting to take objects. (e.g `?skip=10{:js}`)</td>
+    </tr>
+    <tr key="2">
+        <td>`order_by`</td><td>Properties to order objects by, takes property name and direction (`asc` or `desc`). You can order by a single field e.g `?order_by=id:asc{:js}`
+  or multiple fields e.g `?order_by=name:asc,created_at:asc{:js}` which will return objects ordered by name, and if two have the same name it'll use created_at to decide which one goes first.</td>
+    </tr>
+        <tr key="1">
+        <td>`after`</td><td>After which object it should start taking objects, can be used in combination with skip. For example to get 2nd-10th accounts created after 1st of May:<br/>`?take=8skip=2&order_by=created_at:asc&after=2022-04-30T23:00:00.000Z{:shell}`</td>
+    </tr>
+        <tr key="1">
+        <td>`before`</td><td>Same as before but used when paginating backwards from the end.</td>
+    </tr>
+</tbody>
+</Table>

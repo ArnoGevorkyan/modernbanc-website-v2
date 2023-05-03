@@ -1,0 +1,49 @@
+import { CodeBlock, Tab, Tabs, Toggle, Operation } from '~/views/docs/components/content/all'
+
+# Responses
+
+Modernbanc uses HTTP status codes to indicate the success or failure of API requests:
+
+- `2XX` - indicates success.
+- `4XX` - indicates an error that failed given the information provided (e.g. a required parameter was missing, frozen card, etc.).
+- `5XX` - indicates an error with our servers.
+
+<br />
+
+#### Examples
+
+<Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+
+<Tab title="Success">
+```json
+{
+  "result": ...data goes here,
+  "pagination": "pagination data" // Optional
+}
+```
+</Tab>
+
+<Tab title="Error">
+```json
+{
+  "code": "ERR_UNAUTHORIZED",
+  "message": "You have entered wrong details" 
+}
+```
+</Tab>
+</Tabs>
+
+<br />
+
+#### Exceptions
+
+In some cases you'll get `200` responses while still having errors. For example with some endpoints like
+create workflow we allow you to save your progress despite it not being valid. The response in those
+situations will look like this.
+
+```json
+{
+  "result": ...workflow,
+  "errors": ["Variable X is invalid", "Amount can't be more than 100."]
+}
+```

@@ -1,0 +1,516 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+# Entities
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="Entity" />
+
+### What are entities?
+
+Entities represent individuals, businesses, or anything you can imagine.
+
+### Entity Types
+
+Entities can be of three types: `individual`, `business`, or `simple`. The type of entity you create will determine what information you need to provide.
+
+<Table inner_border="horizontal" responsive_cell>
+  <tbody>
+    <tr key="0">
+      <td>`individual`</td>
+      <td>Any individuals or persons.</td>
+    </tr>
+    <tr key="1">
+      <td>`business`</td>
+      <td>Companies, corporations, non-profits or other structures.</td>
+    </tr>
+    <tr key="2">
+      <td>`simple`</td>
+      <td>Use for anything else or if you don't know who the entity is yet.</td>
+    </tr>
+  </tbody>
+</Table>
+
+# Usage
+
+#### Create entity
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Entities` tab in the settings dropdown or by pressing `G` and then `E`.
+    - Click the `Create` button in the upper right corner.
+    - `Accounts`: Select the accounts you want to associate with this entity.
+    - `Labels`: Select the labels you want to associate with this entity.
+    - Under the `Advanced` tab, you can add variables. For example:
+    ```json
+    {
+      "variable_name": "variable_value"
+    }
+    ```
+    - Select the type of entity you want to create:
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Simple">
+        - `Name`: The name of the entity.
+        - `Description`: A description of the entity.
+      </Tab>
+      <Tab title="Individual">
+        - `Name`: The name of the entity.
+        - `Description`: A description of the entity.
+        - `First name`: The first name of the individual.
+        - `Middle name`: The middle name of the individual.
+        - `Last name`: The last name of the individual.
+        - `Date of birth`: The date of birth of the individual.
+        - `Phone`: The phone number of the individual.
+        - `Email`: The email address of the individual.
+        - `Nationality`: The nationality of the individual.
+        - `Tax ID`: The tax ID of the individual.
+        - `Address`: click the `+` icon to expand the address fields.
+      </Tab>
+      <Tab title="Business">
+        - `Business name`: The name of the business.
+        - `Business description`: A description of the business.
+        - `Structure`: The structure of the business.
+        - `Tax id`: The tax ID of the business.
+        - `Date of incorporation`: The date of incorporation of the business.
+        - `Country`: The country of incorporation of the business.
+        - `State`: The state of incorporation of the business.
+        - `Phone`: The phone number of the business.
+        - `Address`: click the `+` icon to expand the address fields.
+      </Tab>
+    </Tabs>
+  </Tab>
+  <Tab title="API">
+    <Operation method="post" title="Create entity" path="/v1/entities" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Create entity, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/entities' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "Entity - Business",
+            "type": "business",
+            "business": {
+                "name": "ECorp",
+                "description": "Together we can change the world, with E Corp",
+                "date_of_incorporation": "1986-01-01",
+                "phone": "+14356679090",
+                "country_of_incorporation": "United States",
+                "state_of_incorporation": "New York",
+                "tax_id": "123abc",
+                "structure": "corporation",
+                "address": {
+                    "line_1": "1st World Street",
+                    "line_2": "Apartment 47",
+                    "city": "San Francisco",
+                    "region": "California",
+                    "country": "US",
+                    "postcode": "94114"
+                }
+            }
+          }'
+        ```
+      </Tab>
+      <Tab title="Create entity, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-06T22:47:51.224Z",
+            "updated_at": "2023-01-06T22:47:51.224Z",
+            "id": "05947b73-0368-438c-904b-fed4f272a0b8",
+            "archived_at": null,
+            "name": "Entity - Business",
+            "description": null,
+            "description_data": null,
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+            "identifier_prefix": "ENT",
+            "identifier_value": "3",
+            "variables": null,
+            "type": "business",
+            "individual": null,
+            "business": {
+                "created_at": "2023-01-06T22:47:51.224Z",
+                "updated_at": "2023-01-06T22:47:51.224Z",
+                "id": "43765ba6-9ad9-4fc5-a50b-a8eaf3dc822c",
+                "archived_at": null,
+                "name": "ECorp",
+                "description": "Together we can change the world, with E Corp",
+                "entity_id": "05947b73-0368-438c-904b-fed4f272a0b8",
+                "date_of_incorporation": "1986-01-01",
+                "country_of_incorporation": "United States",
+                "state_of_incorporation": "New York",
+                "phone": "+14356679090",
+                "tax_id": "123abc",
+                "structure": "corporation",
+                "address_id": "1f623103-480e-4dd8-89d8-8c2b2d6a4c74",
+                "address": {
+                    "created_at": "2023-01-06T22:47:51.224Z",
+                    "updated_at": "2023-01-06T22:47:51.224Z",
+                    "id": "1f623103-480e-4dd8-89d8-8c2b2d6a4c74",
+                    "archived_at": null,
+                    "name": null,
+                    "description": null,
+                    "line_1": "1st World Street",
+                    "line_2": "Apartment 47",
+                    "city": "San Francisco",
+                    "region": "California",
+                    "country": "US",
+                    "postcode": "94114"
+                }
+            },
+            "resources": [],
+            "labels": []
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+    <Toggle title="Company example">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+        <Tab title="Hogwarts example, request.">
+          ```json showLineNumbers {} custom_tag
+          curl --location --request POST 'https://api.modernbanc.com/v1/entities' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "name": "Entity - Business",
+              "type": "business",
+              "business": {
+                  "name": "Hogwarts",
+                  "description": "Hogwarts School of Witchcraft and Wizardry",
+                  "date_of_incorporation": "0999-01-01",
+                  "country_of_incorporation": "Scotland",
+                  "tax_id": "123abc",
+                  "structure": "school",
+                  "address": {
+                      "line_1": "1 Hogwarts Castle",
+                      "city": "Highlands",
+                      "region": "California",
+                      "country": "Scotland",
+                      "postcode": "magic"
+                  }
+              }
+          }'
+          ```
+        </Tab>
+        <Tab title="Hogwarts example, response.">
+        ```json showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2023-01-06T23:02:14.185Z",
+              "updated_at": "2023-01-06T23:02:14.185Z",
+              "id": "5a357136-0ce6-4d64-83f7-716c7d0baecf",
+              "archived_at": null,
+              "name": "Entity - Business",
+              "description": null,
+              "description_data": null,
+              "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+              "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+              "identifier_prefix": "ENT",
+              "identifier_value": "4",
+              "variables": null,
+              "type": "business",
+              "individual": null,
+              "business": {
+                  "created_at": "2023-01-06T23:02:14.185Z",
+                  "updated_at": "2023-01-06T23:02:14.185Z",
+                  "id": "613cd3a3-b7d7-4aff-a29a-8fcb9ae83206",
+                  "archived_at": null,
+                  "name": "Hogwarts",
+                  "description": "Hogwarts School of Witchcraft and Wizardry",
+                  "entity_id": "5a357136-0ce6-4d64-83f7-716c7d0baecf",
+                  "date_of_incorporation": "999-01-01",
+                  "country_of_incorporation": "Scotland",
+                  "state_of_incorporation": null,
+                  "phone": null,
+                  "tax_id": "123abc",
+                  "structure": "school",
+                  "address_id": "478d042f-29a8-4810-957d-9e05cc92734b",
+                  "address": {
+                      "created_at": "2023-01-06T23:02:14.185Z",
+                      "updated_at": "2023-01-06T23:02:14.185Z",
+                      "id": "478d042f-29a8-4810-957d-9e05cc92734b",
+                      "archived_at": null,
+                      "name": null,
+                      "description": null,
+                      "line_1": "1 Hogwarts Castle",
+                      "line_2": null,
+                      "city": "Highlands",
+                      "region": "California",
+                      "country": "Scotland",
+                      "postcode": "magic"
+                  }
+              },
+              "resources": [],
+              "labels": []
+          }
+        }
+        ```
+        </Tab>
+      </Tabs>
+    </Toggle>
+    <Toggle title="Individual example">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+        <Tab title="Harry Potter, request.">
+          ```json showLineNumbers {} custom_tag
+          curl --location --request POST 'https://api.modernbanc.com/v1/entities' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "name": "Entity - Individual",
+              "type": "individual",
+              "variables": {
+                  "pet": "hedwig"
+              },
+              "individual": {
+                  "first_name": "Harry",
+                  "last_name": "Potter",
+                  "date_of_birth": "1980-07-31",
+                  "address": {
+                      "line_1": "4 Privet Drive",
+                      "city": "Little Whinging",
+                      "region": "Berkshire",
+                      "country": "Great Britain",
+                      "postcode": "55555"
+                  }
+              }
+          }'
+          ```
+        </Tab>
+        <Tab title="Harry Potter, response.">
+        ```json showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2023-01-06T23:07:05.670Z",
+              "updated_at": "2023-01-06T23:07:05.670Z",
+              "id": "3a71ec34-700f-4289-8836-51acf7e52441",
+              "archived_at": null,
+              "name": "Entity - Individual",
+              "description": null,
+              "description_data": null,
+              "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+              "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+              "identifier_prefix": "ENT",
+              "identifier_value": "5",
+              "variables": {
+                  "pet": "hedwig"
+              },
+              "type": "individual",
+              "individual": {
+                  "created_at": "2023-01-06T23:07:05.670Z",
+                  "updated_at": "2023-01-06T23:07:05.670Z",
+                  "id": "ea77af33-be2e-4d1b-8b56-a0f72954440b",
+                  "entity_id": "3a71ec34-700f-4289-8836-51acf7e52441",
+                  "first_name": "Harry",
+                  "middle_name": null,
+                  "last_name": "Potter",
+                  "nick_name": null,
+                  "suffix": null,
+                  "nationality": null,
+                  "tax_id": null,
+                  "email": null,
+                  "phone": null,
+                  "date_of_birth": "1980-07-31",
+                  "address_id": "ea6b6b2d-f651-4e0b-ae5a-c65aca63d84a",
+                  "address": {
+                      "created_at": "2023-01-06T23:07:05.670Z",
+                      "updated_at": "2023-01-06T23:07:05.670Z",
+                      "id": "ea6b6b2d-f651-4e0b-ae5a-c65aca63d84a",
+                      "archived_at": null,
+                      "name": null,
+                      "description": null,
+                      "line_1": "4 Privet Drive",
+                      "line_2": null,
+                      "city": "Little Whinging",
+                      "region": "Berkshire",
+                      "country": "Great Britain",
+                      "postcode": "55555"
+                  }
+              },
+              "business": null,
+              "resources": [],
+              "labels": []
+          }
+        }
+        ```
+        </Tab>
+      </Tabs>
+    </Toggle>
+    <Toggle title="Simple example">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+        <Tab title="Simple example, request.">
+          ```json showLineNumbers {} custom_tag
+          curl --location --request POST 'https://api.modernbanc.com/v1/entities' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "name": "Simple Entity",
+              "type": "simple",
+              "variables": {
+                  "something here": "anything really"
+              }
+          }'
+          ```
+        </Tab>
+        <Tab title="Simple example, response.">
+        ```json showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2023-01-06T23:08:40.602Z",
+              "updated_at": "2023-01-06T23:08:40.602Z",
+              "id": "55cfda25-7d79-4498-b8e2-f4a1b06f0d12",
+              "archived_at": null,
+              "name": "Simple Entity",
+              "description": null,
+              "description_data": null,
+              "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+              "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+              "identifier_prefix": "ENT",
+              "identifier_value": "6",
+              "variables": {
+                  "something here": "anything really"
+              },
+              "type": "simple",
+              "individual": null,
+              "business": null,
+              "resources": [],
+              "labels": []
+          }
+        }
+        ```
+        </Tab>
+      </Tabs>
+    </Toggle>
+  </Tab>
+</Tabs>
+
+#### Update entity
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Entities` tab in the settings dropdown or by pressing `G` and then `E`.
+    - Click on the entity you want to update, or apply `Filters` or `Sorts` to narrow down the entities displayed.
+    - `Accounts`: Select the accounts you want to associate with this entity.
+    - `Labels`: Select the labels you want to associate with this entity.
+    - Under the `Advanced` tab, you can add variables. For example:
+    ```json
+    {
+      "variable_name": "variable_value"
+    }
+    ```
+    - Select the type of entity you want to create:
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Simple">
+        - `Name`: The name of the entity.
+        - `Description`: A description of the entity.
+      </Tab>
+      <Tab title="Individual">
+        - `Name`: The name of the entity.
+        - `Description`: A description of the entity.
+        - `First name`: The first name of the individual.
+        - `Middle name`: The middle name of the individual.
+        - `Last name`: The last name of the individual.
+        - `Date of birth`: The date of birth of the individual.
+        - `Phone`: The phone number of the individual.
+        - `Email`: The email address of the individual.
+        - `Nationality`: The nationality of the individual.
+        - `Tax ID`: The tax ID of the individual.
+        - `Address`: click the `+` icon to expand the address fields.
+      </Tab>
+      <Tab title="Business">
+        - `Business name`: The name of the business.
+        - `Business description`: A description of the business.
+        - `Structure`: The structure of the business.
+        - `Tax id`: The tax ID of the business.
+        - `Date of incorporation`: The date of incorporation of the business.
+        - `Country`: The country of incorporation of the business.
+        - `State`: The state of incorporation of the business.
+        - `Phone`: The phone number of the business.
+        - `Address`: click the `+` icon to expand the address fields.
+      </Tab>
+    </Tabs>
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Update entity" path="/v1/entities/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Update entity, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request PUT 'https://api.modernbanc.com/v1/entities/ENT-3' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "ECorp"
+        }'
+        ```
+      </Tab>
+      <Tab title="Update entity, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-06T22:47:51.224Z",
+            "updated_at": "2023-01-06T22:52:02.726Z",
+            "id": "05947b73-0368-438c-904b-fed4f272a0b8",
+            "archived_at": null,
+            "name": "ECorp",
+            "description": null,
+            "description_data": null,
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+            "identifier_prefix": "ENT",
+            "identifier_value": "3",
+            "variables": null,
+            "type": "business",
+            "individual": null,
+            "business": {
+                "created_at": "2023-01-06T22:47:51.224Z",
+                "updated_at": "2023-01-06T22:47:51.224Z",
+                "id": "43765ba6-9ad9-4fc5-a50b-a8eaf3dc822c",
+                "archived_at": null,
+                "name": "ECorp",
+                "description": "Together we can change the world, with E Corp",
+                "entity_id": "05947b73-0368-438c-904b-fed4f272a0b8",
+                "date_of_incorporation": "1986-01-01",
+                "country_of_incorporation": "United States",
+                "state_of_incorporation": "New York",
+                "phone": "+14356679090",
+                "tax_id": "123abc",
+                "structure": "corporation",
+                "address_id": "1f623103-480e-4dd8-89d8-8c2b2d6a4c74",
+                "address": {
+                    "created_at": "2023-01-06T22:47:51.224Z",
+                    "updated_at": "2023-01-06T22:47:51.224Z",
+                    "id": "1f623103-480e-4dd8-89d8-8c2b2d6a4c74",
+                    "archived_at": null,
+                    "name": null,
+                    "description": null,
+                    "line_1": "1st World Street",
+                    "line_2": "Apartment 47",
+                    "city": "San Francisco",
+                    "region": "California",
+                    "country": "US",
+                    "postcode": "94114"
+                }
+            },
+            "resources": [],
+            "labels": []
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+
+

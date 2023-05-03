@@ -1,0 +1,372 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed
+} from '~/views/docs/components/content/all'
+
+### Marketplaces with Modernbanc
+
+<Image
+  title="Marketplace Flow"
+  description="with Modernbanc enabled financial transactions"
+  max_height="500px"
+  src="https://storage.cloud.google.com/mdb-public-prod-bucket/docs-assets/tutorials/marketplace/marketplace-flow-1.png"
+/>
+
+In this guide, we will use the Modernbanc API to create a marketplace. For our purposes, it will be a place for breeders to sell puppies.
+
+This will consist of:
+
+- Creating an account to collect fees from users on your marketplace app
+- When users create an account on your platform, you will call a workflow that links them to a Modernbanc account.
+- Users will then link their bank account, we will use the Increase bank API for this
+- When a user buys something from another user, we will initiate a transaction.
+- Upon delivery, payment will be delivered to the breeder's account from the marketplace escrow account.
+
+<hr/>
+<Process title="Create Escrow account for Marketplace Transactions" index={1}>
+  The first step is to create an account to collect fees from users on your marketplace app.
+  ```bash showLineNumbers {3} custom_tag
+    curl --location --request POST 'https://api.modernbanc.com/v1/accounts' \
+  --header 'Content-Type: application/json' \
+  --header 'Cookie: mdb__4e9ca3b2-f215-4ebd-a8e8-8610a0ad2c31__refresh_token=U2FsdGVkX1%2BoB9Y%2Fj%2FMP1PwhDKY7TfpnX94CilRELo8Z0rEcbIpHoJ9ywitNU1YKCckRgOF7iLB0OvU7rYZgYmNQDKEwsy69WW8QLHFhwEXPw9LCMhmLayg0pvh2ev1WJWomKKgt5wNd26ONgnF9QQ%3D%3D' \
+  --data-raw '{
+      "name": "Marketplace Escrow Account"
+  }'
+  ```
+
+```bash showLineNumbers {3} custom_tag
+{
+  "result": {
+      "created_at": "2022-11-21T01:14:55.649Z",
+      "updated_at": "2022-11-21T01:14:55.649Z",
+      "id": "5bfcb0e5-6429-4d4b-aeb3-397d419fb078",
+      "archived_at": null,
+      "name": "Marketplace Escrow Account",
+      "description": null,
+      "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+      "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+      "resource_id": null,
+      "external_id": null,
+      "identifier_prefix": "ACT",
+      "identifier_value": "89913",
+      "variables": null,
+      "minimum_lines": 1,
+      "maximum_lines": null,
+      "status": "active",
+      "balances": [],
+      "routes": [],
+      "labels": [],
+      "entity_relations": [],
+      "identifier": "ACT-89913",
+      "account_relations": []
+  }
+}
+```
+
+</Process>
+<br/>
+
+<hr/>
+<Process title="Create a workflow to handle new user signups linking to modernbanc account" index={2}>
+  - When users signup to your marketplace, you will need to create a reusable workflow that will create a Modernbanc account for them.
+
+```bash showLineNumbers {3} custom_tag
+curl --location --request POST 'https://api.modernbanc.com/v1/workflows' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: mdb__4e9ca3b2-f215-4ebd-a8e8-8610a0ad2c31__refresh_token=U2FsdGVkX1%2FYbXa9r6wQS4MNRrsji8cDRqh13SkFvARlugzrJwPl%2FjK9JIxDQcWZLVHMJw4Oee98VQc5xUAKrL%2FZR%2BdWMENxliGeQMCqRdxfGZ6QXdGBUYcgssRU7VnDsm%2Fbymi655Sj%2FoLmes0cQQ%3D%3D' \
+--data-raw '{
+    "name": "Link External Account with MDB Account Workflow",
+    "description": "This workflow will be hit when a users site registers a new user they'\''ll link to MDB account",
+    "version": {
+        "name": "Link user account to mdb",
+        "active_in_current_environment": true,
+        "steps": [
+            {
+                "name": "Workspace Operation",
+                "description": "Executes a create or update workspace operation on select models. Sets step.result as the response from the server. If the server replies with an error http status code (e.g 400s, 500s) the step will be marked as failed and the workflow execution will stop.",
+                "parameters": {
+                    "type": "create",
+                    "model": "account",
+                    "data": {
+                        "name": "User Xyz - Buyer",
+                        "description": "sample user signup"
+                    }
+                },
+                "type": "workspace_operation"
+            }
+        ]
+    }
+}'
+```
+
+```bash showLineNumbers {3} custom_tag
+{
+  "result": {
+      "created_at": "2022-11-21T01:49:43.385Z",
+      "updated_at": "2022-11-21T01:49:43.385Z",
+      "id": "c18a0859-0b67-4219-9147-05f2d68b3f99",
+      "archived_at": null,
+      "name": "Link External Account with MDB Account Workflow",
+      "description": "This workflow will be hit when a users site registers a new user they'll link to MDB account",
+      "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+      "identifier_prefix": "WFL",
+      "identifier_value": "797",
+      "versions": [
+          {
+              "created_at": "2022-11-21T01:49:43.385Z",
+              "updated_at": "2022-11-21T01:49:43.385Z",
+              "id": "c25ece37-1f30-4c75-b5c9-eb8df1f239d2",
+              "archived_at": null,
+              "name": "Link user account to mdb",
+              "description": null,
+              "workflow_id": "c18a0859-0b67-4219-9147-05f2d68b3f99",
+              "version": "0.0.1",
+              "is_valid": true,
+              "status": "draft",
+              "steps": [
+                  {
+                      "id": "936e3176-407e-4d26-989d-6f04edfc2d88",
+                      "name": "Workspace Operation",
+                      "description": "Executes a create or update workspace operation on select models. Sets step.result as the response from the server. If the server replies with an error http status code (e.g 400s, 500s) the step will be marked as failed and the workflow execution will stop.",
+                      "step_number": 1,
+                      "variables": null,
+                      "type": "workspace_operation",
+                      "parameters": {
+                          "data": {
+                              "name": "User Xyz - Buyer",
+                              "description": "sample user signup"
+                          },
+                          "type": "create",
+                          "model": "account"
+                      },
+                      "condition_path": null,
+                      "connection_version_id": null,
+                      "workflow_version_id": "c25ece37-1f30-4c75-b5c9-eb8df1f239d2",
+                      "parent_step_id": null,
+                      "parent_action_version_id": null,
+                      "child_action_version_id": null,
+                      "created_at": "2022-11-21T01:49:43.385Z",
+                      "updated_at": "2022-11-21T01:49:43.385Z",
+                      "archived_at": null,
+                      "trigger_versions": [],
+                      "steps": []
+                  }
+              ],
+              "link": {
+                  "created_at": "2022-11-21T01:49:43.385Z",
+                  "updated_at": "2022-11-21T01:49:43.385Z",
+                  "id": "11f3972a-2b0a-4176-a785-5c594359ac28",
+                  "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+                  "workflow_id": "c18a0859-0b67-4219-9147-05f2d68b3f99",
+                  "workflow_version_id": "c25ece37-1f30-4c75-b5c9-eb8df1f239d2",
+                  "environment_config": {
+                      "created_at": "2022-11-21T01:49:43.385Z",
+                      "updated_at": "2022-11-21T01:49:43.385Z",
+                      "id": "38ace2f3-8e7e-4c03-bd56-cac91b6ca971",
+                      "workflow_link_id": "11f3972a-2b0a-4176-a785-5c594359ac28",
+                      "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                      "status": "active",
+                      "variables": null
+                  }
+              }
+          }
+      ]
+  }
+}
+```
+
+</Process>
+<br/>
+
+<hr/>
+<Process title="Create a trigger for the workflow" index={3}>
+  - We need a trigger in order to run the workflow
+  ```bash showLineNumbers {3} custom_tag
+  curl --location --request POST 'https://api.modernbanc.com/v1/triggers' \
+  --header 'Content-Type: application/json' \
+  --header 'Cookie: mdb__4e9ca3b2-f215-4ebd-a8e8-8610a0ad2c31__refresh_token=U2FsdGVkX1%2Bc%2BU2EJaB0ZCeYtpI9ieDM%2BAZESXPTmQugBFxAtSGwKmaR0CgRPhI1z4PpEEKiPLsRFoMEm8rn5m3pqK2G6cCx4dl84hdcR6pVFfE3vMh0wSU5oTccn6PYwz4YvunCAOZebKh8oy4i6w%3D%3D' \
+  --data-raw '{
+      "name": "User account link trigger",
+      "description": "trigger to run workflow to link ",
+      "version": {
+          "name": "workspace event for account link trigger",
+          "version_type": "small",
+          "type": "workspace_event"
+      }
+  }'
+  ```
+
+```bash showLineNumbers {3} custom_tag
+{
+  "errors": [
+      "The field 'workspace_event_type' is required on trigger type 'workspace_event'",
+      "The field 'workspace_event_model' is required on trigger type 'workspace_event'",
+      "The field 'workspace_event_timing' is required on trigger type 'workspace_event'"
+  ],
+  "result": {
+      "created_at": "2022-11-21T03:07:04.631Z",
+      "updated_at": "2022-11-21T03:07:04.631Z",
+      "id": "199b06e3-c905-4bb3-8588-60db38c87f83",
+      "archived_at": null,
+      "name": "User account link trigger",
+      "description": "trigger to run workflow to link ",
+      "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+      "source_trigger_id": null,
+      "identifier_prefix": "WFT",
+      "identifier_value": "3518",
+      "versions": [
+          {
+              "created_at": "2022-11-21T03:07:04.631Z",
+              "updated_at": "2022-11-21T03:07:04.631Z",
+              "id": "5e26a154-bbbf-47f9-a413-19d68e5bcda1",
+              "archived_at": null,
+              "name": "workspace event for account link trigger",
+              "description": null,
+              "trigger_id": "199b06e3-c905-4bb3-8588-60db38c87f83",
+              "version": "0.0.1",
+              "status": "draft",
+              "type": "workspace_event",
+              "start_date": "2022-11-21T03:07:04.651Z",
+              "is_valid": false,
+              "end_date": null,
+              "schedule": null,
+              "workspace_event_type": null,
+              "workspace_event_model": null,
+              "workspace_event_timing": null,
+              "link": {
+                  "created_at": "2022-11-21T03:07:04.631Z",
+                  "updated_at": "2022-11-21T03:07:04.631Z",
+                  "id": "57c30bdd-bd51-4def-83ad-64582e576155",
+                  "trigger_id": "199b06e3-c905-4bb3-8588-60db38c87f83",
+                  "trigger_version_id": "5e26a154-bbbf-47f9-a413-19d68e5bcda1",
+                  "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+                  "variables": null
+              }
+          }
+      ]
+  }
+}
+```
+
+</Process>
+<br/>
+
+<hr/>
+<Process title="Run the workflow using the trigger" index={4}>
+  
+  - Now that we have our workflow and trigger created, we can run the workflow using the trigger
+
+{' '}
+
+<Image
+  title="Query params"
+  description="query params for running workflow endpoint"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/tutorials/marketplace/run-workflow-with-trigger.png"
+  alt="query params for running workflow using the trigger"
+/>
+
+- request
+
+```bash showLineNumbers {3} custom_tag
+curl --location --request POST 'https://api.modernbanc.com/v1/workflows/run?trigger_id=6c53f506-38be-45e5-8d01-afbd6a557f73199b06e3-c905-4bb3-8588-60db38c87f83&trigger_version=0.0.1&workflow_id=c18a0859-0b67-4219-9147-05f2d68b3f99&workflow_version=0.0.1&await_response=true' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: mdb__4e9ca3b2-f215-4ebd-a8e8-8610a0ad2c31__refresh_token=U2FsdGVkX1%2Bc%2BU2EJaB0ZCeYtpI9ieDM%2BAZESXPTmQugBFxAtSGwKmaR0CgRPhI1z4PpEEKiPLsRFoMEm8rn5m3pqK2G6cCx4dl84hdcR6pVFfE3vMh0wSU5oTccn6PYwz4YvunCAOZebKh8oy4i6w%3D%3D' \
+--data-raw '{
+    "var": "This is original trigger input"
+}'
+```
+
+```bash showLineNumbers {3} custom_tag
+{
+  "code": "ERR_VALIDATE_REQUEST",
+  "message": "An instance of QueryRunWorkflowDto has failed the validation:\n - property trigger_id has failed the following constraints: isIdOrIdentifier \n"
+}
+```
+
+</Process>
+<br/>
+
+<hr/>
+<Process title="Create a transaction for a puppy sale" index={5}>
+  - We can now initiate a transaction where one user orders an item, sends money to the escrow account, and the marketplace can distribute the funds when their app has confirmed the puppy has been delivered.
+
+```bash showLineNumbers {3} custom_tag
+curl --location --request POST 'https://api.modernbanc.com/v1/transactions' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: mdb__4e9ca3b2-f215-4ebd-a8e8-8610a0ad2c31__refresh_token=U2FsdGVkX19sMwK7L97gr9AHQC6rFoiUoRxJZ4ur9IwmF9kifIa7yu5XBUcDTAPz%2FqFi5yricLxIqcOt3c7p58y1PTW%2Fmi7MF0bkAOFUh5T6yijH29YgFjCPICmtG3s4B7a9TgLWofAA3ZufUKwe%2Bg%3D%3D' \
+--data-raw '{
+    "name": "Puppy sale transaction",
+    "description": "Buyer purchases puppy, escrow account takes the purchase amount",
+    "status": "pending",
+    "lines": [
+        {
+            "route_id": "ACT-89913",
+            "amount": "400"
+        },
+        {
+            "route_id": "ACT-89915",
+            "amount": "-400"
+        }
+    ],
+    "amount": "400.00"
+}'
+```
+
+<br/>
+  ```bash showLineNumbers {3} custom_tag
+  {
+    "code": "ERR_VALIDATE_REQUEST",
+    "message": "An instance of CreateTransactionDto has failed the validation:\n - property lines has failed the following constraints: conditionalValidator, NotAllowedWithFields \n"
+  }
+  ```
+
+</Process>
+<br/>
+
+<hr/>
+<Process title="External delivery confirmed, deliver funds to seller" index={6}>
+  - Once the marketplace has confirmed delivery of the item in their own application, they can then release the funds to the seller, keeping their fee.
+  
+  ```bash showLineNumbers {3} custom_tag
+  curl --location --request POST 'https://api.modernbanc.com/v1/transactions' \
+  --header 'Content-Type: application/json' \
+  --header 'Cookie: mdb__4e9ca3b2-f215-4ebd-a8e8-8610a0ad2c31__refresh_token=U2FsdGVkX1%2Fe37tkXuJxaAP%2FvqXWQbixcKGqz3w%2FDJ2I5rSy%2F8PvhboofFjBe4SVf6qyIPDYXT5XKoq2aSqcXc4xixd8LfypNsUSynijJjrF5usvHMF%2F0mhEqc3yiqLpQc337H5qIFVG5kexIWRdrg%3D%3D' \
+  --data-raw '{
+      "name": "Puppy delivery confirmation",
+      "description": "Buyer purchases puppy, escrow account takes the purchase amount",
+      "status": "pending",
+      "lines": [
+          {
+              "route_id": "ACT-89913",
+              "amount": "-350"
+          },
+          {
+              "route_id": "ACT-89914",
+              "amount": "350"
+          }
+      ],
+      "amount": "350.00"
+  }'
+  ```
+
+```bash showLineNumbers {3} custom_tag
+{
+  "code": "ERR_VALIDATE_REQUEST",
+  "message": "An instance of CreateTransactionDto has failed the validation:\n - property lines has failed the following constraints: conditionalValidator, NotAllowedWithFields \n"
+}
+```
+
+</Process>
+<br/>

@@ -1,0 +1,444 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+# Redeam
+
+There are two ways to initiate payments to payment providers using Modernbanc. The first method passes the data directly to the webhook trigger. The second method uses accounts to represent users and transactions to initiate payment flows.
+
+<Tabs width="min">
+  <Tab title="Method 1">
+    In this method, we will pass the input data to the trigger to avoid creating accounts and transactions. It works as follows:
+      - Create a webhook trigger in the Modernbanc dashboard.
+      - Create a workflow with a `Condition` step to check for the payment provider.
+        - Create a `Connection query` step to make calls to the payment provider API with the details. 
+      - Collect all data from Redeam widget.
+      - Use Modernbanc SDK createSecret() function to create secrets for the data.
+      - Pass the secrets to the webhook trigger in the request body.
+      - Return a response to the trigger that can be used in the Redeam widget to determine if the transaction was successful.
+    <br/>
+    <Image
+      src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/guides/redeam/redeam-diagram-method1.png"
+      title="Process"
+      max_height="500px"
+    />
+    <br/>
+
+    <Process title="Create a trigger in the UI" index={1}>
+      Creating a webhook trigger gives you a URL in Modernbanc that you can make an http request to. In the request body, you can include any information from your application, like card secrets, that need to be used in the workflow.
+      <Image
+        src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/guides/redeam/redeam-trigger-modal.png"
+        title="Create new trigger"
+        max_height="500px"
+      />
+      <Image
+        src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/guides/redeam/redeam-created-trigger.png"
+        title="You can copy the trigger URL here, which will be called from your application"
+        max_height="500px"
+      />
+    </Process>
+
+    <Process title="Create a workflow with `Condition` and `Connection query` steps" index={2}>
+      Creating a workflow with a `Condition` step allows you to handle multiple types of payments providers. In this example, we will handle `Stripe` and `other`. The `Connection query` step will make a call to the payment provider API with the details.
+      <Image
+        src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/guides/redeam/redeam-condition-with-trigger.png"
+        title=""
+        max_height="500px"
+      />
+    </Process>
+
+    <Process title="Create secrets using your application and the Modernbanc SDK" index={3}>
+      In the component where you've collected the card details, you'll need to pass the card details to the transaction API call.
+
+      ```jsx
+      <InputElement
+        id="card_number"
+        placeholder="Enter card number"
+        container={{ style: { height: '28px', width: '100%' } }}
+        css={'background: gray; border: 1px solid black;'}
+        html_type="number"
+        onReady={() => {
+          console.log('Input loaded')
+        }}
+      />
+      <InputElement
+        id="card_expiry"
+        placeholder="Enter card expiry"
+        container={{ style: { height: '28px', width: '100%' } }}
+        css={'background: gray; border: 1px solid black;'}
+        html_type="number"
+        onReady={() => {
+          console.log('Input loaded')
+        }}
+      />
+      <InputElement
+        id="card_cvv"
+        placeholder="Enter card number"
+        container={{ style: { height: '28px', width: '100%' } }}
+        css={'background: gray; border: 1px solid black;'}
+        html_type="number"
+        onReady={() => {
+          console.log('Input loaded')
+        }}
+      />
+      <InputElement
+        id="passport_number"
+        placeholder="Enter card number"
+        container={{ style: { height: '28px', width: '100%' } }}
+        css={'background: gray; border: 1px solid black;'}
+        html_type="number"
+        onReady={() => {
+          console.log('Input loaded')
+        }}
+      />
+      const card_number_secret = mdb.createSecret('card_number')
+      const card_expiry_secret = mdb.createSecret('card_expiry')
+      const card_cvv_secret = mdb.createSecret('card_cvv')
+      const passport_secret = mdb.createSecret('passport_number')
+      ```
+
+      Additionally, you'll need to collect the transaction amount details and currency and pass it to the transaction API call, and the `payment_provider` if there are multiple.
+
+      ```jsx
+      const amount = 100
+      const currency = 'dbff8f21-f979-4da4-a6ad-a2b7a569701f' // USD currency ID in Modernbanc
+      const payment_provider = 'Stripe'
+      ```
+    </Process>
+
+    <Process title="Make a call to the Webhook Trigger setup in step 1" index={4}>
+      In the component where you've collected the card details, you'll need to pass the card details in the Webhook Trigger reqyest body call.
+      ```jsx
+        const data = {
+          "amount": `${amount}`,
+          "currency": `${currency}`,
+          "payment_provider": `${payment_provider}`,
+          "secrets": {
+            "card_number": `${card_number_secret}`,
+            "card_expiry": `${card_expiry_secret}`,
+            "card_cvv": `${card_cvv_secret}`,
+            "passport_number": `${passport_secret}`
+          }
+        };
+
+        const config = {
+          method: 'post',
+          url: 'https://api.modernbanc.com/v1/workflows/run?trigger_id=WFT-3532&trigger_version=0.0.1&workflow_id=WFL-810&workflow_version=0.0.1',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'ApiKey YOUR_API_KEY'
+          },
+          data: data
+        }
+        
+        axios(config)
+          .then((response) => {
+            console.log(JSON.stringify(response.data));
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      ```
+    </Process>
+  </Tab>
+  <Tab title="Method 2">
+    In this guide we will show how to use Modernbanc to:
+      - Collect secrets using the SDK
+      - Pass it to variables in a transaction API call
+      - Show how to create a workflow that runs on transaction creation
+      - Show how to add steps to the workflow for further actions
+    <br/>
+    <Image
+      src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/guides/redeam/redeam-diagram-method2.png"
+      title="Process"
+      max_height="500px"
+    />
+    <br/>
+    <Process title="Create secrets using SDK" index={1}>
+      In the component where you've collected the card details, you'll need to pass the card details to the transaction API call.
+
+      ```jsx
+      <InputElement
+        id="card_number"
+        placeholder="Enter card number"
+        container={{ style: { height: '28px', width: '100%' } }}
+        css={'background: gray; border: 1px solid black;'}
+        html_type="number"
+        onReady={() => {
+          console.log('Input loaded')
+        }}
+      />
+      <InputElement
+        id="card_expiry"
+        placeholder="Enter card expiry"
+        container={{ style: { height: '28px', width: '100%' } }}
+        css={'background: gray; border: 1px solid black;'}
+        html_type="number"
+        onReady={() => {
+          console.log('Input loaded')
+        }}
+      />
+      <InputElement
+        id="card_cvv"
+        placeholder="Enter card number"
+        container={{ style: { height: '28px', width: '100%' } }}
+        css={'background: gray; border: 1px solid black;'}
+        html_type="number"
+        onReady={() => {
+          console.log('Input loaded')
+        }}
+      />
+      <InputElement
+        id="passport_number"
+        placeholder="Enter card number"
+        container={{ style: { height: '28px', width: '100%' } }}
+        css={'background: gray; border: 1px solid black;'}
+        html_type="number"
+        onReady={() => {
+          console.log('Input loaded')
+        }}
+      />
+      const card_number_secret = mdb.createSecret('card_number')
+      const card_expiry_secret = mdb.createSecret('card_expiry')
+      const card_cvv_secret = mdb.createSecret('card_cvv')
+      const passport_secret = mdb.createSecret('passport_number')
+      ```
+
+      Additionally, you'll need to collect the transaction amount details and currency and pass it to the transaction API call, and the `payment_provider` if there are multiple.
+
+      ```jsx
+      const amount = 100
+      const currency = 'dbff8f21-f979-4da4-a6ad-a2b7a569701f' // USD currency ID in Modernbanc
+      const payment_provider = 'Stripe'
+      ```
+    </Process>
+    <Process title="Create Modernbanc accounts for users in your site when they sign up" index={2}>
+      In order to create transactions, we need to create accounts in Modernbanc. We can do this by calling the accounts API. You can use the following code to create an account for the reseller as an example.
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+        <Tab title="Account create, request">
+          ```jsx
+          var axios = require('axios');
+          var data = JSON.stringify({
+            "name": "Account for Reseller",
+            "unit_ids": [
+              `${currency}`
+            ]
+          });
+
+          var config = {
+            method: 'post',
+            url: 'https://api.modernbanc.com/v1/accounts',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': 'ApiKey YOUR_API_KEY'
+            },
+            data : data
+          };
+
+          axios(config)
+          .then(function (response) {
+            // grab the id to use for transactions
+            const reseller_account_id = response.data.result.id
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+          ```
+        </Tab>
+        <Tab title="Account create, response">
+          ```json
+            {
+                "result": {
+                    "created_at": "2023-04-13T00:12:10.325Z",
+                    "updated_at": "2023-04-13T00:12:10.325Z",
+                    "id": "fd4e3ff5-7c2a-4ce3-b0d0-8a38c08c450d",
+                    "archived_at": null,
+                    "name": "Reseller mdb example account",
+                    "description": null,
+                    "description_data": null,
+                    "workspace_id": "f68ebaec-abf4-4db4-b1a4-8494facc6ba8",
+                    "environment_id": "e48da34c-7ccb-412f-94d4-a9733a36e604",
+                    "resource_id": null,
+                    "external_id": null,
+                    "identifier_prefix": "ACT",
+                    "identifier_value": "3",
+                    "variables": null,
+                    "minimum_lines": 1,
+                    "maximum_lines": null,
+                    "status": "active",
+                    "balances": [],
+                    "routes": [],
+                    "labels": [],
+                    "entity_relations": [],
+                    "identifier": "ACT-3",
+                    "account_relations": []
+                }
+            }
+          ```
+        </Tab>
+      </Tabs>
+
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+        <Tab title="Account create, request">
+          ```jsx
+            var axios = require('axios');
+            var data = JSON.stringify({
+              "name": "Account for Purchaser",
+              "unit_ids": [
+                "dbff8f21-f979-4da4-a6ad-a2b7a569701f"
+              ]
+            });
+
+            var config = {
+              method: 'post',
+              url: 'https://api.modernbanc.com/v1/accounts',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': 'ApiKey YOUR_API_KEY'
+              },
+              data : data
+            };
+
+            axios(config)
+            .then(function (response) {
+              // grab the id to use for transactions
+              const purchaser_account_id = response.data.result.id
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+
+          ```
+        </Tab>
+        <Tab title="Account create, response">
+          ```json
+            {
+                "result": {
+                    "created_at": "2023-04-13T00:31:34.048Z",
+                    "updated_at": "2023-04-13T00:31:34.048Z",
+                    "id": "5370c21e-dacd-4b49-b718-302a06590eea",
+                    "archived_at": null,
+                    "name": "Account for Purchaser",
+                    "description": null,
+                    "description_data": null,
+                    "workspace_id": "f68ebaec-abf4-4db4-b1a4-8494facc6ba8",
+                    "environment_id": "e48da34c-7ccb-412f-94d4-a9733a36e604",
+                    "resource_id": null,
+                    "external_id": null,
+                    "identifier_prefix": "ACT",
+                    "identifier_value": "5",
+                    "variables": null,
+                    "minimum_lines": 1,
+                    "maximum_lines": null,
+                    "status": "active",
+                    "balances": [
+                        {
+                            "created_at": "2023-04-13T00:31:34.048Z",
+                            "updated_at": "2023-04-13T00:31:34.048Z",
+                            "id": "47f4b4e4-beb0-4037-997a-c0a323613dbe",
+                            "archived_at": null,
+                            "name": "Main usd balance",
+                            "description": null,
+                            "description_data": null,
+                            "workspace_id": "f68ebaec-abf4-4db4-b1a4-8494facc6ba8",
+                            "environment_id": "e48da34c-7ccb-412f-94d4-a9733a36e604",
+                            "identifier": "main.usd",
+                            "account_id": "5370c21e-dacd-4b49-b718-302a06590eea",
+                            "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                            "type": "main",
+                            "balance": "0.00",
+                            "pending_balance": "0.00",
+                            "negative_pending_balance": "0.00"
+                        }
+                    ],
+                    "routes": [],
+                    "labels": [],
+                    "entity_relations": [],
+                    "identifier": "ACT-5",
+                    "account_relations": []
+                }
+            }
+          ```
+        </Tab>
+      </Tabs>
+      The response will contain `result.id` which can be used in transactions.
+    </Process>
+
+    <Process title="Create a workflow" index={3}>
+      Create a workflow with a Workspace Operation trigger that listens for transactions being created. Select a `Condition` step which will look for the `payment_provider` variable. If the value is `Stripe`, then the workflow will initiate a call to the Stripe API. If the value is `some other provider`, then the workflow will initiate a call to the other provider's API.
+      <Image
+        src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/guides/redeam/redeam-workflow.png"
+        title="Workflow with `Condition` step for `payment_provider`"
+        max_height="500px"
+      />
+    </Process>
+
+    <Process title="Create a call to the transaction API using the secrets variables we've created" index={4}>
+      ```jsx
+      const axios = require('axios');
+      let data = {
+        "name": "Transaction with CC variables",
+        "status": "pending",
+        "variables": {
+          "card_number_secret": `${card_number_secret}`,
+          "card_expiry_secret": `${card_expiry_secret}`,
+          "card_cvv_secret": `${card_cvv_secret}`,
+          "passport_secret": `${passport_secret}`,
+          "transaction_amount": `${amount}`,
+          "currency": `${currency}`
+        },
+        "lines": [
+          {
+            "account_id": "cce40e44-4ace-4494-85f2-db552edf7e6e",
+            "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+            "amount": "-{{_variables.transaction_amount}}"
+          },
+          {
+            "account_id": "ea591138-8edb-490b-932a-0158f245188f",
+            "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+            "amount": "{{_variables.transaction_amount}}"
+          }
+        ]
+      };
+
+      let config = {
+        method: 'post',
+        url: 'https://api.modernbanc.com/v1/transactions',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'ApiKey YOUR_API_KEY'
+        },
+        data: data
+      };
+
+      axios(config)
+        .then((response) => {
+          console.log(JSON.stringify(response.data));
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      ```
+    </Process>
+  </Tab>
+</Tabs>
+
+
+
+Congratulations! You've created a workflow that will create a transaction with the credit card information stored in the secrets variables. You can now use this workflow to create transactions with credit card information.

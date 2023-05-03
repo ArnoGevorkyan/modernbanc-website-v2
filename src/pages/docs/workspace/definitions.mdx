@@ -1,0 +1,543 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Column,
+  Columns
+} from '~/views/docs/components/content/all'
+
+# Definitions
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="Definition" />
+
+### What are definitions?
+
+Definitions are helpful when you want to reuse or enforce a specific structure to objects within Modernbanc.
+
+Examples of when you might want to use definitions:
+
+- enforce the account and routing number for a bank account route.
+- ensure every route has a card number, cardholder name, and expiration date for a credit card.
+- your app has a monthly subscription fee, and you want the structure of your transactions to reflect that.
+
+Currently, definitions are only supported for routes but will be added to additional Modernbanc objects soon.
+
+### Note about JSONSchema
+
+Definitions, specifically `variable_definitions`, must adhere to [JSONSchema](https://www.jsonschemavalidator.net/).
+
+In the below examples, you can see the `variable_definitions` for a credit card and a bank account and their accompanying correct `variables`. If the variables you provide to a route, or another object, don't match the `variable_definitions` schema, you will receive an error.
+
+<Tabs width="min">
+  <Tab title="Credit card">
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+        <Tab title="Variable Definition - Credit Card">
+            ```json
+            {
+                "type": "object",
+                "properties": {
+                    "credit_card_name": {
+                        "description": "CC name",
+                        "type": "string"
+                    },
+                    "credit_card_number": {
+                        "description": "Credit card number",
+                        "type": "integer"
+                    },
+                    "credit_card_expiration": {
+                        "description": "Credit card expiration date mm/yy format",
+                        "type": "string"
+                    },
+                    "credit_card_cvv": {
+                        "description": "Credit card cvv number",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "credit_card_number", "credit_card_expiration", "credit_card_cvv"
+                ]
+            }
+            ```
+        </Tab>
+        <Tab title="Variables - Credit Card">
+            ```json
+            {
+                "credit_card_name": "John Doe",
+                "credit_card_number": 1234567890123456,
+                "credit_card_expiration": "12/22",
+                "credit_card_cvv": 123
+            }
+            ```
+        </Tab>
+    </Tabs>
+  </Tab>
+  <Tab title="Bank account">
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+        <Tab title="Variable Definition - ACH Bank Account">
+            ```json
+            {
+                "type": "object",
+                "properties": {
+                    "account_number": {
+                        "description": "Account number",
+                        "type": "string"
+                    },
+                    "routing_number": {
+                        "description": "Account routing number",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "account_number", "routing_number"
+                ]
+            }
+            ```
+        </Tab>
+        <Tab title="Variables - ACH Bank Account">
+            ```json
+            {
+                "account_number": "1234567890123456",
+                "routing_number": 123456789
+            }
+            ```
+        </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+# Usage
+
+#### Create definition
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Coming soon!
+  </Tab>
+  <Tab title="API">
+    <Operation method="post" title="Create definition" path="/v1/definitions" />    <Label text="Route definition - bank account"/>
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+    <Tab title="Route definition - bank account, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/routes/definitions' \
+        --header 'Content-Type: application/json' \
+        --header 'Authorization: Bearer qgVW6jydEqLFVIZiKiLUsNtOIMUom5' \
+        --header 'x-workspace: startupco' \
+        --header 'x-environment: live' \
+        --data-raw '{
+            "name": "Route Definition - Bank Account",
+            "description": "Object structure for making external transfers using bank accounts in routes",
+            "variable_definitions": {
+                "type": "object",
+                "properties": {
+                    "account_number": {
+                        "description": "Account number",
+                        "type": "string"
+                    },
+                    "routing_number": {
+                        "description": "Account routing number",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "account_number", "routing_number"
+                ]
+            }
+        }'
+        ```
+    </Tab>
+    <Tab title="Route definition - bank account, response.">
+    ```json showLineNumbers {} custom_tag
+    {
+        "result": {
+            "created_at": "2022-12-15T03:40:16.352Z",
+            "updated_at": "2022-12-15T03:40:16.352Z",
+            "id": "9b65715e-9fc0-4c3b-b060-2744806fd8ff",
+            "name": "Route Definition - Bank Account",
+            "description": "Object structure for making external transfers using bank accounts in routes",
+            "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+            "variable_definitions": {
+                "type": "object",
+                "properties": {
+                    "account_number": {
+                        "description": "Account number",
+                        "type": "string"
+                    },
+                    "routing_number": {
+                        "description": "Account routing number",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "account_number",
+                    "routing_number"
+                ]
+            }
+        }
+    }
+    ```
+    </Tab>
+    </Tabs>
+    <Label text="Route definition - credit card"/>
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+    <Tab title="Route definition - credit card, request.">
+        ```json
+        curl --location --request POST 'https://api.modernbanc.com/v1/routes/definitions' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "Route Definition - Credit Cards",
+            "description": "Object structure for making external transfers using credit cards in routes",
+            "variable_definitions": {
+                "type": "object",
+                "properties": {
+                    "credit_card_name": {
+                        "description": "CC name",
+                        "type": "string"
+                    },
+                    "credit_card_number": {
+                        "description": "Credit card number",
+                        "type": "integer"
+                    },
+                    "credit_card_expiration": {
+                        "description": "Credit card expiration date mm/yy format",
+                        "type": "string"
+                    },
+                    "credit_card_cvv": {
+                        "description": "Credit card cvv number",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "credit_card_number", "credit_card_expiration", "credit_card_cvv"
+                ]
+            }
+        }'
+        ```
+    </Tab>
+    <Tab title="Route definition - credit card, response.">
+    ```json showLineNumbers {} custom_tag
+    {
+            "result": {
+                "created_at": "2022-12-14T14:53:43.342Z",
+                "updated_at": "2022-12-14T14:53:43.342Z",
+                "id": "f77bc0c7-600b-4078-8f7d-c3be89e2e781",
+                "name": "Route Definition - Credit Cards",
+                "description": "Object structure for making external transfers using credit cards in routes",
+                "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+                "variable_definitions": {
+                    "type": "object",
+                    "properties": {
+                        "credit_card_name": {
+                            "description": "CC name",
+                            "type": "string"
+                        },
+                        "credit_card_number": {
+                            "description": "Credit card number",
+                            "type": "integer"
+                        },
+                        "credit_card_expiration": {
+                            "description": "Credit card expiration date mm/yy format",
+                            "type": "string"
+                        },
+                        "credit_card_cvv": {
+                            "description": "Credit card cvv number",
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "credit_card_number",
+                        "credit_card_expiration",
+                        "credit_card_cvv"
+                    ]
+                }
+            }
+        }
+    ```
+    </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+
+#### List definitions
+<Tabs width="min">
+  <Tab title="UI">
+    - Coming soon!
+  </Tab>
+  <Tab title="API">
+    <Operation method="get" title="Get definition" path="/v1/definitions/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Get definition, request.">
+        ```json
+          curl --location --request GET 'https://api.modernbanc.com/v1/definitions/d5a2d308-cccd-41cf-9ec4-3433723a1042' \
+          --header 'x-workspace: docs'
+        ```
+      </Tab>
+      <Tab title="Get definition, response.">
+        ```json
+          {
+              "result": {
+                  "created_at": "2023-01-10T01:50:52.158Z",
+                  "updated_at": "2023-01-10T01:50:52.158Z",
+                  "id": "d5a2d308-cccd-41cf-9ec4-3433723a1042",
+                  "name": "Route Definition - Bank Account",
+                  "description": "Object structure for making external transfers using bank accounts in routes",
+                  "description_data": {
+                      "root": {
+                          "type": "root",
+                          "format": "",
+                          "indent": 0,
+                          "version": 1,
+                          "children": [
+                              {
+                                  "type": "paragraph",
+                                  "format": "",
+                                  "indent": 0,
+                                  "version": 1,
+                                  "children": [
+                                      {
+                                          "mode": "normal",
+                                          "text": "Object structure for making external transfers using bank accounts in routes",
+                                          "type": "text",
+                                          "style": "",
+                                          "detail": 0,
+                                          "format": 0,
+                                          "version": 1
+                                      }
+                                  ],
+                                  "direction": "ltr"
+                              }
+                          ],
+                          "direction": "ltr"
+                      }
+                  },
+                  "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                  "variable_definitions": {
+                      "type": "object",
+                      "required": [
+                          "account_number",
+                          "routing_number"
+                      ],
+                      "properties": {
+                          "account_number": {
+                              "type": "string",
+                              "description": "Account number"
+                          },
+                          "routing_number": {
+                              "type": "integer",
+                              "description": "Account routing number"
+                          }
+                      }
+                  }
+              }
+          }
+        ```
+      </Tab>
+    </Tabs>
+    <Operation method="get" title="List definitions" path="/v1/definitions" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="List definition, request.">
+        ```json
+          curl --location --request GET 'https://api.modernbanc.com/v1/definitions?take=3&order_by=created_at:desc&include=name: true, updated_at: true, variable_definitions: true'
+        ```
+      </Tab>
+      <Tab title="List definition, response.">
+        ```json
+        {
+            "result": [
+                {
+                    "updated_at": "2023-01-10T01:50:52.158Z",
+                    "id": "d5a2d308-cccd-41cf-9ec4-3433723a1042",
+                    "name": "Route Definition - Bank Account",
+                    "variable_definitions": {
+                        "type": "object",
+                        "required": [
+                            "account_number",
+                            "routing_number"
+                        ],
+                        "properties": {
+                            "account_number": {
+                                "type": "string",
+                                "description": "Account number"
+                            },
+                            "routing_number": {
+                                "type": "integer",
+                                "description": "Account routing number"
+                            }
+                        }
+                    }
+                }
+            ],
+            "pagination": {
+                "skip": 0,
+                "take": 3,
+                "has_next_page": false,
+                "has_previous_page": false,
+                "total_count": 1
+            }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+
+#### Update definition
+<Tabs width="min">
+  <Tab title="UI">
+    - Coming soon!
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Update definition" path="/v1/definitions/{id}" />
+    This example adds an extra metadata object structure to the definition.
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Update definition, request.">
+        ```json
+          curl --location --request PUT 'https://api.modernbanc.com/v1/definitions/0d97bab6-ebf8-46cc-8d90-9d559e7c8cff' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "name": "Route Definition - Credit Cards",
+              "description": "Object structure for making external transfers using credit cards in routes",
+              "variable_definitions": {
+                  "type": "object",
+                  "properties": {
+                      "credit_card_name": {
+                          "description": "CC name",
+                          "type": "string"
+                      },
+                      "credit_card_number": {
+                          "description": "Credit card number",
+                          "type": "integer"
+                      },
+                      "credit_card_expiration": {
+                          "description": "Credit card expiration date mm/yy format",
+                          "type": "string"
+                      },
+                      "credit_card_cvv": {
+                          "description": "Credit card cvv number",
+                          "type": "integer"
+                      },
+                      "other_metadata": {
+                          "geo": "location"
+                      }
+                  },
+                  "required": [
+                      "credit_card_number",
+                      "credit_card_expiration",
+                      "credit_card_cvv"
+                  ]
+              }
+          }'
+        ```
+      </Tab>
+      <Tab title="Update definition, response.">
+        ```json
+        {
+            "result": {
+                "id": "0d97bab6-ebf8-46cc-8d90-9d559e7c8cff",
+                "name": "Route Definition - Credit Cards",
+                "description": "Object structure for making external transfers using credit cards in routes",
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "variable_definitions": {
+                    "type": "object",
+                    "required": [
+                        "credit_card_number",
+                        "credit_card_expiration",
+                        "credit_card_cvv"
+                    ],
+                    "properties": {
+                        "other_metadata": {
+                            "geo": "location"
+                        },
+                        "credit_card_cvv": {
+                            "type": "integer",
+                            "description": "Credit card cvv number"
+                        },
+                        "credit_card_name": {
+                            "type": "string",
+                            "description": "CC name"
+                        },
+                        "credit_card_number": {
+                            "type": "integer",
+                            "description": "Credit card number"
+                        },
+                        "credit_card_expiration": {
+                            "type": "string",
+                            "description": "Credit card expiration date mm/yy format"
+                        }
+                    }
+                },
+                "created_at": "2023-03-31T23:55:08.592Z",
+                "updated_at": "2023-03-31T23:56:40.402Z",
+                "description_data": {
+                    "root": {
+                        "type": "root",
+                        "format": "",
+                        "indent": 0,
+                        "version": 1,
+                        "children": [
+                            {
+                                "type": "paragraph",
+                                "format": "",
+                                "indent": 0,
+                                "version": 1,
+                                "children": [
+                                    {
+                                        "mode": "normal",
+                                        "text": "Object structure for making external transfers using credit cards in routes",
+                                        "type": "text",
+                                        "style": "",
+                                        "detail": 0,
+                                        "format": 0,
+                                        "version": 1
+                                    }
+                                ],
+                                "direction": "ltr"
+                            }
+                        ],
+                        "direction": "ltr"
+                    }
+                }
+            }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+
+#### Delete definition
+<Tabs width="min">
+  <Tab title="UI">
+    - Coming soon!
+  </Tab>
+  <Tab title="API">
+    <Operation method="delete" title="Delete definition" path="/v1/definitions/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Delete definition, request.">
+      ```json
+        curl --location --request DELETE 'https://api.modernbanc.com/v1/definitions/0d97bab6-ebf8-46cc-8d90-9d559e7c8cff'
+      ```
+      </Tab>
+      <Tab title="Delete definition, response.">
+      ```json
+        {}
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+

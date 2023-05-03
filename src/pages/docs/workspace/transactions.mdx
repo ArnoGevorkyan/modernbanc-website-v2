@@ -1,0 +1,630 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+# Transactions
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="Transaction" />
+
+### What are transactions?
+
+Transactions allow you to move amounts between accounts.
+
+### Transaction Status
+
+Transactions have a few types of statuses.
+
+- `completed` - Transaction is completed. Once transaction went into this state, it updates `balance.balance`.
+- `pending` - Transaction is in progress. Once transaction went into this state, it updates `pending` balance.
+- `failed` | `cancelled` | `declined` | `returned` - Transaction has failed. Failed transactions don't affect balances and if they were `completed` or `pending` those balance changes will be reversed.
+
+Other statuses:
+
+- `prepared` - Placeholder, doesn't affect balances. Use for creating drafts.
+- `scheduled` - Schedule transaction to go into `pending` state at future date. If you want to use this status you also need to provide `scheduled_date_time`.
+
+### Transaction Types
+
+There are two transaction types: `simple` and `complex`.
+
+Most transactions in the world are between two accounts and you're used to having transactions with 'from' and 'to' accounts. We call them **simple** transactions.
+
+However sometimes transactions can happen between 3 or more accounts at the same time. We call them **complex** transactions.
+
+Think of a **simple** transaction as a simple exchange of something between 2 parties, and **complex** transactions as a more complex exchange between 3
+and more parties at the same time.
+
+### Transaction History
+
+When you archive a transaction or a line, the history is kept and stored. However, when you delete a transaction or line, the history is deleted.
+
+#### TransactionLines
+
+{/* <Schema style={{ marginTop: '15px' }} title="TransactionLine" /> */}
+
+Transactions have lines. Think of lines as parts of the transaction.  
+E.g Transaction that moves $100 from Account A to Account B will have 2 lines:
+
+- Line 1: +$100 for **Account A**
+- Line 2: -$100 for **Account B**
+
+You can even have a weird $0 transaction where only Account A is involved:
+
+- Line 1: +$100 for **Account A**
+- Line 2: -$100 for **Account A**
+
+You can update lines at any time. You can even add new lines to the transaction. This can be done as a block operation, meaning that you can batch update lines.
+
+### Transaction Items
+
+{/* <Schema style={{ marginTop: '15px' }} title="TransactionItem" /> */}
+
+With Modernbanc you can even go more granular and record items per line. An example of an item could be a t-shirt, an interest or VAT fee.
+Items don't have to add up to line's amount but it's helpful if you do that to keep things accounted for.
+Items also have [variables](/docs/workspace/variables) where you can put any other data.
+
+# Usage
+
+### Create transaction
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Transactions` tab in the settings dropdown or by pressing `G` and then `T`
+    - Click the `Create` button in the upper right corner. From there you can create simple or complex transactions.
+    <Tabs width="min">
+      <Tab title="Simple">
+        - Fill out the form with the following values:
+            - Amount: a sample amount like `20`.
+            - From: select an account that will transfer the units.
+            - To: select an account that will receive the units.
+            - Status: select the status of the transaction. Can be `completed`, `pending`, `failed`, `cancelled`, `declined`, `returned`, `prepared`, `scheduled`.
+            - Date/Scheduled Date: select the date/time of the transaction. If the status is `scheduled` then you will need to select the scheduled date.
+            - Name: an optional sample name like `Sample Transaction`.
+            - Description: an optional sample description like `Sample Description`.
+            - Tags: select an existing tag or create a new one by typing in `example` and `+ Create new item` and finally select a color, like `Purple`.
+        - Click `Create` on the bottom right of the form.
+      </Tab>
+      <Tab title="Complex">
+        - Fill out the form with the following values:
+            - Select `+ Add line` and add at least 2 lines
+            - Amount: for the first line, select an amount like `-20`. For the second line, select an amount like `20`. They must add up to 0.
+            - Unit: by default the unit which both accounts shared will be selected. If you want to change the unit, select a different unit, like `eur` or `gbp`.
+            - Status: select the status of the transaction. Can be `completed`, `pending`, `failed`, `cancelled`, `declined`, `returned`, `prepared`, `scheduled`.
+            - Date/Scheduled Date: select the date/time of the transaction. If the status is `scheduled` then you will need to select the scheduled date.
+            - Resource: if you have an existing resource to re-use, you can select it here.
+            - Name: an optional sample name like `Sample Transaction`.
+            - Description: an optional sample description like `Sample Description`.
+            - Select `Advanced` to see more options.
+            - Recorded at: select the date/time of the transaction.
+            - Start date: select the date/time of the transaction.
+            - End date: select the date/time of the transaction.
+            - Tags: select an existing tag or create a new one by typing in `example` and `+ Create new item` and finally select a color, like `Purple`.
+            - Variables:
+              ```json showLineNumbers {} custom_tag
+              {
+                "variable_1": "value_1",
+                "variable_2": "value_2"
+              }
+              ```
+            - External ID: an example value like `649384729`.
+        - Click `Create` on the bottom right of the form.
+      </Tab>
+    </Tabs>
+  </Tab>
+  <Tab title="API">
+    <Operation method="post" title="Create transaction" path="/v1/transactions" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Simple transaction, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/transactions' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "simple transaction",
+            "status": "pending",
+            "from_route_id": "RTE-CQZJK4H16",
+            "to_route_id": "RTE-L1CWGRAXY",
+            "amount": "20.00"
+        }'
+        ```
+      </Tab>
+      <Tab title="Simple transaction, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-10T01:53:32.696Z",
+            "updated_at": "2023-01-10T01:53:32.696Z",
+            "id": "719a0e30-432d-4361-96e2-fba327e57bc7",
+            "archived_at": null,
+            "name": "simple transaction",
+            "description": null,
+            "description_data": null,
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+            "resource_id": null,
+            "external_id": null,
+            "identifier_prefix": "TRN",
+            "identifier_value": "38",
+            "variables": null,
+            "start_date_time": null,
+            "end_date_time": null,
+            "start_date": null,
+            "end_date": null,
+            "status": "pending",
+            "scheduled_date_time": null,
+            "labels": [],
+            "lines": [
+                {
+                    "created_at": "2023-01-10T01:53:32.696Z",
+                    "updated_at": "2023-01-10T01:53:32.696Z",
+                    "id": "88ed8fde-385f-4390-be27-456b2f3a8701",
+                    "archived_at": null,
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                    "transaction_id": "719a0e30-432d-4361-96e2-fba327e57bc7",
+                    "route_id": "893789d7-6914-48da-ac41-4bcf23ed39f1",
+                    "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                    "account_id": null,
+                    "external_id": null,
+                    "name": null,
+                    "description": null,
+                    "variables": null,
+                    "amount": "-20.00",
+                    "items": []
+                },
+                {
+                    "created_at": "2023-01-10T01:53:32.696Z",
+                    "updated_at": "2023-01-10T01:53:32.696Z",
+                    "id": "1417af50-1b14-4bef-ada1-da77c48ce1e8",
+                    "archived_at": null,
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                    "transaction_id": "719a0e30-432d-4361-96e2-fba327e57bc7",
+                    "route_id": "9b6b4605-43bb-494b-ba79-3ce1c78b4b77",
+                    "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                    "account_id": null,
+                    "external_id": null,
+                    "name": null,
+                    "description": null,
+                    "variables": null,
+                    "amount": "20.00",
+                    "items": []
+                }
+            ]
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+    <Toggle title="Complex transaction, A -> B">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+        <Tab title="Create transaction, request.">
+          ```json showLineNumbers {} custom_tag
+          curl --location --request POST 'https://api.modernbanc.com/v1/transactions' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "name": "Transaction A -> B ",
+              "status": "pending",
+              "lines": [
+                  {
+                      "account_id": "8c9aeab1-bcdb-4c5c-a302-e9061730eed5",
+                      "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                      "amount": "-100.00"
+                  },
+                  {
+                      "account_id": "ea591138-8edb-490b-932a-0158f245188f",
+                      "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                      "amount": "100.00"
+                  }
+              ]
+          }'
+          ```
+        </Tab>
+        <Tab title="Create transaction, response.">
+          ```json showLineNumbers {} custom_tag
+          {
+            "result": {
+                "created_at": "2023-01-08T23:58:28.161Z",
+                "updated_at": "2023-01-08T23:58:28.161Z",
+                "id": "78e8ba6c-24b4-406e-b66f-39d2edbc668b",
+                "archived_at": null,
+                "name": "Transaction A -> B ",
+                "description": null,
+                "description_data": null,
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                "resource_id": null,
+                "external_id": null,
+                "identifier_prefix": "TRN",
+                "identifier_value": "34",
+                "variables": null,
+                "start_date_time": null,
+                "end_date_time": null,
+                "start_date": null,
+                "end_date": null,
+                "status": "pending",
+                "scheduled_date_time": null,
+                "labels": [],
+                "lines": [
+                    {
+                        "created_at": "2023-01-08T23:58:28.161Z",
+                        "updated_at": "2023-01-08T23:58:28.161Z",
+                        "id": "e93784d5-825f-4d1b-94b2-09b0c56a85a3",
+                        "archived_at": null,
+                        "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                        "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                        "transaction_id": "78e8ba6c-24b4-406e-b66f-39d2edbc668b",
+                        "route_id": null,
+                        "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                        "account_id": "8c9aeab1-bcdb-4c5c-a302-e9061730eed5",
+                        "external_id": null,
+                        "name": null,
+                        "description": null,
+                        "variables": null,
+                        "amount": "-100.00",
+                        "items": []
+                    },
+                    {
+                        "created_at": "2023-01-08T23:58:28.161Z",
+                        "updated_at": "2023-01-08T23:58:28.161Z",
+                        "id": "7e5bdc07-fc00-40d4-80f5-6f383ade6dea",
+                        "archived_at": null,
+                        "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                        "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                        "transaction_id": "78e8ba6c-24b4-406e-b66f-39d2edbc668b",
+                        "route_id": null,
+                        "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                        "account_id": "ea591138-8edb-490b-932a-0158f245188f",
+                        "external_id": null,
+                        "name": null,
+                        "description": null,
+                        "variables": null,
+                        "amount": "100.00",
+                        "items": []
+                    }
+                ]
+            }
+          }
+          ```
+        </Tab>
+      </Tabs>
+    </Toggle>
+    <Toggle title="Complex Transaction A -> B,C">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+        <Tab title="Complex transaction, request.">
+          ```json showLineNumbers {} custom_tag
+          curl --location --request POST 'https://api.modernbanc.com/v1/transactions' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "name": "Transaction Multi",
+              "status": "pending",
+              "lines": [
+                  {
+                      "account_id": "8c9aeab1-bcdb-4c5c-a302-e9061730eed5",
+                      "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                      "amount": "-55.00"
+                  },
+                  {
+                      "account_id": "eb633fee-efb7-49ea-92cd-2d371f42f9f6",
+                      "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                      "amount": "25.00"
+                  },
+                  {
+                      "account_id": "ea591138-8edb-490b-932a-0158f245188f",
+                      "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                      "amount": "30.00"
+                  }
+              ]
+          }'
+          ```
+        </Tab>
+        <Tab title="Complex transaction, response.">
+        ```json showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2023-01-10T01:45:31.587Z",
+              "updated_at": "2023-01-10T01:45:31.587Z",
+              "id": "e0c72dd1-345f-4857-bccf-0ef8c25170e8",
+              "archived_at": null,
+              "name": "Transaction Multi",
+              "description": null,
+              "description_data": null,
+              "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+              "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+              "resource_id": null,
+              "external_id": null,
+              "identifier_prefix": "TRN",
+              "identifier_value": "37",
+              "variables": null,
+              "start_date_time": null,
+              "end_date_time": null,
+              "start_date": null,
+              "end_date": null,
+              "status": "pending",
+              "scheduled_date_time": null,
+              "labels": [],
+              "lines": [
+                  {
+                      "created_at": "2023-01-10T01:45:31.587Z",
+                      "updated_at": "2023-01-10T01:45:31.587Z",
+                      "id": "48775d81-d1bb-4e62-9da0-519ea481cfbf",
+                      "archived_at": null,
+                      "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                      "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                      "transaction_id": "e0c72dd1-345f-4857-bccf-0ef8c25170e8",
+                      "route_id": null,
+                      "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                      "account_id": "8c9aeab1-bcdb-4c5c-a302-e9061730eed5",
+                      "external_id": null,
+                      "name": null,
+                      "description": null,
+                      "variables": null,
+                      "amount": "-55.00",
+                      "items": []
+                  },
+                  {
+                      "created_at": "2023-01-10T01:45:31.587Z",
+                      "updated_at": "2023-01-10T01:45:31.587Z",
+                      "id": "b46ff0f1-4901-4707-9109-22c3e8e736b5",
+                      "archived_at": null,
+                      "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                      "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                      "transaction_id": "e0c72dd1-345f-4857-bccf-0ef8c25170e8",
+                      "route_id": null,
+                      "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                      "account_id": "eb633fee-efb7-49ea-92cd-2d371f42f9f6",
+                      "external_id": null,
+                      "name": null,
+                      "description": null,
+                      "variables": null,
+                      "amount": "25.00",
+                      "items": []
+                  },
+                  {
+                      "created_at": "2023-01-10T01:45:31.587Z",
+                      "updated_at": "2023-01-10T01:45:31.587Z",
+                      "id": "da4b344d-d87c-4ea0-923b-aca331a17abb",
+                      "archived_at": null,
+                      "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                      "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                      "transaction_id": "e0c72dd1-345f-4857-bccf-0ef8c25170e8",
+                      "route_id": null,
+                      "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                      "account_id": "ea591138-8edb-490b-932a-0158f245188f",
+                      "external_id": null,
+                      "name": null,
+                      "description": null,
+                      "variables": null,
+                      "amount": "30.00",
+                      "items": []
+                  }
+              ]
+          }
+        }
+        ```
+        </Tab>
+      </Tabs>
+    </Toggle>
+  </Tab>
+</Tabs>
+
+
+### Update transaction
+A common action is to update a transaction after it is completed. We can do this by updating the status of the transaction from `pending` to `completed`.
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Transactions` tab in the settings dropdown or by pressing `G` and then `T`.
+    - Select the transaction you want to update, or apply `Filters` or `Sorts` to narrow down the list.
+    - Edit the fields you want to update, typically that means:
+      - changing the `Status` to `Completed` or `Cancelled`.
+      - changing the `Amount` of the transaction.
+      - adding or removing `Labels`.
+      - adding or removing `Lines`.
+      - changing `Date` to a specific date and time.
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Update transaction" path="/v1/transactions/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Update transaction, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request PUT 'https://api.modernbanc.com/v1/transactions/TRN-34' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "status": "completed"
+        }'
+        ```
+      </Tab>
+      <Tab title="Update transaction, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-08T23:58:28.161Z",
+            "updated_at": "2023-01-09T00:19:39.886Z",
+            "id": "78e8ba6c-24b4-406e-b66f-39d2edbc668b",
+            "archived_at": null,
+            "name": "Transaction A -> B ",
+            "description": null,
+            "description_data": null,
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+            "resource_id": null,
+            "external_id": null,
+            "identifier_prefix": "TRN",
+            "identifier_value": "34",
+            "variables": null,
+            "start_date_time": null,
+            "end_date_time": null,
+            "start_date": null,
+            "end_date": null,
+            "status": "completed",
+            "scheduled_date_time": null,
+            "labels": [],
+            "lines": [
+                {
+                    "created_at": "2023-01-08T23:58:28.161Z",
+                    "updated_at": "2023-01-08T23:58:28.161Z",
+                    "id": "e93784d5-825f-4d1b-94b2-09b0c56a85a3",
+                    "archived_at": null,
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                    "transaction_id": "78e8ba6c-24b4-406e-b66f-39d2edbc668b",
+                    "route_id": null,
+                    "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                    "account_id": "8c9aeab1-bcdb-4c5c-a302-e9061730eed5",
+                    "external_id": null,
+                    "name": null,
+                    "description": null,
+                    "variables": null,
+                    "amount": "-100.00",
+                    "items": []
+                },
+                {
+                    "created_at": "2023-01-08T23:58:28.161Z",
+                    "updated_at": "2023-01-08T23:58:28.161Z",
+                    "id": "7e5bdc07-fc00-40d4-80f5-6f383ade6dea",
+                    "archived_at": null,
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                    "transaction_id": "78e8ba6c-24b4-406e-b66f-39d2edbc668b",
+                    "route_id": null,
+                    "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                    "account_id": "ea591138-8edb-490b-932a-0158f245188f",
+                    "external_id": null,
+                    "name": null,
+                    "description": null,
+                    "variables": null,
+                    "amount": "100.00",
+                    "items": []
+                }
+            ]
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+### Archive transaction
+A common operation is to archive a transaction if it is never completed or if it is no longer needed.
+
+In order to archive a transaction, we must first archive all lines associated with the transaction.
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Transactions` tab in the settings dropdown or by pressing `G` and then `T`.
+    - Select the transaction you want to archive, or apply `Filters` or `Sorts` to narrow down the list.
+    - Change the `Status` to `Cancelled`.
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Archive transaction" path="/v1/transactions/{id}/archive" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Archive transaction, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request PUT 'https://api.modernbanc.com/v1/transactions/TRN-35/archive' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "archive": true
+        }'
+        ```
+      </Tab>
+      <Tab title="Archive transaction, response.">
+        ```json showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2023-01-09T00:22:09.976Z",
+              "updated_at": "2023-01-09T00:36:47.950Z",
+              "id": "b5ac3ebc-aae6-43df-b08c-6b2373bf8704",
+              "archived_at": "2023-01-09T00:36:47.949Z",
+              "name": "Transaction A -> B ",
+              "description": null,
+              "description_data": null,
+              "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+              "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+              "resource_id": null,
+              "external_id": null,
+              "identifier_prefix": "TRN",
+              "identifier_value": "35",
+              "variables": null,
+              "start_date_time": null,
+              "end_date_time": null,
+              "start_date": null,
+              "end_date": null,
+              "status": "pending",
+              "scheduled_date_time": null
+          }
+        }
+        ```
+      </Tab>
+    </Tabs>
+    <Toggle title="Archive, transaction with lines">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+        <Tab title="Archive lines, request.">
+          ```json showLineNumbers {} custom_tag
+          curl --location --request PUT 'https://api.modernbanc.com/v1/transactions/TRN-35' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "lines": {
+                  "archive": [
+                      {
+                          "id": "1df58e88-27d7-4a98-a227-1f031686eb3e",
+                          "archive": true
+                      },
+                      {
+                          "id": "a43ebf14-794d-49b5-9ce1-cd1431fd7144",
+                          "archive": true
+                      }
+                  ]
+              }
+          }'
+          ```
+        </Tab>
+        <Tab title="Archive lines, response.">
+        ```json showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2023-01-09T00:22:09.976Z",
+              "updated_at": "2023-01-09T00:30:59.858Z",
+              "id": "b5ac3ebc-aae6-43df-b08c-6b2373bf8704",
+              "archived_at": null,
+              "name": "Transaction A -> B ",
+              "description": null,
+              "description_data": null,
+              "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+              "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+              "resource_id": null,
+              "external_id": null,
+              "identifier_prefix": "TRN",
+              "identifier_value": "35",
+              "variables": null,
+              "start_date_time": null,
+              "end_date_time": null,
+              "start_date": null,
+              "end_date": null,
+              "status": "pending",
+              "scheduled_date_time": null,
+              "labels": [],
+              "lines": []
+          }
+        }
+        ```
+        </Tab>
+      </Tabs>
+    </Toggle>
+    
+  </Tab>
+</Tabs>

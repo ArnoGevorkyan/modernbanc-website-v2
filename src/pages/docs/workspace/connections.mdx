@@ -1,0 +1,595 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+# Connections
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="Connection" />
+
+### What are Connections?
+
+Connections allow your workspace to connect to external systems via queries. Workflows and actions use them.
+
+They're not necessary for workflows to make queries, but they help standardize configurations like `base_url` or `auth_method`.
+
+### Connection Versions
+
+Connections are versioned objects. Versions can have either `draft` or `published` status. You can't edit published versions, but you can use them. This also means that most parameters are part of the Version rather than the Connection itself.
+
+### Connection Types
+
+For now, Modernbanc only supports `http` connections. In the future, we plan to add `graphql`, `postgres`, and other connection types.
+
+### Connection Variables
+
+Variables that are passed to this connection can be reused. For example, a connection can have variables:
+
+```json
+{
+  "api_version": "v2",
+  "header_auth_prefix": "Bearer"
+}
+```
+
+And then reuse it like:
+
+```json {3,5}
+{
+  "base_query": {
+    "base_url": "https://random_site.com/api/{{api_version}}",
+    "headers": {
+      "authorization": "{{header_auth_prefix}} {{auth_value}}"
+    },
+    "content_type": "json"
+  }
+}
+```
+
+#### HTTP APIs
+
+In `http` connections can specify base queries, health-check queries, and authorization methods.
+  - `Base query` works as baseline settings for any query made through this connection. For example, if the base query has `base_url` or `url` specified, then making a query without url will use those baseline values.
+  - `Health-check query` is for checking if the other system is OK before making a request.
+  If the health-check query fails, the original request will fail too.
+  - `Auth methods` that are currently supported: `oauth_2`. If you require custom authentication logic, you can make it happen via variables.
+
+
+# Usage
+
+### Create connection
+
+<Tabs width="min">
+  <Tab title="UI"> 
+    - Navigate to the Connections dropdown, or press `G` and C`.
+    - Click the `Create`button, or press`C`, to create a new connection.
+    - Enter a `Name` and optional `Description` for the connection.
+    - Click the `Edit` button in the top nav to edit the connection.
+    - Select a `Method` from the dropdown. The options are `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `LINK`, and `UNLINK`.
+    - Enter a `URL` for the connection.
+    - Select a `Content Type` from the dropdown. The options are `json`, `x_www_form_urlencoded`, or `no content type`.
+    - Enter the `Headers` for the connection. For example:
+    ```json
+    {
+      "Some-Header": "header_value",
+    }
+    ```
+    - You can select `Oauth 2` from the dropdown to add an `Authorization` header to the connection.
+    - Select the `Add query` button to add a query or health-check query to the connection.
+    <br/>
+    To activate the connection, click the `Publish` button in the top nav.
+  </Tab>
+  <Tab title="API"> 
+    <Operation method="post" title="Create connection" path="/v1/connections" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Create connection, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/connections' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "Modernbanc Connection",
+            "description": "Modernbanc API Basic Connection (for testing)",
+            "version": {
+                "status": "published",
+                "variables": {
+                    "api_key": "your api key here",
+                    "workspace": "docs",
+                    "environment": "test"
+                },
+                "type": "http_api",
+                "parameters": {
+                    "base_query": {
+                        "base_url": "https://api.modernbanc.com/v1",
+                        "method": "get",
+                        "content_type": "json",
+                        "headers": {
+                            "x-worskpace": "{{_variables.workspace}}",
+                            "x-environment": "{{_variables.environment}}",
+                            "authorization": "ApiKey {{_variables.api_key}}"
+                        }
+                    },
+                    "health_check_query": {
+                        "url": "https://api.modernbanc.com/v1"
+                    }
+                }
+            }
+        }'
+        ```
+      </Tab>
+      <Tab title="Create connection, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-09T14:55:16.010Z",
+            "updated_at": "2023-01-09T14:55:16.010Z",
+            "id": "e095fc67-519d-48d0-b67a-3824c8a67319",
+            "archived_at": null,
+            "name": "Modernbanc Connection",
+            "description": "Modernbanc API Basic Connection (for testing)",
+            "description_data": {
+                "root": {
+                    "type": "root",
+                    "format": "",
+                    "indent": 0,
+                    "version": 1,
+                    "children": [
+                        {
+                            "type": "paragraph",
+                            "format": "",
+                            "indent": 0,
+                            "version": 1,
+                            "children": [
+                                {
+                                    "mode": "normal",
+                                    "text": "Modernbanc API Basic Connection (for testing)",
+                                    "type": "text",
+                                    "style": "",
+                                    "detail": 0,
+                                    "format": 0,
+                                    "version": 1
+                                }
+                            ],
+                            "direction": "ltr"
+                        }
+                    ],
+                    "direction": "ltr"
+                }
+            },
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "identifier_prefix": "CON",
+            "identifier_value": "4",
+            "versions": [
+                {
+                    "created_at": "2023-01-09T14:55:15.979Z",
+                    "updated_at": "2023-01-09T14:55:15.979Z",
+                    "id": "96f9446f-102b-4de2-b829-1042ef74b7bf",
+                    "archived_at": null,
+                    "name": "Modernbanc Connection 0.0.1",
+                    "description": null,
+                    "description_data": null,
+                    "connection_id": "e095fc67-519d-48d0-b67a-3824c8a67319",
+                    "version": "0.0.1",
+                    "status": "published",
+                    "is_valid": true,
+                    "link": {
+                        "created_at": "2023-01-09T14:55:15.979Z",
+                        "updated_at": "2023-01-09T14:55:15.979Z",
+                        "id": "cfe9cc73-1996-4e31-8c11-ee2805ef0919",
+                        "connection_id": "e095fc67-519d-48d0-b67a-3824c8a67319",
+                        "connection_version_id": "96f9446f-102b-4de2-b829-1042ef74b7bf",
+                        "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                        "environment_config": {
+                            "created_at": "2023-01-09T14:55:15.979Z",
+                            "updated_at": "2023-01-09T14:55:15.979Z",
+                            "id": "c1470f36-260c-47c2-bf05-c0e496186d07",
+                            "variables": {
+                                "api_key": "your api key here",
+                                "workspace": "docs",
+                                "environment": "test"
+                            },
+                            "connection_link_id": "cfe9cc73-1996-4e31-8c11-ee2805ef0919",
+                            "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                            "status": "inactive"
+                        }
+                    },
+                    "type": "http_api",
+                    "http_api": {
+                        "created_at": "2023-01-09T14:55:15.979Z",
+                        "updated_at": "2023-01-09T14:55:15.979Z",
+                        "id": "8ce26cec-410c-46b8-982c-ec2a1a50f714",
+                        "connection_version_id": "96f9446f-102b-4de2-b829-1042ef74b7bf",
+                        "base_query": {
+                            "created_at": "2023-01-09T14:55:15.979Z",
+                            "updated_at": "2023-01-09T14:55:15.979Z",
+                            "id": "62726af3-82dd-4f55-9f0f-297a3690961b",
+                            "api_id": "8ce26cec-410c-46b8-982c-ec2a1a50f714",
+                            "api_query_type": "base_query",
+                            "base_url": "https://api.modernbanc.com/v1",
+                            "headers": {
+                                "x-worskpace": "{{_variables.workspace}}",
+                                "x-environment": "{{_variables.environment}}",
+                                "authorization": "ApiKey {{_variables.api_key}}"
+                            },
+                            "content_type": "json",
+                            "method": "get"
+                        },
+                        "health_check_query": {
+                            "created_at": "2023-01-09T14:55:15.979Z",
+                            "updated_at": "2023-01-09T14:55:15.979Z",
+                            "id": "25a771dc-66f8-4221-a828-8e515d443b3d",
+                            "api_id": "8ce26cec-410c-46b8-982c-ec2a1a50f714",
+                            "api_query_type": "health_check_query",
+                            "url": "https://api.modernbanc.com/v1"
+                        }
+                    },
+                    "parameters": {
+                        "base_query": {
+                            "base_url": "https://api.modernbanc.com/v1",
+                            "method": "get",
+                            "content_type": "json",
+                            "headers": {
+                                "x-worskpace": "{{_variables.workspace}}",
+                                "x-environment": "{{_variables.environment}}",
+                                "authorization": "ApiKey {{_variables.api_key}}"
+                            }
+                        },
+                        "health_check_query": {
+                            "url": "https://api.modernbanc.com/v1"
+                        },
+                        "connection_version_id": "96f9446f-102b-4de2-b829-1042ef74b7bf"
+                    }
+                }
+            ]
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+    <Toggle title="Stripe">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+        <Tab title="Stripe connection, request.">
+          ```json showLineNumbers {} custom_tag
+          curl --location --request POST 'https://api.modernbanc.com/v1/connections' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "name": "Stripe Connection",
+              "version": {
+                  "status": "published",
+                  "variables": {
+                      "stripe_test_api_key": "<your stripe api key here>"
+                  },
+                  "type": "http_api",
+                  "parameters": {
+                      "base_query": {
+                          "base_url": "https://api.stripe.com/v1",
+                          "method": "post",
+                          "content_type": "x_www_form_urlencoded",
+                          "headers": {
+                              "authorization": "Bearer {{_variables.stripe_test_api_key}}"
+                          }
+                      },
+                      "health_check_query": {
+                          "url": "https://api.stripe.com/v1"
+                      }
+                  }
+              }
+          }'
+          ```
+        </Tab>
+        <Tab title="Stripe connection, response.">
+        ```json showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2023-01-09T15:11:14.222Z",
+              "updated_at": "2023-01-09T15:11:14.222Z",
+              "id": "ff476e71-fcf6-42ee-9c6c-fc2f4c9781ac",
+              "archived_at": null,
+              "name": "Stripe Connection",
+              "description": null,
+              "description_data": null,
+              "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+              "identifier_prefix": "CON",
+              "identifier_value": "7",
+              "versions": [
+                  {
+                      "created_at": "2023-01-09T15:11:14.192Z",
+                      "updated_at": "2023-01-09T15:11:14.192Z",
+                      "id": "470bf98a-4671-4b36-a839-9b1ee084de1a",
+                      "archived_at": null,
+                      "name": "Stripe Connection 0.0.1",
+                      "description": null,
+                      "description_data": null,
+                      "connection_id": "ff476e71-fcf6-42ee-9c6c-fc2f4c9781ac",
+                      "version": "0.0.1",
+                      "status": "published",
+                      "is_valid": true,
+                      "link": {
+                          "created_at": "2023-01-09T15:11:14.192Z",
+                          "updated_at": "2023-01-09T15:11:14.192Z",
+                          "id": "1f3077d5-a598-4a25-b65a-752d9d1d79dc",
+                          "connection_id": "ff476e71-fcf6-42ee-9c6c-fc2f4c9781ac",
+                          "connection_version_id": "470bf98a-4671-4b36-a839-9b1ee084de1a",
+                          "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                          "environment_config": {
+                              "created_at": "2023-01-09T15:11:14.192Z",
+                              "updated_at": "2023-01-09T15:11:14.192Z",
+                              "id": "d91ca5e5-286e-46e6-b573-1d801efdfda5",
+                              "variables": {
+                                  "stripe_test_api_key": "<your stripe api key here>"
+                              },
+                              "connection_link_id": "1f3077d5-a598-4a25-b65a-752d9d1d79dc",
+                              "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                              "status": "inactive"
+                          }
+                      },
+                      "type": "http_api",
+                      "http_api": {
+                          "created_at": "2023-01-09T15:11:14.192Z",
+                          "updated_at": "2023-01-09T15:11:14.192Z",
+                          "id": "4676d038-a8a9-42a3-984a-072231011510",
+                          "connection_version_id": "470bf98a-4671-4b36-a839-9b1ee084de1a",
+                          "base_query": {
+                              "created_at": "2023-01-09T15:11:14.192Z",
+                              "updated_at": "2023-01-09T15:11:14.192Z",
+                              "id": "77332d59-ec15-4e50-831b-589a5aa10fbe",
+                              "api_id": "4676d038-a8a9-42a3-984a-072231011510",
+                              "api_query_type": "base_query",
+                              "base_url": "https://api.stripe.com/v1",
+                              "headers": {
+                                  "authorization": "Bearer {{_variables.stripe_test_api_key}}"
+                              },
+                              "content_type": "x_www_form_urlencoded",
+                              "method": "post"
+                          },
+                          "health_check_query": {
+                              "created_at": "2023-01-09T15:11:14.192Z",
+                              "updated_at": "2023-01-09T15:11:14.192Z",
+                              "id": "48126ae2-440c-4a01-a805-b89e3f41e321",
+                              "api_id": "4676d038-a8a9-42a3-984a-072231011510",
+                              "api_query_type": "health_check_query",
+                              "url": "https://api.stripe.com/v1"
+                          }
+                      },
+                      "parameters": {
+                          "base_query": {
+                              "base_url": "https://api.stripe.com/v1",
+                              "method": "post",
+                              "content_type": "x_www_form_urlencoded",
+                              "headers": {
+                                  "authorization": "Bearer {{_variables.stripe_test_api_key}}"
+                              }
+                          },
+                          "health_check_query": {
+                              "url": "https://api.stripe.com/v1"
+                          },
+                          "connection_version_id": "470bf98a-4671-4b36-a839-9b1ee084de1a"
+                      }
+                  }
+              ]
+          }
+        }
+        ```
+        </Tab>
+      </Tabs>
+    </Toggle>
+    <Toggle title="Slack">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+        <Tab title="Slack webhook connection, request.">
+          ```json showLineNumbers {} custom_tag
+          curl --location --request POST 'https://api.modernbanc.com/v1/connections' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "name": "Slack - custom app webhook",
+              "version": {
+                  "status": "published",
+                  "variables": {
+                      "slack_webhook_url": "<your slack app webhook url>"
+                  },
+                  "type": "http_api",
+                  "parameters": {
+                      "base_query": {
+                          "base_url": "https://hooks.slack.com/services/{{_variables.slack_webhook_url}}",
+                          "method": "post",
+                          "content_type": "json"
+                      },
+                      "health_check_query": {
+                          "url": "https://hooks.slack.com/services"
+                      }
+                  }
+              }
+          }'
+          ```
+        </Tab>
+        <Tab title="Slack webhook connection, response.">
+        ```json showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2023-01-09T15:10:11.896Z",
+              "updated_at": "2023-01-09T15:10:11.896Z",
+              "id": "86b631c2-9337-4c31-b8fc-25df659b6323",
+              "archived_at": null,
+              "name": "Slack - custom app webhook",
+              "description": null,
+              "description_data": null,
+              "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+              "identifier_prefix": "CON",
+              "identifier_value": "6",
+              "versions": [
+                  {
+                      "created_at": "2023-01-09T15:10:11.865Z",
+                      "updated_at": "2023-01-09T15:10:11.865Z",
+                      "id": "df7ac7f2-c19d-4fe3-95d5-6d235048b545",
+                      "archived_at": null,
+                      "name": "Slack - custom app webhook 0.0.1",
+                      "description": null,
+                      "description_data": null,
+                      "connection_id": "86b631c2-9337-4c31-b8fc-25df659b6323",
+                      "version": "0.0.1",
+                      "status": "published",
+                      "is_valid": true,
+                      "link": {
+                          "created_at": "2023-01-09T15:10:11.865Z",
+                          "updated_at": "2023-01-09T15:10:11.865Z",
+                          "id": "52282a54-f370-4776-8526-e8878928efe1",
+                          "connection_id": "86b631c2-9337-4c31-b8fc-25df659b6323",
+                          "connection_version_id": "df7ac7f2-c19d-4fe3-95d5-6d235048b545",
+                          "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                          "environment_config": {
+                              "created_at": "2023-01-09T15:10:11.865Z",
+                              "updated_at": "2023-01-09T15:10:11.865Z",
+                              "id": "694f50ef-c483-4dcf-86ff-6949f28ce146",
+                              "variables": {
+                                  "slack_webhook_url": "<your slack app webhook url>"
+                              },
+                              "connection_link_id": "52282a54-f370-4776-8526-e8878928efe1",
+                              "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                              "status": "inactive"
+                          }
+                      },
+                      "type": "http_api",
+                      "http_api": {
+                          "created_at": "2023-01-09T15:10:11.865Z",
+                          "updated_at": "2023-01-09T15:10:11.865Z",
+                          "id": "32cca7e2-3884-4f94-aacf-ae49c7adac29",
+                          "connection_version_id": "df7ac7f2-c19d-4fe3-95d5-6d235048b545",
+                          "base_query": {
+                              "created_at": "2023-01-09T15:10:11.865Z",
+                              "updated_at": "2023-01-09T15:10:11.865Z",
+                              "id": "8d86e131-c267-41e4-b871-275cc2418f43",
+                              "api_id": "32cca7e2-3884-4f94-aacf-ae49c7adac29",
+                              "api_query_type": "base_query",
+                              "base_url": "https://hooks.slack.com/services/{{_variables.slack_webhook_url}}",
+                              "content_type": "json",
+                              "method": "post"
+                          },
+                          "health_check_query": {
+                              "created_at": "2023-01-09T15:10:11.865Z",
+                              "updated_at": "2023-01-09T15:10:11.865Z",
+                              "id": "ffc20697-bba1-482f-8201-eb6f5366f634",
+                              "api_id": "32cca7e2-3884-4f94-aacf-ae49c7adac29",
+                              "api_query_type": "health_check_query",
+                              "url": "https://hooks.slack.com/services"
+                          }
+                      },
+                      "parameters": {
+                          "base_query": {
+                              "base_url": "https://hooks.slack.com/services/{{_variables.slack_webhook_url}}",
+                              "method": "post",
+                              "content_type": "json"
+                          },
+                          "health_check_query": {
+                              "url": "https://hooks.slack.com/services"
+                          },
+                          "connection_version_id": "df7ac7f2-c19d-4fe3-95d5-6d235048b545"
+                      }
+                  }
+              ]
+          }
+        }
+        ```
+        </Tab>
+      </Tabs>
+
+    </Toggle>
+  </Tab>
+</Tabs> 
+
+### Update connection
+<Tabs width="min">
+  <Tab title="UI">
+    If a connection is published, only the `name` and `description` fields can be updated. However, we can create a new connection version to change additional fields in the connection.
+    - Navigate to the Connections dropdown, or press `G` and C`.
+    - Click on the `Create version` button in the top right corner.
+    - Update the fields as needed:
+      - Select a `Method` from the dropdown. The options are `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `LINK`, and `UNLINK`.
+      - Enter a `URL` for the connection.
+      - Select a `Content Type` from the dropdown. The options are `json`, `x_www_form_urlencoded`, or `no content type`.
+      - Enter the `Headers` for the connection. For example:
+      ```json
+      {
+        "Some-Header": "header_value",
+      }
+      ```
+      - You can select `Oauth 2` from the dropdown to add an `Authorization` header to the connection.
+      - Select the `Add query` button to add a query or health-check query to the connection.
+    <br/>
+    To activate the connection, click the `Publish` button in the top nav.
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Update connection" path="/v1/connections/{id_or_identifier}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Update connection, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request PUT 'https://api.modernbanc.com/v1/connections/CON-4' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "Modernbanc API Connection",
+            "description": "update any info you need"
+        }'
+        ```
+      </Tab>
+      <Tab title="Update connection, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-09T14:55:16.010Z",
+            "updated_at": "2023-01-09T15:12:37.231Z",
+            "id": "e095fc67-519d-48d0-b67a-3824c8a67319",
+            "archived_at": null,
+            "name": "Modernbanc API Connection",
+            "description": "update any info you need",
+            "description_data": {
+                "root": {
+                    "children": [
+                        {
+                            "children": [
+                                {
+                                    "detail": 0,
+                                    "format": 0,
+                                    "mode": "normal",
+                                    "style": "",
+                                    "text": "update any info you need",
+                                    "type": "text",
+                                    "version": 1
+                                }
+                            ],
+                            "direction": "ltr",
+                            "format": "",
+                            "indent": 0,
+                            "type": "paragraph",
+                            "version": 1
+                        }
+                    ],
+                    "direction": "ltr",
+                    "format": "",
+                    "indent": 0,
+                    "type": "root",
+                    "version": 1
+                }
+            },
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "source_connection_id": null,
+            "identifier_prefix": "CON",
+            "identifier_value": "4",
+            "identifier": "CON-4"
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>

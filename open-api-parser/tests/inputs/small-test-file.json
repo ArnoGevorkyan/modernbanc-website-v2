@@ -1,0 +1,1840 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Modernbanc API",
+    "description": "",
+    "version": "1.0",
+    "contact": {}
+  },
+  "paths": {},
+  "tags": [],
+  "servers": [
+    {
+      "url": "https://api.modernbanc.com"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Company": {
+        "type": "object",
+        "properties": {
+          "website": {
+            "type": "string",
+            "nullable": true
+          },
+          "workspaces": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Workspace"
+            }
+          }
+        }
+      },
+      "WorkspaceRolePermission": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "functionality": {
+            "type": "string",
+            "enum": [
+              "entity",
+              "account",
+              "balance",
+              "route",
+              "route_definition",
+              "transaction",
+              "resource",
+              "resource_link",
+              "workflow",
+              "workflow_priority",
+              "api_key",
+              "workspace",
+              "workspace_membership",
+              "workspace_invitation",
+              "workspace_role",
+              "currency",
+              "currency_link",
+              "connection",
+              "label"
+            ]
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "get",
+                "create",
+                "update",
+                "delete",
+                "archive",
+                "revoke",
+                "publish",
+                "execute"
+              ]
+            }
+          },
+          "role_id": {
+            "type": "string"
+          },
+          "environment_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "$ref": "#/components/schemas/WorkspaceRole"
+          },
+          "environment": {
+            "$ref": "#/components/schemas/WorkspaceEnvironment"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "functionality",
+          "permissions",
+          "role_id",
+          "role",
+          "environment",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "WorkspaceRole": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/Workspace"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceRolePermission"
+            }
+          },
+          "memberships": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceRolePermission"
+            }
+          },
+          "api_keys": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceRolePermission"
+            }
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "workspace_id",
+          "workspace",
+          "permissions",
+          "memberships",
+          "api_keys"
+        ]
+      },
+      "WorkspaceInvitation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "accepted_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "role_id": {
+            "type": "string"
+          },
+          "inviter_id": {
+            "type": "string"
+          },
+          "invitee_id": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/Workspace"
+          },
+          "role": {
+            "$ref": "#/components/schemas/WorkspaceRole"
+          },
+          "inviter": {
+            "$ref": "#/components/schemas/User"
+          },
+          "invitee": {
+            "$ref": "#/components/schemas/User"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "role_id",
+          "inviter_id",
+          "invitee_id",
+          "workspace_id",
+          "workspace",
+          "role",
+          "inviter",
+          "invitee"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string"
+          },
+          "email_is_verified": {
+            "type": "boolean"
+          },
+          "password_is_set": {
+            "type": "boolean"
+          },
+          "profile_image_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "google_account_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "google_email": {
+            "type": "string",
+            "nullable": true
+          },
+          "color": {
+            "type": "string"
+          },
+          "whitelisted": {
+            "type": "boolean"
+          },
+          "workspace_memberships": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceMembership"
+            }
+          },
+          "incoming_invitations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceInvitation"
+            }
+          },
+          "outgoing_invitations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceInvitation"
+            }
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "full_name",
+          "username",
+          "email",
+          "email_is_verified",
+          "password_is_set",
+          "profile_image_url",
+          "google_account_id",
+          "google_email",
+          "color",
+          "whitelisted"
+        ]
+      },
+      "WorkspaceMembership": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "suspended"
+            ],
+            "type": "string"
+          },
+          "role_id": {
+            "type": "string"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/Workspace"
+          },
+          "role": {
+            "$ref": "#/components/schemas/WorkspaceRole"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "workspace_id",
+          "status",
+          "role_id",
+          "workspace",
+          "role",
+          "user"
+        ]
+      },
+      "Currency": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "max_precision": {
+            "type": "number"
+          },
+          "default_precision": {
+            "type": "number"
+          },
+          "default_mode": {
+            "enum": [
+              "integers",
+              "floats"
+            ],
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/Workspace"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CurrencyLink"
+            }
+          },
+          "link": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CurrencyLink"
+              }
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "identifier",
+          "name",
+          "description",
+          "max_precision",
+          "default_precision",
+          "default_mode",
+          "workspace_id",
+          "workspace",
+          "links"
+        ]
+      },
+      "CurrencyLink": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "currency_id": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "precision": {
+            "type": "number"
+          },
+          "mode": {
+            "enum": [
+              "integers",
+              "floats"
+            ],
+            "type": "string"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/Currency"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/Workspace"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "currency_id",
+          "workspace_id",
+          "precision",
+          "mode",
+          "currency",
+          "workspace",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "Workspace": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          },
+          "environments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceEnvironment"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceRole"
+            }
+          },
+          "memberships": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceMembership"
+            }
+          },
+          "invitations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceInvitation"
+            }
+          },
+          "available_currencies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CurrencyLink"
+            }
+          },
+          "owned_currencies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Currency"
+            }
+          }
+        }
+      },
+      "WorkspaceEnvironment": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string"
+          },
+          "is_default": {
+            "type": "boolean"
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/Workspace"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "identifier",
+          "is_default",
+          "workspace_id",
+          "workspace",
+          "id",
+          "name",
+          "archived_at"
+        ]
+      },
+      "WorkflowExecution": {
+        "type": "object",
+        "properties": {
+          "identifier_prefix": {
+            "type": "string"
+          },
+          "identifier_value": {
+            "type": "object"
+          },
+          "workflow_link_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "workflow_version_id": {
+            "type": "string"
+          },
+          "environment_id": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "started",
+              "paused",
+              "completed",
+              "failed"
+            ]
+          },
+          "data": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "errors": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "returned": {
+            "type": "object",
+            "nullable": true
+          },
+          "current_step_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "environment": {
+            "$ref": "#/components/schemas/WorkspaceEnvironment"
+          },
+          "id": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "identifier_prefix",
+          "identifier_value",
+          "workflow_link_id",
+          "workflow_version_id",
+          "environment_id",
+          "workspace_id",
+          "status",
+          "data",
+          "errors",
+          "returned",
+          "current_step_id",
+          "environment",
+          "id",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "CreateWorkflowPriorityDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "priority": {
+            "type": "number"
+          },
+          "workflow_id": {
+            "type": "string"
+          },
+          "workflow_version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "priority",
+          "workflow_id",
+          "workflow_version"
+        ]
+      },
+      "WorkflowPriority": {
+        "type": "object",
+        "properties": {
+          "workspace_id": {
+            "type": "string"
+          },
+          "workflow_link_id": {
+            "type": "string"
+          },
+          "workflow_version_id": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "number"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/Workspace"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "workflow_link_id",
+          "workflow_version_id",
+          "priority",
+          "id"
+        ]
+      },
+      "NatsInternalServiceMessageDto": {
+        "type": "object",
+        "properties": {
+          "validate": {
+            "type": "boolean"
+          },
+          "model": {
+            "enum": [
+              "transaction",
+              "account",
+              "route_definition",
+              "entity",
+              "route",
+              "balance"
+            ],
+            "type": "string"
+          },
+          "operation_type": {
+            "enum": [
+              "create",
+              "update",
+              "list",
+              "get",
+              "archive",
+              "delete"
+            ],
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "environment_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "validate",
+          "model",
+          "operation_type",
+          "workspace_id"
+        ]
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "workspace": {
+            "$ref": "#/components/schemas/Workspace"
+          },
+          "environment": {
+            "$ref": "#/components/schemas/WorkspaceEnvironment"
+          }
+        }
+      },
+      "ApiKey": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "revoked"
+            ],
+            "type": "string"
+          },
+          "role_id": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/Workspace"
+          },
+          "role": {
+            "$ref": "#/components/schemas/WorkspaceRole"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "workspace_id",
+          "name",
+          "value",
+          "status",
+          "role_id",
+          "expires_at",
+          "workspace",
+          "role"
+        ]
+      },
+      "Balance": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "account_id": {
+            "type": "string"
+          },
+          "currency_id": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "default",
+              "parent",
+              "custom"
+            ],
+            "type": "string"
+          },
+          "balance": {
+            "type": "string"
+          },
+          "pending_balance": {
+            "type": "string"
+          },
+          "negative_pending_balance": {
+            "type": "string"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/Currency"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "identifier",
+          "name",
+          "description",
+          "account_id",
+          "currency_id",
+          "type",
+          "balance",
+          "pending_balance",
+          "negative_pending_balance",
+          "account",
+          "currency"
+        ]
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "line_1": {
+            "type": "string",
+            "nullable": true
+          },
+          "line_2": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "region": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          },
+          "postcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "line_1",
+          "line_2",
+          "city",
+          "region",
+          "country",
+          "postcode"
+        ]
+      },
+      "Business": {
+        "type": "object",
+        "properties": {
+          "entity_id": {
+            "type": "string"
+          },
+          "date_of_incorporation": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "country_of_incorporation": {
+            "type": "string",
+            "nullable": true
+          },
+          "state_of_incorporation": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "tax_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "structure": {
+            "type": "string",
+            "nullable": true
+          },
+          "entity": {
+            "$ref": "#/components/schemas/Entity"
+          },
+          "address_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "entity_id",
+          "date_of_incorporation",
+          "country_of_incorporation",
+          "state_of_incorporation",
+          "phone",
+          "tax_id",
+          "structure",
+          "entity",
+          "address_id",
+          "address",
+          "id",
+          "name",
+          "archived_at"
+        ]
+      },
+      "Entity": {
+        "type": "object",
+        "properties": {
+          "workspace_id": {
+            "type": "string"
+          },
+          "environment_id": {
+            "type": "string"
+          },
+          "identifier_prefix": {
+            "type": "string"
+          },
+          "identifier_value": {
+            "type": "object"
+          },
+          "variables": {
+            "type": "object",
+            "nullable": true
+          },
+          "type": {
+            "enum": [
+              "simple",
+              "individual",
+              "business"
+            ],
+            "type": "string"
+          },
+          "environment": {
+            "$ref": "#/components/schemas/WorkspaceEnvironment"
+          },
+          "individual": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Individual"
+              }
+            ]
+          },
+          "business": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Business"
+              }
+            ]
+          },
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "environment_id",
+          "identifier_prefix",
+          "identifier_value",
+          "variables",
+          "type",
+          "environment",
+          "individual",
+          "business",
+          "accounts",
+          "id",
+          "name",
+          "archived_at"
+        ]
+      },
+      "Individual": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "entity_id": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "middle_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "nick_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "suffix": {
+            "type": "string",
+            "nullable": true
+          },
+          "nationality": {
+            "type": "string",
+            "nullable": true
+          },
+          "tax_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_of_birth": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "entity": {
+            "$ref": "#/components/schemas/Entity"
+          },
+          "address_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              }
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "entity_id",
+          "first_name",
+          "middle_name",
+          "last_name",
+          "nick_name",
+          "suffix",
+          "nationality",
+          "tax_id",
+          "email",
+          "phone",
+          "date_of_birth",
+          "entity",
+          "address_id",
+          "address"
+        ]
+      },
+      "RouteDefinition": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "variable_definitions": {
+            "type": "object",
+            "nullable": true
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/Workspace"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "workspace_id",
+          "variable_definitions",
+          "workspace",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "CreateRouteDto": {
+        "type": "object",
+        "properties": {
+          "definition_id": {
+            "type": "string"
+          },
+          "currency_id": {
+            "type": "string"
+          },
+          "account_id": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string"
+          },
+          "resource_id": {
+            "type": "string"
+          },
+          "variables": {
+            "type": "object"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "definition_id",
+          "currency_id"
+        ]
+      },
+      "Label": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "workspace_id",
+          "name",
+          "color",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "Route": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "identifier_prefix": {
+            "type": "string"
+          },
+          "identifier_value": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "currency_id": {
+            "type": "string"
+          },
+          "environment_id": {
+            "type": "string"
+          },
+          "definition_id": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "account_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "resource_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "variables": {
+            "type": "object",
+            "nullable": true
+          },
+          "environment": {
+            "$ref": "#/components/schemas/WorkspaceEnvironment"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/RouteDefinition"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/Currency"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            }
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "identifier_prefix",
+          "identifier_value",
+          "workspace_id",
+          "currency_id",
+          "environment_id",
+          "definition_id",
+          "external_id",
+          "account_id",
+          "variables",
+          "environment",
+          "definition",
+          "currency",
+          "labels"
+        ]
+      },
+      "TransactionItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "transaction_line_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "variables": {
+            "type": "object",
+            "nullable": true
+          },
+          "amount": {
+            "type": "string",
+            "nullable": true
+          },
+          "line": {
+            "$ref": "#/components/schemas/TransactionLine"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "transaction_line_id",
+          "name",
+          "description",
+          "variables",
+          "amount",
+          "line",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "TransactionLine": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "transaction_update_id": {
+            "type": "string"
+          },
+          "route_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "currency_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "failed",
+              "declined",
+              "pending",
+              "cancelled",
+              "completed",
+              "returned",
+              "scheduled",
+              "prepared"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "variables": {
+            "type": "object",
+            "nullable": true
+          },
+          "amount": {
+            "type": "string"
+          },
+          "date_time": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_current": {
+            "type": "boolean"
+          },
+          "update": {
+            "$ref": "#/components/schemas/TransactionUpdate"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionItem"
+            }
+          },
+          "route": {
+            "$ref": "#/components/schemas/Route"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/Currency"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "transaction_update_id",
+          "route_id",
+          "currency_id",
+          "status",
+          "name",
+          "description",
+          "variables",
+          "amount",
+          "date_time",
+          "date",
+          "is_current",
+          "update",
+          "route",
+          "currency"
+        ]
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          },
+          "environment_id": {
+            "type": "string"
+          },
+          "resource_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "external_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "identifier_prefix": {
+            "type": "string"
+          },
+          "identifier_value": {
+            "type": "object"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "variables": {
+            "type": "object",
+            "nullable": true
+          },
+          "initiated_date_time": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "completed_date_time": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "initiated_date": {
+            "type": "string",
+            "nullable": true
+          },
+          "completed_date": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "enum": [
+              "failed",
+              "declined",
+              "pending",
+              "cancelled",
+              "completed",
+              "returned",
+              "scheduled",
+              "prepared"
+            ],
+            "type": "string"
+          },
+          "scheduled_date_time": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "environment": {
+            "$ref": "#/components/schemas/WorkspaceEnvironment"
+          },
+          "updates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionUpdate"
+            }
+          },
+          "lines": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionLine"
+            }
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "workspace_id",
+          "environment_id",
+          "external_id",
+          "identifier_prefix",
+          "identifier_value",
+          "name",
+          "description",
+          "variables",
+          "initiated_date_time",
+          "completed_date_time",
+          "initiated_date",
+          "completed_date",
+          "status",
+          "scheduled_date_time",
+          "environment",
+          "updates",
+          "lines"
+        ]
+      },
+      "TransactionUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "transaction_id": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "variables": {
+            "type": "object",
+            "nullable": true
+          },
+          "status": {
+            "type": "object",
+            "nullable": true
+          },
+          "scheduled_date_time": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "date_time": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionLine"
+            }
+          },
+          "transaction": {
+            "$ref": "#/components/schemas/Transaction"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "archived_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "transaction_id",
+          "external_id",
+          "name",
+          "description",
+          "variables",
+          "status",
+          "scheduled_date_time",
+          "date_time",
+          "date"
+        ]
+      }
+    }
+  }
+}

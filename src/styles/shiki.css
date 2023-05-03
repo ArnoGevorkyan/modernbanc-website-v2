@@ -1,0 +1,13 @@
+:root {
+  --shiki-color-text: #434155;
+  --shiki-color-background: #333333;
+  --shiki-token-constant: #ff628c;
+  --shiki-token-string: #770000;
+  --shiki-token-comment: #989fb1;
+  --shiki-token-keyword: #4876d6;
+  --shiki-token-parameter: #aa0000;
+  --shiki-token-function: #bb0000;
+  --shiki-token-string-expression: #cc0000;
+  --shiki-token-punctuation: #434155;
+  --shiki-token-link: #ee0000;
+}

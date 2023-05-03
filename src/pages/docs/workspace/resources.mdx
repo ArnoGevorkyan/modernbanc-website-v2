@@ -1,0 +1,369 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+# Resources
+
+{/* <Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="Resource" /> */}
+
+### What are resources?
+
+Resources are mini-apps. They're reusable containers for your functionality. They can store workflows, connections, actions, and triggers.
+
+The most common examples of resources are **integrations with external systems** (e.g., Stripe resource) or **reusable logic** (Interest or fee calculation resource)
+
+### Resource Versioning
+
+Resources are versioned objects. Versions can have either `draft` or `published` status. You can't edit published versions, but you can use them.
+
+#### What can be stored in a resource
+
+Resources can hold [workflows](/docs/workspace/workflows), [connections](/docs/workspace/connections), [actions](/docs/workspace/actions), [triggers](/docs/workspace/triggers).
+Once you've created a Resource, you need to add it to your workspace. To add (link) a resource and set it up using the following endpoints. Each resource can only have one link in a given workspace.
+
+{/* <Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="Resource version" /> */}
+
+# Usage
+
+#### Create a resource
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to `Resources` page, or press `G` and then `R`.
+    - Click the `Create` button in the top right.
+    - Give the resource a `Name` and optional `Description`.
+    - To enable the Resource for your environment, click the `Enable resource +` button in the top nav.
+    - To add `Workflows`, `Connections`, or `Triggers`, click the `Edit` button in the top nav, and then click the `Add` button next to the resource type you want to add.
+    - To add `Variables`, navigate to the `Variables` tab in the left hand nav.
+      - Optionally, you can add a variable definition by clicking the `Add definitions (optional) +` button.
+    - When you're finished with the changes, click the `Save` button in the top nav, or press `Ctrl + S`.
+  </Tab>
+  <Tab title="API">
+    <Operation method="post" title="Create version" path="/v1/resources/versions" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Create resource, request.">
+      ```json
+      curl --location --request POST 'https://api.modernbanc.com/v1/resources' \
+      --header 'Content-Type: application/json' \
+      --data-raw '{
+          "name": "Example Resource",
+          "sharing_type": "private"
+      }'
+      ```
+      </Tab>
+      <Tab title="Create resource, response.">
+      ```json
+      {
+          "result": {
+              "created_at": "2023-04-03T16:52:44.868Z",
+              "updated_at": "2023-04-03T16:52:44.868Z",
+              "id": "233c0ae6-39d2-4a0e-8337-618dd7a39e11",
+              "archived_at": null,
+              "name": "Example Resource",
+              "description": null,
+              "description_data": null,
+              "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+              "identifier_prefix": "RES",
+              "identifier_value": "204",
+              "sharing_type": "private",
+              "versions": []
+          }
+      }
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+
+#### List resources
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to `Resources` page, or press `G` and then `R`.
+    - The list of resources will be displayed. You can filter or sort to narrow the results by clicking the `Filters` or `Sorts` buttons in the top nav.
+    - To view a resource, click on the resource name.
+  </Tab>
+  <Tab title="API">
+    <Operation method="get" title="Get version" path="/v1/resources/versions/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Get resource, request.">
+        ```json
+        curl --location -g --request GET 'https://api.modernbanc.com/v1/resources/b9b72fdf-2973-4875-b819-a30a9dabaeff?include=versions: true, link: { environment_config: true }' \
+        --data-raw ''
+        ```
+      </Tab>
+      <Tab title="Get resource, response.">
+        ```json
+        {
+            "result": {
+                "created_at": "2023-04-03T15:39:44.901Z",
+                "updated_at": "2023-04-03T15:39:44.901Z",
+                "id": "b9b72fdf-2973-4875-b819-a30a9dabaeff",
+                "archived_at": null,
+                "name": "Hello World",
+                "description": null,
+                "description_data": null,
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "source_resource_id": null,
+                "identifier_prefix": "RES",
+                "identifier_value": "203",
+                "sharing_type": "private",
+                "versions": [
+                    {
+                        "created_at": "2023-04-03T15:39:45.178Z",
+                        "updated_at": "2023-04-03T16:23:58.979Z",
+                        "id": "2c3b5d50-e2a5-481f-a721-3711ce74a5b2",
+                        "archived_at": null,
+                        "name": "Hello World 0.0.1",
+                        "description": null,
+                        "description_data": null,
+                        "resource_id": "b9b72fdf-2973-4875-b819-a30a9dabaeff",
+                        "version": "0.0.1",
+                        "status": "draft",
+                        "variable_definitions": null
+                    }
+                ],
+                "link": {
+                    "created_at": "2023-04-03T15:39:45.053Z",
+                    "updated_at": "2023-04-03T15:39:45.053Z",
+                    "id": "074eda7d-4898-48b4-99aa-dc92e26f24af",
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "resource_id": "b9b72fdf-2973-4875-b819-a30a9dabaeff",
+                    "environment_config": {
+                        "created_at": "2023-04-03T15:39:49.049Z",
+                        "updated_at": "2023-04-03T15:39:49.049Z",
+                        "id": "7b9b6de0-7c8a-4097-9952-118ce6dad6d4",
+                        "resource_link_id": "074eda7d-4898-48b4-99aa-dc92e26f24af",
+                        "resource_version_id": "2c3b5d50-e2a5-481f-a721-3711ce74a5b2",
+                        "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                        "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                        "variables": null,
+                        "are_variables_valid": true,
+                        "status": "inactive"
+                    }
+                }
+            }
+        }
+        ```
+      </Tab>
+    </Tabs>
+    
+    <Operation method="get" title="List versions" path="/v1/resources/versions" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="List resource, request.">
+        ```json
+        curl --location --request GET 'https://api.modernbanc.com/v1/resources?take=2&include=link: true, versions: true' \
+        --data-raw ''
+        ```
+      </Tab>
+      <Tab title="List resource, response.">
+        ```json
+        {
+            "result": [
+                {
+                    "created_at": "2023-04-03T15:39:44.901Z",
+                    "updated_at": "2023-04-03T15:39:44.901Z",
+                    "id": "b9b72fdf-2973-4875-b819-a30a9dabaeff",
+                    "archived_at": null,
+                    "name": "Hello World",
+                    "description": null,
+                    "description_data": null,
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "source_resource_id": null,
+                    "identifier_prefix": "RES",
+                    "identifier_value": "203",
+                    "sharing_type": "private",
+                    "versions": [
+                        {
+                            "created_at": "2023-04-03T15:39:45.178Z",
+                            "updated_at": "2023-04-03T16:23:58.979Z",
+                            "id": "2c3b5d50-e2a5-481f-a721-3711ce74a5b2",
+                            "archived_at": null,
+                            "name": "Hello World 0.0.1",
+                            "description": null,
+                            "description_data": null,
+                            "resource_id": "b9b72fdf-2973-4875-b819-a30a9dabaeff",
+                            "version": "0.0.1",
+                            "status": "draft",
+                            "variable_definitions": null
+                        }
+                    ],
+                    "link": {
+                        "created_at": "2023-04-03T15:39:45.053Z",
+                        "updated_at": "2023-04-03T15:39:45.053Z",
+                        "id": "074eda7d-4898-48b4-99aa-dc92e26f24af",
+                        "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                        "resource_id": "b9b72fdf-2973-4875-b819-a30a9dabaeff"
+                    }
+                },
+                {
+                    "created_at": "2023-03-31T18:40:18.814Z",
+                    "updated_at": "2023-03-31T18:40:18.814Z",
+                    "id": "2fa220cd-4cc8-41fd-a329-d0730c06303c",
+                    "archived_at": null,
+                    "name": "ssafsadf",
+                    "description": null,
+                    "description_data": null,
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "source_resource_id": null,
+                    "identifier_prefix": "RES",
+                    "identifier_value": "202",
+                    "sharing_type": "private",
+                    "versions": [
+                        {
+                            "created_at": "2023-03-31T18:40:19.119Z",
+                            "updated_at": "2023-04-03T15:54:00.287Z",
+                            "id": "36acee77-d8c6-4e02-928c-95394eb9a1b2",
+                            "archived_at": null,
+                            "name": "ssafsadf 0.0.1",
+                            "description": null,
+                            "description_data": null,
+                            "resource_id": "2fa220cd-4cc8-41fd-a329-d0730c06303c",
+                            "version": "0.0.1",
+                            "status": "draft",
+                            "variable_definitions": null
+                        }
+                    ],
+                    "link": {
+                        "created_at": "2023-03-31T18:40:18.943Z",
+                        "updated_at": "2023-03-31T18:40:18.943Z",
+                        "id": "ce0f28fb-4465-455d-b615-6adab538a94b",
+                        "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                        "resource_id": "2fa220cd-4cc8-41fd-a329-d0730c06303c"
+                    }
+                }
+            ],
+            "pagination": {
+                "skip": 0,
+                "take": 2,
+                "has_next_page": true,
+                "has_previous_page": false,
+                "total_count": 4,
+                "after_cursor": "Y3JlYXRlZF9hdDoxNjgwMjg4MDE4ODE0LGlkOjJmYTIyMGNkLTRjYzgtNDFmZC1hMzI5LWQwNzMwYzA2MzAzYw=="
+            }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+
+#### Update a resource
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to `Resources` page, or press `G` and then `R`.
+    - Click on the resource you want to update.
+    - Click on the `Edit` button in the top nav.
+    - Make the desired changes, and click `Save`.
+    - You can `Publish` the resource to make it available for reuse.
+      - Note, once a resource is published you will need to create a new version to make changes.
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Update version" path="/v1/resources/versions/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Update resource, request.">
+        ```json
+        curl --location --request PUT 'https://api.modernbanc.com/v1/resources/RES-203' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "description": "updating a resource to be public",
+            "sharing_type": "public"
+        }'
+        ```
+      </Tab>
+      <Tab title="Update resource, response.">
+        ```json
+        {
+            "result": {
+                "created_at": "2023-04-03T15:39:44.901Z",
+                "updated_at": "2023-04-03T16:47:12.060Z",
+                "id": "b9b72fdf-2973-4875-b819-a30a9dabaeff",
+                "archived_at": null,
+                "name": "Hello World",
+                "description": "updating a resource to be public",
+                "description_data": {
+                    "root": {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "detail": 0,
+                                        "format": 0,
+                                        "mode": "normal",
+                                        "style": "",
+                                        "text": "updating a resource to be public",
+                                        "type": "text",
+                                        "version": 1
+                                    }
+                                ],
+                                "direction": "ltr",
+                                "format": "",
+                                "indent": 0,
+                                "type": "paragraph",
+                                "version": 1
+                            }
+                        ],
+                        "direction": "ltr",
+                        "format": "",
+                        "indent": 0,
+                        "type": "root",
+                        "version": 1
+                    }
+                },
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "source_resource_id": null,
+                "identifier_prefix": "RES",
+                "identifier_value": "203",
+                "identifier": "RES-203",
+                "sharing_type": "public"
+            }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+<br />
+
+#### Note about resource variables
+
+A resource can store variables and even propagate some variables to its objects via a unique character `_`.
+
+```json showLineNumbers
+{
+  "a": "Hello",
+  "_connections": {
+    "<connection_version_id>": {
+      "some": "variable"
+    }
+  },
+  "_workflows": {
+    "<workflow_version_id>": {
+      "some_other": "variable"
+    }
+  }
+}
+```
+
+#### Note about public/private resources
+
+- Sharing resources is done via the `sharing_type` parameter. Right now, this is `public | private`.
+  - Anyone can view a resource and all its versions if its sharing type is set to `public`.
+  - Setting a resource to private is always allowed, but workspaces already linked to the resource will still be able to view the resource and all its versions.

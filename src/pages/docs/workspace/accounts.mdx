@@ -1,0 +1,541 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+# Accounts
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="Account" />
+
+### What are accounts?
+
+Accounts are containers that can help you track the amount of something (e.g., money, material, tickets, or anything else) in one place. Units, variables, and balances define them. You can link it to other accounts, entities, routes, and labels. Once you configure an account, you can use it to conduct transactions.
+
+### Balances
+
+To use [balances](/docs/workspace/balances), you must link a unit to an account.
+
+Accounts can have balances, and each must be assigned a [unit](/docs/workspace/unit) of measurement (e.g., dollars, tickets, etc.). Units are defined by a name, an identifier, a symbol, modes (numerical types, i.e., integers or floats), and precision (number of decimal places). To use a unit, you must first link it to your workspace. More about that [here](/docs/workspace/units).
+
+To add balances to the account, you can specify units on account creation or create separate balances.
+
+Additionally, if you add children to this account, then the parent account will generate a new children's balance.
+
+### Account Relations
+
+Accounts can be linked to other accounts using the `account_relations` array attribute. Account relations use a tree structure, meaning children cannot track parent or sibling accounts. The types of account relations are `parent` and `child`. Account relations can be created and deleted using the `create` and `delete` keys. You can create or delete multiple account relations at once.
+
+
+### Entity Relations
+
+Entities can be individuals, businesses, or anything you want. You can link an account to entities. For example, if you have a business and want to link all accounts to that business, you can use entity relations.
+
+
+### Labels
+
+Labels can link to accounts, which are similar to tags. It's another way to filter information.
+
+
+# Usage
+
+#### Create Account
+
+<Tabs placement='left' width="min">
+  <Tab title="UI">
+    - Navigate to the `Accounts` tab in the settings dropdown or by pressing `G` and then `A`.
+    - Click the `Create` button in the upper right corner.
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Simple">
+        - Fill out the form with the following values:
+            - Name: an example name like `Sample Account`.
+            - Unit: the unit used for the account, like `United States dollar`.
+        - Click `Create` on the bottom right of the form.
+      </Tab>
+      <Tab title="Advanced">
+        - Fill out the form with the following values:
+            - Name: an example name like `Sample Account`.
+            - Unit: the unit used for the account, like `United States dollar`.
+            - Entities: the entity you want to associate with the account, like `Entity - Individual`.
+            - Tags: select an existing tag or create a new one here by typing `example` and `+ Create new item` and finally select a color like `Purple`.
+            - Variables:
+              ```json showLineNumbers {} custom_tag
+              {
+                "variable_1": "value_1",
+                "variable_2": "value_2"
+              }
+              ```
+            - Minimum lines: the minimum number of lines you want for the transaction, typically the number of parties involved, like `2`.
+            - Maximum lines: the maximum number of lines you want for the transaction, typically the number of parties involved, like `3`.
+            - External ID: `983274987`.
+        - Click `Create` on the bottom right of the form.
+      </Tab>
+    </Tabs>
+  </Tab>
+  <Tab title="API">
+    <Operation method="post" title="Create account" path="/v1/accounts" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Create account, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/accounts' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "Example account - with balance (usd)",
+            "unit_ids": [
+                "usd"
+            ]
+        }'
+        ```
+      </Tab>
+      <Tab title="Create account, response.">
+        ```json showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2023-01-03T21:02:05.678Z",
+              "updated_at": "2023-01-03T21:02:05.678Z",
+              "id": "1ea2df0a-1c24-4bb8-9ceb-b2c43b630cae",
+              "archived_at": null,
+              "name": "Example account - with balance (usd)",
+              "description": null,
+              "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+              "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+              "resource_id": null,
+              "external_id": null,
+              "identifier_prefix": "ACT",
+              "identifier_value": "18",
+              "variables": null,
+              "minimum_lines": 1,
+              "maximum_lines": null,
+              "status": "active",
+              "balances": [
+                  {
+                      "created_at": "2023-01-03T21:02:05.678Z",
+                      "updated_at": "2023-01-03T21:02:05.678Z",
+                      "id": "b32628ad-bb35-458c-9f13-727065e90a6e",
+                      "archived_at": null,
+                      "name": "Main usd balance",
+                      "description": null,
+                      "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                      "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                      "identifier": "main.usd",
+                      "account_id": "1ea2df0a-1c24-4bb8-9ceb-b2c43b630cae",
+                      "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                      "type": "main",
+                      "balance": "0.000",
+                      "pending_balance": "0.000",
+                      "negative_pending_balance": "0.000"
+                  }
+              ],
+              "routes": [],
+              "labels": [],
+              "entity_relations": [],
+              "identifier": "ACT-18",
+              "account_relations": []
+          }
+        }
+        ```
+      </Tab>
+    </Tabs>
+    <br/>
+    <Label text="Other examples" />
+    <Toggle title="Account with and without balances">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+        <Tab title="with balances">
+          ```json showLineNumbers {} custom_tag
+          {
+            "result": {
+                "created_at": "2023-01-03T20:11:45.789Z",
+                "updated_at": "2023-01-03T20:11:45.789Z",
+                "id": "1951e6be-06cf-4124-b16a-e5211feef1b6",
+                "archived_at": null,
+                "name": "Example account - with balance (usd)",
+                "description": null,
+                "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                "resource_id": null,
+                "external_id": null,
+                "identifier_prefix": "ACT",
+                "identifier_value": "17",
+                "variables": null,
+                "minimum_lines": 1,
+                "maximum_lines": null,
+                "status": "active",
+                "balances": [
+                    {
+                        "created_at": "2023-01-03T20:11:45.789Z",
+                        "updated_at": "2023-01-03T20:11:45.789Z",
+                        "id": "4c2e4b54-b169-4b94-89f1-5135c4584996",
+                        "archived_at": null,
+                        "name": "Main usd balance",
+                        "description": null,
+                        "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                        "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                        "identifier": "main.usd",
+                        "account_id": "1951e6be-06cf-4124-b16a-e5211feef1b6",
+                        "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                        "type": "main",
+                        "balance": "0.000",
+                        "pending_balance": "0.000",
+                        "negative_pending_balance": "0.000"
+                    }
+                ],
+                "routes": [],
+                "labels": [],
+                "entity_relations": [],
+                "identifier": "ACT-17",
+                "account_relations": []
+            }
+          }
+          ```
+        </Tab>
+        <Tab title="without balances">
+        ```json showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2023-01-03T20:10:46.539Z",
+              "updated_at": "2023-01-03T20:10:46.539Z",
+              "id": "aa1825a2-c3a3-4255-8b4c-46753340f4c8",
+              "archived_at": null,
+              "name": "Example Account - without balances",
+              "description": null,
+              "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+              "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+              "resource_id": null,
+              "external_id": null,
+              "identifier_prefix": "ACT",
+              "identifier_value": "16",
+              "variables": null,
+              "minimum_lines": 1,
+              "maximum_lines": null,
+              "status": "active",
+              "balances": [],
+              "routes": [],
+              "labels": [],
+              "entity_relations": [],
+              "identifier": "ACT-16",
+              "account_relations": []
+          }
+        }
+        ```
+        </Tab>
+      </Tabs>
+    </Toggle>
+    <Toggle title="Account with relations, labels, and entities">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+        <Tab title="Example with everything, request.">
+          ```json showLineNumbers {} custom_tag
+          curl --location --request POST 'https://api.modernbanc.com/v1/accounts' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "name": "Example with everything account",
+              "description": null,
+              "external_id": null,
+              "unit_ids": [
+                  "usd"
+              ],
+              "variables": {
+                  "credit_card": [
+                      {
+                          "card_name": "encrypted_token"
+                      },
+                      {
+                          "card_number": "encrypted_token"
+                      },
+                      {
+                          "card_exp": "encrypted_token"
+                      }
+                  ]
+              },
+              "minimum_lines": 1,
+              "maximum_lines": null,
+              "status": "active",
+              "routes": {
+                  "connect": [
+                      "RTE-DFDSW36YL"
+                  ]
+              },
+              "label_ids": [
+                  "f6119999-dc8b-4910-adfe-262a28b53328"
+              ],
+              "entity_relations": {
+                  "create": [
+                      {
+                          "entity_id": "d6726181-e445-4b6e-9558-c61f379cba01"
+                      }
+                  ]
+              },
+              "account_relations": {
+                  "create": [
+                      {
+                          "type": "child",
+                          "account_id": "ACT-20"
+                      },
+                      {
+                          "type": "child",
+                          "account_id": "ACT-19"
+                      }
+                  ]
+              }
+            }'
+          ```
+        </Tab>
+        <Tab title="Example with everything, response.">
+          ```json showLineNumbers {} custom_tag
+          {
+            "result": {
+                "created_at": "2023-01-03T22:06:20.806Z",
+                "updated_at": "2023-01-03T22:06:20.806Z",
+                "id": "8ad7c905-d0de-4515-878b-2c8eb3607341",
+                "archived_at": null,
+                "name": "Example with everything account",
+                "description": null,
+                "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                "resource_id": null,
+                "external_id": null,
+                "identifier_prefix": "ACT",
+                "identifier_value": "21",
+                "variables": {
+                    "credit_card": [
+                        {
+                            "card_name": "encrypted_token"
+                        },
+                        {
+                            "card_number": "encrypted_token"
+                        },
+                        {
+                            "card_exp": "encrypted_token"
+                        }
+                    ]
+                },
+                "minimum_lines": 1,
+                "maximum_lines": null,
+                "status": "active",
+                "balances": [
+                    {
+                        "created_at": "2023-01-03T22:06:20.806Z",
+                        "updated_at": "2023-01-03T22:06:20.806Z",
+                        "id": "f83d7edc-f998-48f8-9487-13f18a4ea71a",
+                        "archived_at": null,
+                        "name": "Children usd balance",
+                        "description": null,
+                        "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                        "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                        "identifier": "children.usd",
+                        "account_id": "8ad7c905-d0de-4515-878b-2c8eb3607341",
+                        "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                        "type": "children",
+                        "balance": "0.000",
+                        "pending_balance": "0.000",
+                        "negative_pending_balance": "0.000"
+                    },
+                    {
+                        "created_at": "2023-01-03T22:06:20.806Z",
+                        "updated_at": "2023-01-03T22:06:20.806Z",
+                        "id": "3840699e-f601-4645-b94e-cd3c54054e52",
+                        "archived_at": null,
+                        "name": "Main usd balance",
+                        "description": null,
+                        "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                        "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                        "identifier": "main.usd",
+                        "account_id": "8ad7c905-d0de-4515-878b-2c8eb3607341",
+                        "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                        "type": "main",
+                        "balance": "0.000",
+                        "pending_balance": "0.000",
+                        "negative_pending_balance": "0.000"
+                    }
+                ],
+                "routes": [
+                    {
+                        "created_at": "2023-01-03T21:28:40.325Z",
+                        "updated_at": "2023-01-03T21:28:40.325Z",
+                        "id": "b57a3661-7b87-4800-b60d-097492834ca0",
+                        "archived_at": null,
+                        "name": "Route with credit card definition",
+                        "description": "",
+                        "identifier_prefix": "RTE",
+                        "identifier_value": "DFDSW36YL",
+                        "identifier": "RTE-DFDSW36YL",
+                        "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                        "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                        "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                        "definition_id": "cab76ba5-2b8a-4ca8-bbf8-82c5f70f40d5",
+                        "external_id": null,
+                        "account_id": "8ad7c905-d0de-4515-878b-2c8eb3607341",
+                        "resource_id": null,
+                        "variables": {
+                            "credit_card_cvv": 777,
+                            "credit_card_name": "User XYZ - Credit Card",
+                            "credit_card_number": 1234123412341234,
+                            "credit_card_expiration": "12/25"
+                        }
+                    }
+                ],
+                "labels": [
+                    {
+                        "created_at": "2023-01-03T21:35:00.148Z",
+                        "updated_at": "2023-01-03T21:35:00.148Z",
+                        "id": "f6119999-dc8b-4910-adfe-262a28b53328",
+                        "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                        "name": "Example Label",
+                        "color": "#ff0000"
+                    }
+                ],
+                "entity_relations": [
+                    {
+                        "created_at": "2023-01-03T22:06:20.806Z",
+                        "updated_at": "2023-01-03T22:06:20.806Z",
+                        "id": "7c76cdc1-4197-46dc-bab6-5552a5f75d1f",
+                        "entity_id": "d6726181-e445-4b6e-9558-c61f379cba01",
+                        "account_id": "8ad7c905-d0de-4515-878b-2c8eb3607341",
+                        "entity": {
+                            "created_at": "2023-01-03T21:58:28.232Z",
+                            "updated_at": "2023-01-03T21:58:28.232Z",
+                            "id": "d6726181-e445-4b6e-9558-c61f379cba01",
+                            "archived_at": null,
+                            "name": "Entity - Business",
+                            "description": null,
+                            "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                            "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                            "identifier_prefix": "ENT",
+                            "identifier_value": "2",
+                            "identifier": "ENT-2",
+                            "variables": null,
+                            "type": "business"
+                        }
+                    }
+                ],
+                "identifier": "ACT-21",
+                "account_relations": [
+                    {
+                        "id": "b0acaa42-34ed-409c-9edb-522cf3a36990",
+                        "created_at": "2023-01-03T22:06:20.806Z",
+                        "updated_at": "2023-01-03T22:06:20.806Z",
+                        "type": "child",
+                        "account": {
+                            "created_at": "2023-01-03T21:24:35.958Z",
+                            "updated_at": "2023-01-03T21:24:35.958Z",
+                            "id": "09149edb-6e5a-4e35-92ff-467bde37e5d1",
+                            "archived_at": null,
+                            "name": "Child Account - 2",
+                            "description": null,
+                            "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                            "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                            "resource_id": null,
+                            "external_id": null,
+                            "identifier_prefix": "ACT",
+                            "identifier_value": "20",
+                            "variables": null,
+                            "minimum_lines": 1,
+                            "maximum_lines": null,
+                            "status": "active"
+                        },
+                        "account_id": "09149edb-6e5a-4e35-92ff-467bde37e5d1"
+                    },
+                    {
+                        "id": "93bcffa6-d494-4249-81b8-73e354f0020f",
+                        "created_at": "2023-01-03T22:06:20.806Z",
+                        "updated_at": "2023-01-03T22:06:20.806Z",
+                        "type": "child",
+                        "account": {
+                            "created_at": "2023-01-03T21:24:00.695Z",
+                            "updated_at": "2023-01-03T21:24:00.695Z",
+                            "id": "a73b4e4a-8e41-4ebf-842d-20b7d9aa6f14",
+                            "archived_at": null,
+                            "name": "Child Account - 1",
+                            "description": null,
+                            "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                            "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                            "resource_id": null,
+                            "external_id": null,
+                            "identifier_prefix": "ACT",
+                            "identifier_value": "19",
+                            "variables": null,
+                            "minimum_lines": 1,
+                            "maximum_lines": null,
+                            "status": "active"
+                        },
+                        "account_id": "a73b4e4a-8e41-4ebf-842d-20b7d9aa6f14"
+                    }
+                ]
+            }
+          }
+          ```
+        </Tab>
+      </Tabs>
+    </Toggle>
+  </Tab>
+</Tabs>
+
+
+#### Update Account
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Accounts` tab in the settings dropdown or by pressing `G` and then `A`.
+    - Select the account you want to update, or apply `Filters` or `Sorts` to narrow down the list.
+    - On the left, there are the options to edit for the account.
+      - Name: an example name like `Sample Account`.
+      - Description: a description for the account.
+      - Status: the status of the account. Options include `Active`, and `Inactive`.
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Update account" path="/v1/accounts/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Update account, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request PUT 'https://api.modernbanc.com/v1/accounts/ACT-16' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "Example account - with updated name",
+            "description": "add a description for more context"
+        }'
+        ```
+      </Tab>
+      <Tab title="Update account, response.">
+        ```json showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2023-01-03T20:10:46.539Z",
+              "updated_at": "2023-01-03T20:53:00.218Z",
+              "id": "aa1825a2-c3a3-4255-8b4c-46753340f4c8",
+              "archived_at": null,
+              "name": "Example account - with updated name",
+              "description": "add a description for more context",
+              "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+              "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+              "resource_id": null,
+              "external_id": null,
+              "identifier_prefix": "ACT",
+              "identifier_value": "16",
+              "variables": null,
+              "minimum_lines": 1,
+              "maximum_lines": null,
+              "status": "active",
+              "balances": [],
+              "routes": [],
+              "labels": [],
+              "entity_relations": [],
+              "identifier": "ACT-16",
+              "account_relations": []
+          }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs> 

@@ -1,0 +1,376 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+# Triggers
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="Trigger" />
+
+### What are triggers?
+
+Triggers are used to detect or signal events that occur either within Modernbanc or from an external source. Triggers are used to start/resume workflows. There are three types of triggers:
+
+- `webhook` - incoming webhook event listener.
+- `schedule` - cronjob recurring schedule.
+- `workspace_event` - Modernbanc application event listener.
+
+### Webhook triggers
+
+Webhook triggers are used to detect events that are sent to your workspace from an external source. For example, say you want to receive a Slack notification any time someones payment is declined using Stripe. You can configure stripe to send a webhook to your workspace, and then configure a webhook trigger to detect the event and begin a workflow that sends a notification to Slack.
+
+### Schedule triggers
+
+Schedule triggers are triggers that run on your chosen date or schedule. For example, say you want a report of all payments that were declined in the last 24 hours. You can configure a schedule trigger to run every day at midnight, and then configure a workflow to run that report and send it to a slack channel.
+
+### Workspace event triggers
+
+Workspace event triggers are used to detect events that occur within Modernbanc. For example, say you want generate an alert every time a new account is created.
+
+### Trigger Versions
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="TriggerVersion" />
+Triggers can have multiple versions. This is useful if you want to change the behavior of a trigger without breaking existing workflows. Additionally,
+workflows are linked to versions of the trigger rather than trigger itself.{' '}
+
+### Trigger Links
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="TriggerLink" />
+Once a trigger is created, it will contain a version. This version is what gets linked to the workflow. When this is done, the trigger link will contain
+information about the link between trigger, trigger version, and workflow.{' '}
+
+# Usage
+
+### Create trigger
+
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Triggers page`, or press `G` and then `I`.
+    - Press the `Create` button in the upper right hand corner.
+    - `Start date`: is the date and time the trigger will start running.
+    - `Active until`: is the date and time the trigger will stop running.
+    - Select the type of trigger you want to create. Options are:
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Webhook">
+        - `Webhook URL`: is the URL that will be used to listen for incoming webhooks from external sources.
+      </Tab>
+      <Tab title="Workspace event">
+        - `Timing`: is the timing of the event. Options are:
+          - `Before`
+          - `After`
+        - `Model`: is the event that will trigger the trigger. Options are:
+          - `Account`
+          - `Transaction`
+          - `Route`
+          - `Entity`
+          - `Label`
+          - `Api key
+        - `Type` is the type of event that will trigger the trigger. Options are:
+          - `Created`
+          - `Updated`
+      </Tab>
+      <Tab title="Schedule">
+        - in the `Cron string` field, enter a cron string. For example, `0 0 * * *` will run the trigger every day at midnight.
+      </Tab>
+    </Tabs>
+  </Tab>
+  <Tab title="API">
+    <Operation method="post" title="Create trigger" path="/v1/triggers" />
+    <Label text="Create webhook trigger" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Create trigger, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/triggers' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "Stripe Webhook Trigger",
+            "description": "Listens for incoming webhooks from Stripe",
+            "version": {
+                "status": "published",
+                "version_type": "large",
+                "start_date": "2022-12-22T03:54:50.146Z",
+                "type": "webhook"
+            }
+        }'
+        ```
+      </Tab>
+      <Tab title="Create trigger, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-05T19:47:01.895Z",
+            "updated_at": "2023-01-05T19:47:01.895Z",
+            "id": "a0cfe8e9-f752-42a1-81b9-eeac2447ea83",
+            "archived_at": null,
+            "name": "Stripe Webhook Trigger",
+            "description": "Listens for incoming webhooks from Stripe",
+            "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+            "source_trigger_id": null,
+            "identifier_prefix": "WFT",
+            "identifier_value": "11",
+            "versions": [
+                {
+                    "created_at": "2023-01-05T19:47:01.895Z",
+                    "updated_at": "2023-01-05T19:47:01.895Z",
+                    "id": "635be33a-a3bb-441f-99b5-b5806e0126c4",
+                    "archived_at": null,
+                    "name": "Stripe Webhook Trigger 1.0.0",
+                    "description": null,
+                    "trigger_id": "a0cfe8e9-f752-42a1-81b9-eeac2447ea83",
+                    "version": "1.0.0",
+                    "status": "published",
+                    "type": "webhook",
+                    "start_date": "2022-12-22T03:54:50.146Z",
+                    "is_valid": true,
+                    "end_date": null,
+                    "schedule": null,
+                    "workspace_event_type": null,
+                    "workspace_event_model": null,
+                    "workspace_event_timing": null,
+                    "link": {
+                        "created_at": "2023-01-05T19:47:01.895Z",
+                        "updated_at": "2023-01-05T19:47:01.895Z",
+                        "id": "8b8b49a0-4732-45ae-9ce5-0b08c0fea364",
+                        "trigger_id": "a0cfe8e9-f752-42a1-81b9-eeac2447ea83",
+                        "trigger_version_id": "635be33a-a3bb-441f-99b5-b5806e0126c4",
+                        "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                        "variables": null
+                    }
+                }
+            ]
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+    <Label text="Create schedule trigger" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Create schedule trigger, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/triggers' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "Scheduled trigger",
+            "description": "uses cron syntax to complete recurring tasks",
+            "version": {
+                "status": "published",
+                "variables": {
+                    "Master account identifier": "ACT-28"
+                },
+                "version_type": "large",
+                "start_date": "2023-01-05T19:09:36.503Z",
+                "type": "schedule",
+                "schedule": "0 5 * * * *"
+            }
+        }'
+        ```
+      </Tab>
+      <Tab title="Create schedule trigger, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-05T19:21:37.249Z",
+            "updated_at": "2023-01-05T19:21:37.249Z",
+            "id": "afc89fd5-5fd6-4c58-9328-aa8f69446306",
+            "archived_at": null,
+            "name": "Scheduled trigger",
+            "description": "uses cron syntax to complete recurring tasks",
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "source_trigger_id": null,
+            "identifier_prefix": "WFT",
+            "identifier_value": "9",
+            "versions": [
+                {
+                    "created_at": "2023-01-05T19:21:37.249Z",
+                    "updated_at": "2023-01-05T19:21:37.249Z",
+                    "id": "83c231d6-7d3c-4cfb-a67b-8bf741e062f1",
+                    "archived_at": null,
+                    "name": "Scheduled trigger 1.0.0",
+                    "description": null,
+                    "trigger_id": "afc89fd5-5fd6-4c58-9328-aa8f69446306",
+                    "version": "1.0.0",
+                    "status": "published",
+                    "type": "schedule",
+                    "start_date": "2023-01-05T19:09:36.503Z",
+                    "is_valid": true,
+                    "end_date": null,
+                    "schedule": "0 5 * * * *",
+                    "workspace_event_type": null,
+                    "workspace_event_model": null,
+                    "workspace_event_timing": null,
+                    "link": {
+                        "created_at": "2023-01-05T19:21:37.249Z",
+                        "updated_at": "2023-01-05T19:21:37.249Z",
+                        "id": "27fc4bfd-47ce-4501-9858-54fc388ca6c6",
+                        "trigger_id": "afc89fd5-5fd6-4c58-9328-aa8f69446306",
+                        "trigger_version_id": "83c231d6-7d3c-4cfb-a67b-8bf741e062f1",
+                        "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                        "variables": {
+                            "Master account identifier": "ACT-28"
+                        }
+                    }
+                }
+            ]
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+    <Label text="Create workspace_event trigger" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Create workspace_event trigger, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/triggers' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "Transaction Trigger",
+            "description": "triggers workflow on transaction",
+            "version": {
+                "version_type": "large",
+                "type": "workspace_event",
+                "workspace_event_type": "created",
+                "workspace_event_model": "transaction",
+                "workspace_event_timing": "after",
+                "status": "published",
+                "start_date": "2022-12-22T03:54:50.146Z"
+            }
+        }'
+        ```
+      </Tab>
+      <Tab title="Create workspace_event trigger, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-05T19:44:27.110Z",
+            "updated_at": "2023-01-05T19:44:27.110Z",
+            "id": "aa158bc2-347b-44b8-87c4-8e1643508b42",
+            "archived_at": null,
+            "name": "Transaction Trigger",
+            "description": "triggers workflow on transaction",
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "source_trigger_id": null,
+            "identifier_prefix": "WFT",
+            "identifier_value": "10",
+            "versions": [
+                {
+                    "created_at": "2023-01-05T19:44:27.110Z",
+                    "updated_at": "2023-01-05T19:44:27.110Z",
+                    "id": "ffc4802a-5da9-4193-aa51-7ec3b98eb2ec",
+                    "archived_at": null,
+                    "name": "Transaction Trigger 1.0.0",
+                    "description": null,
+                    "trigger_id": "aa158bc2-347b-44b8-87c4-8e1643508b42",
+                    "version": "1.0.0",
+                    "status": "published",
+                    "type": "workspace_event",
+                    "start_date": "2022-12-22T03:54:50.146Z",
+                    "is_valid": true,
+                    "end_date": null,
+                    "schedule": null,
+                    "workspace_event_type": "created",
+                    "workspace_event_model": "transaction",
+                    "workspace_event_timing": "after",
+                    "link": {
+                        "created_at": "2023-01-05T19:44:27.110Z",
+                        "updated_at": "2023-01-05T19:44:27.110Z",
+                        "id": "361cf1f1-c782-4efa-a7cb-bd0d13fcd02f",
+                        "trigger_id": "aa158bc2-347b-44b8-87c4-8e1643508b42",
+                        "trigger_version_id": "ffc4802a-5da9-4193-aa51-7ec3b98eb2ec",
+                        "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                        "variables": null
+                    }
+                }
+            ]
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+
+
+### Update triggers
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Triggers page`, or press `G` and then `I`.
+    - Select the trigger you want to update, or apply `Filters` or `Sorts` to narrow down the list.
+    - `Start date`: is the date and time the trigger will start running.
+    - `Active until`: is the date and time the trigger will stop running.
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Webhook">
+        - `Webhook URL`: is the URL that will be used to listen for incoming webhooks from external sources.
+      </Tab>
+      <Tab title="Workspace event">
+        - `Timing`: is the timing of the event. Options are:
+          - `Before`
+          - `After`
+        - `Model`: is the event that will trigger the trigger. Options are:
+          - `Account`
+          - `Transaction`
+          - `Route`
+          - `Entity`
+          - `Label`
+          - `Api key
+        - `Type` is the type of event that will trigger the trigger. Options are:
+          - `Created`
+          - `Updated`
+      </Tab>
+      <Tab title="Schedule">
+        - in the `Cron string` field, enter a cron string. For example, `0 0 * * *` will run the trigger every day at midnight.
+      </Tab>
+    </Tabs>
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Update trigger" path="/v1/triggers/{id_or_identifier}" />
+    Only name and description can be updated for triggers. To alter other properties, create a new version of the trigger.
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Update trigger, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request PUT 'https://api.modernbanc.com/v1/triggers/WFT-9' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "description": "addition context about our trigger here"
+        }'
+        ```
+      </Tab>
+      <Tab title="Update trigger, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-05T19:21:37.249Z",
+            "updated_at": "2023-01-05T22:42:04.909Z",
+            "id": "afc89fd5-5fd6-4c58-9328-aa8f69446306",
+            "archived_at": null,
+            "name": "Scheduled trigger",
+            "description": "addition context about our trigger here",
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "source_trigger_id": null,
+            "identifier_prefix": "WFT",
+            "identifier_value": "9",
+            "identifier": "WFT-9"
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+

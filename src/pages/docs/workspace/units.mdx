@@ -1,0 +1,568 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+# Units
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="Unit" />
+
+### What are units?
+
+Units are practically unit measures: they are your currencies or any other units of measurement used to track money, material, tickets, and anything else. Units are defined by a symbol, modes (numerical types, i.e., integers or floats), and precision (number of decimal places).
+
+### Enabling units in your workspace
+
+Before you can start creating accounts and transactions with a unit, you need to create, or if they already exist, link them to your workspace. All ISO units and some crypto units are pre-created, so you only have to link them.
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="UnitLink" />
+
+# Usage: unit links
+
+#### Create unit link
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Settings` tab or press `G` and then `S`.
+    - Select the `Units` tab, or press `G` and then `U`.
+    - Select the unit you want to link to your workspace, and click the `Enable` button on the right side of the unit.
+  </Tab>
+  <Tab title="API">
+    <Operation method="post" title="Create unit link" path="/v1/units/links" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Create unit link, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/units/links' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "unit_id" : "3bd640b6-1cbb-491a-ac1b-af4bd4b60b5c",
+            "mode": "floats",
+            "precision": 2
+        }'
+        ```
+      </Tab>
+      <Tab title="Create unit link, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-04T20:57:34.411Z",
+            "updated_at": "2023-01-04T20:57:34.411Z",
+            "id": "68252436-7f32-435e-870e-ea23e6b1fad8",
+            "unit_id": "3bd640b6-1cbb-491a-ac1b-af4bd4b60b5c",
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "precision": 2,
+            "mode": "floats",
+            "unit": {
+                "created_at": "2023-01-04T18:24:01.606Z",
+                "updated_at": "2023-01-04T18:35:59.363Z",
+                "id": "3bd640b6-1cbb-491a-ac1b-af4bd4b60b5c",
+                "archived_at": null,
+                "name": "Example Units",
+                "description": "updated example unit",
+                "identifier": "exa",
+                "max_precision": null,
+                "default_precision": 2,
+                "default_mode": "floats",
+                "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                "color": "#800B19",
+                "symbol": "ex.",
+                "background": "#000000"
+            }
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+#### Get unit links
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Settings` tab or press `G` and then `S`.
+    - Select the `Units` tab, or press `G` and then `U`.
+    - You can view which units are linked to your workspace at the top of the list.
+    - Linked units will show information about the link, and unlinked units will have an `Enable` button on the right.
+  </Tab>
+  <Tab title="API">
+    <Operation method="get" title="Get link" path="/v1/units/links/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Get unit link, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request GET 'https://api.modernbanc.com/v1/units/links/68252436-7f32-435e-870e-ea23e6b1fad8' \
+        --header 'x-workspace: docs'
+        ```
+      </Tab>
+      <Tab title="Get unit link, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-04T20:57:34.411Z",
+            "updated_at": "2023-01-04T20:57:34.411Z",
+            "id": "68252436-7f32-435e-870e-ea23e6b1fad8",
+            "unit_id": "3bd640b6-1cbb-491a-ac1b-af4bd4b60b5c",
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "precision": 2,
+            "mode": "floats"
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+    <Operation method="get" title="List links" path="/v1/units/links" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="List unit links, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request GET 'https://api.modernbanc.com/v1/units/links?take=3'
+        ```
+      </Tab>
+      <Tab title="List unit links, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": [
+            {
+                "created_at": "2023-01-05T01:09:51.185Z",
+                "updated_at": "2023-01-05T01:09:51.185Z",
+                "id": "47150443-1dfd-42ef-b53c-f2961dcc55a8",
+                "unit_id": "f3c2e94b-7312-427c-90a7-2c9dfdccd02a",
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "precision": 2,
+                "mode": "floats"
+            },
+            {
+                "created_at": "2023-01-05T01:09:33.863Z",
+                "updated_at": "2023-01-05T01:09:33.863Z",
+                "id": "5dea03d5-6309-42b4-ba5a-c826f97fdb8b",
+                "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "precision": 2,
+                "mode": "floats"
+            },
+            {
+                "created_at": "2023-01-04T20:57:34.411Z",
+                "updated_at": "2023-01-04T20:57:34.411Z",
+                "id": "68252436-7f32-435e-870e-ea23e6b1fad8",
+                "unit_id": "3bd640b6-1cbb-491a-ac1b-af4bd4b60b5c",
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "precision": 2,
+                "mode": "floats"
+            }
+        ],
+        "pagination": {
+            "skip": 0,
+            "take": 3,
+            "has_next_page": false,
+            "has_previous_page": false,
+            "total_count": 3
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+#### Update unit link
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Settings` tab or press `G` and then `S`.
+    - Select the `Units` tab, or press `G` and then `U`.
+    - Currently, you can only update if a unit link is enabled or disabled.
+      - To disable a unit link, click the `...` button and select `Disable`.
+      - To enable a unit link, click the `Enable` button.
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Update link" path="/v1/units/links/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Update unit link, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request PUT 'https://api.modernbanc.com/v1/units/links/68252436-7f32-435e-870e-ea23e6b1fad8' \
+        --header 'x-workspace: docs' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "precision" : 0,
+            "mode": "integers"
+        }'
+        ```
+
+      </Tab>
+      <Tab title="Update unit link, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "id": "68252436-7f32-435e-870e-ea23e6b1fad8",
+            "unit_id": "3bd640b6-1cbb-491a-ac1b-af4bd4b60b5c",
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "precision": 0,
+            "mode": "integers",
+            "created_at": "2023-01-04T20:57:34.411Z",
+            "updated_at": "2023-01-05T01:12:26.010Z"
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+
+  </Tab>
+</Tabs>
+
+#### Delete unit link
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Settings` tab or press `G` and then `S`. - Select the `Units` tab, or press `G` and then `U`. - To delete a unit link, click
+    the `...` button on the right of the unit, and select `Disable`. - Deleting a unit link will not delete the unit itself, only the link to the
+    workspace.
+  </Tab>
+  <Tab title="API">
+    <Operation method="delete" title="Delete link" path="/v1/units/links/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Delete unit link, request.">
+        ```json showLineNumbers {} custom_tag curl --location --request DELETE
+        'https://api.modernbanc.com/v1/units/links/68252436-7f32-435e-870e-ea23e6b1fad8' \ --header 'x-workspace: docs' ```
+      </Tab>
+      <Tab title="Delete unit link, response.">
+        ```json showLineNumbers {} custom_tag
+        {}
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+# Usage: units
+
+#### Create unit
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Coming soon!
+  </Tab>
+  <Tab title="API">
+    <Operation method="post" title="Create unit" path="/v1/units" />
+    The create unit endpoint has an extra parameter `create_link` which will automatically create a unit link for you. This is useful if you want to create a unit and link it to your workspace in one request.
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Create unit, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/units?create_link=true' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "identifier": "exa",
+            "name" : "Example Units",
+            "default_precision" : 2,
+            "default_mode": "floats"
+        }'
+        ```
+      </Tab>
+      <Tab title="Create unit, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-04T18:24:01.606Z",
+            "updated_at": "2023-01-04T18:24:01.606Z",
+            "id": "3bd640b6-1cbb-491a-ac1b-af4bd4b60b5c",
+            "archived_at": null,
+            "name": "Example Units",
+            "description": null,
+            "identifier": "exa",
+            "default_precision": 2,
+            "default_mode": "floats",
+            "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+            "color": "#DF77B6",
+            "symbol": "e",
+            "link": {
+                "created_at": "2023-01-04T18:24:01.606Z",
+                "updated_at": "2023-01-04T18:24:01.606Z",
+                "id": "3b82d963-85b6-4453-903f-9f4bee30c69a",
+                "unit_id": "3bd640b6-1cbb-491a-ac1b-af4bd4b60b5c",
+                "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                "precision": 2,
+                "mode": "floats"
+            }
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+    <Toggle title="Currency units">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="U.S. Dollar (usd)">
+        ```json showLineNumbers {} custom_tag
+        {
+          "created_at": "2022-07-22T13:08:48.869Z",
+          "updated_at": "2022-07-22T13:11:41.975Z",
+          "id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+          "archived_at": null,
+          "name": "United States dollar",
+          "description": "ISO Code: 840",
+          "identifier": "usd",
+          "max_precision": 12,
+          "default_precision": 2,
+          "default_mode": "floats",
+          "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+          "color": "#00FFFF",
+          "symbol": "$",
+          "background": null,
+        }
+        ```
+      </Tab>
+      <Tab title="Euro (eur)">
+        ```json showLineNumbers {} custom_tag
+        {
+          "created_at": "2022-09-26T22:10:40.540Z",
+          "updated_at": "2022-09-26T22:10:40.540Z",
+          "id": "f3c2e94b-7312-427c-90a7-2c9dfdccd02a",
+          "archived_at": null,
+          "name": "Euro",
+          "description": "ISO Code: 978",
+          "identifier": "eur",
+          "max_precision": 12,
+          "default_precision": 2,
+          "default_mode": "floats",
+          "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+          "color": "#B72692",
+          "symbol": "€",
+          "background": null
+        }
+        ```
+      </Tab>
+      <Tab title="British Pound (gbp)">
+        ```json showLineNumbers {} custom_tag
+        {
+          "created_at": "2022-07-22T17:31:06.483Z",
+          "updated_at": "2022-07-22T17:31:32.137Z",
+          "id": "509e9ac9-ae9b-4eea-8e8c-31bdd708f307",
+          "archived_at": null,
+          "name": "Pound sterling",
+          "description": "ISO Code: 826",
+          "identifier": "gbp",
+          "max_precision": 12,
+          "default_precision": 2,
+          "default_mode": "floats",
+          "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+          "color": "#93C5FD",
+          "symbol": "£",
+          "background": null
+        }
+        ```
+      </Tab>
+    </Tabs>
+    </Toggle>
+    <Toggle title="Custom units">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+        <Tab title="Glasses">
+          ```json showLineNumbers {} custom_tag
+          {
+            "id": "c2de49d3-02f6-4a16-86fb-816221d70167",
+            "name": "Glasses",
+            "identifier": "glass",
+            "default_precision": 0,
+            "default_mode": "integers",
+            "symbol": "ᒡ◯ᵔ◯ᒢ"
+          },
+          ```
+        </Tab>
+        <Tab title="Headphones">
+          ```json showLineNumbers {} custom_tag
+          {
+            "id": "ceabb8ff-4b53-40e4-be50-e89858bffadf",
+            "name": "Headphones",
+            "identifier": "head",
+            "default_precision": 0,
+            "default_mode": "integers",
+            "symbol": "d(-_-)b"
+          },
+          ```
+        </Tab>
+        <Tab title="Baguettes">
+          ```json showLineNumbers {} custom_tag
+          {
+            "id": "a2e4e074-91cc-40cc-9251-c0e7a3e03b8b",
+            "name": "Baguettes",
+            "identifier": "bag",
+            "default_precision": 0,
+            "default_mode": "integers",
+            "symbol": "c=="
+          }
+          ```
+        </Tab>
+      </Tabs>
+    </Toggle>
+  </Tab>
+</Tabs>
+
+#### Update unit
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Coming soon!
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Update unit" path="/v1/units/{id_or_identifier}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Update unit, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request PUT 'https://api.modernbanc.com/v1/units/exa' \
+        --header 'x-workspace: mdb' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "description": "updated example unit",
+            "symbol": "ex.",
+            "color": "#800B19",
+            "background": "#000000"
+        }'
+        ```
+      </Tab>
+      <Tab title="Update unit, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "id": "3bd640b6-1cbb-491a-ac1b-af4bd4b60b5c",
+            "identifier": "exa",
+            "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+            "name": "Example Units",
+            "description": "updated example unit",
+            "max_precision": null,
+            "default_precision": 2,
+            "default_mode": "floats",
+            "color": "#800B19",
+            "symbol": "ex.",
+            "created_at": "2023-01-04T18:24:01.606Z",
+            "updated_at": "2023-01-04T18:35:59.363Z",
+            "archived_at": null,
+            "background": "#000000"
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+#### Delete unit
+In order to delete a unit, it must not be linked to any workspaces. Delete the unit link with your workspace, and then you can call this endpoint to delete the unit.
+<Tabs width="min">
+  <Tab title="UI">
+    - Coming soon!
+  </Tab>
+  <Tab title="API">
+    <Operation method="delete" title="Delete unit" path="/v1/units/{id_or_identifier}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Delete unit, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request DELETE 'https://api.modernbanc.com/v1/units/exa' \
+        --header 'x-workspace: docs'
+        ```
+      </Tab>
+      <Tab title="Delete unit, response.">
+      ```json showLineNumbers {} custom_tag
+      {}
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+### Note on how precision affects API calls
+
+Precision and mode are the two main properties of a unit, which can be set on creation using `default_mode` and `default_precision` attributes. Precision is the number of decimal places that a unit can have. Mode is an API setting that tells Modernbanc how to format money before receiving and sending API calls.
+
+Sometimes different users want to submit amounts in an integer format or a float format. For example you might prefer to store dollars as cents in your database (E.g $1.00 = 100). This often depends on how other systems accept/send amounts. Because of this we made unit_links flexible. Users can decide how they want amount to be parsed when they send it. This configuration is found in unit link.
+
+A link with type integer means that we take an integer and parse it by dividing by a power of 10 depending on the precision.
+
+As an example, a link with type integer and precision 2 means when you send amount: "200" you actually want it recorded in our database as "2.00". You will always see `200` but it means `2.00`
+
+<Label text="Example of how unit amounts are stored" />
+<Columns style={{marginTop: "10px"}}>
+  <Column>
+    <CodeBlock style={{marginTop: "12px"}} title="Floats, precision = 2, amount: $2.00" >
+    ```js
+    POST /transactions
+    {
+      ...other fields
+      "amount": "2.00",
+    }
+    Response
+    {
+      result: {
+        ...other fields
+        "amount": "2.00",
+      }
+    }
+    ```
+    </CodeBlock>
+  </Column>
+  <Column>
+    <CodeBlock style={{marginTop: "12px"}} title="Integers, precision = 2, amount: $2.00" >
+    ```js
+    POST /transactions
+    {
+      ...other fields
+      "amount": "200",
+    }
+    Response
+    {
+      result: {
+        ...other fields
+        "amount": "200",
+      }
+    }
+    ```
+    </CodeBlock>
+  </Column>
+</Columns>
+
+<Columns style={{marginTop: "20px"}}>
+  <Column>
+    <CodeBlock style={{marginTop: "20px"}} title="Floats, precision = 1, amount: $2.00" >
+    ```js
+    POST /transactions
+    {
+      ...other fields
+      "amount": "2.0",
+    }
+    Response
+    {
+      result: {
+        ...other fields
+        "amount": "2.0",
+      }
+    }
+    ```
+    </CodeBlock>
+  </Column>
+  <Column>
+    <CodeBlock style={{marginTop: "20px"}} title="Integers, precision = 4, amount: 3 BTC" >
+    ```js
+    POST /transactions
+    {
+      ...other fields
+      "amount": "30000",
+    }
+    Response
+    {
+      result: {
+        ...other fields
+        "amount": "30000",
+      }
+    }
+    ```
+    </CodeBlock>
+  </Column>
+</Columns>

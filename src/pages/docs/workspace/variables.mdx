@@ -1,0 +1,166 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+# Variables
+
+### What are Variables?
+
+Most objects in your workspace, like accounts or transactions, can have variables. `variables` allow you to store any additional information about that object.
+
+### Variable Definitions
+
+For some objects like [Routes](/docs/workspace/routes) or [Connections](/docs/workspace/routes), you can enforce which variables to pass to the object by using `variable_definitions`.
+
+For more on `variable_definitions`, check out the [definitions](/docs/workspace/definitions) section.
+
+### Variable Encryption
+
+If you have [encryption](/docs/workspace/encryption) enabled in your workspace, you can also encrypt data that goes into variables. You can do it by wrapping the value with double pipes `|| ||`, for example:
+
+```json {5}
+{
+  "name": "Acme inc.",
+  "type": "simple",
+  "variables": {
+    "company_tax_id": "||29826355932||" // data to encrypt.
+  }
+}
+```
+
+This will encrypt it, and you'll get the following token id that you can later reuse in workflows.
+
+```json {5}
+{
+  "name": "Acme inc.",
+  "type": "simple",
+  "variables": {
+    "company_tax_id": "|-ENCRYPTED_MAY22_Qv4mHQ43nofsxtHp7Wy-|" // |-token_id-|
+  }
+}
+```
+
+# Usage
+
+<Tabs width="min">
+  <Tab title="UI">
+    - In the UI, when you create orupdate an object, if it has the capability to store variables, it will be shown in the form.
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Account variables">
+        
+        - When creating an account, at the bottom of the form, you'll see a section called `Variables`.
+        
+        <Image
+          src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/workspace/variables/Variables-TransactionUI.png"
+          alt="Account variables"
+        />
+      </Tab>
+      <Tab title="Transaction variables">
+        
+        - When creating a transaction, at the bottom of the form, you'll see a section called `Variables`.
+        
+        <Image
+          src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/workspace/variables/Variables-TransactionUI.png"
+          alt="Transaction variables"
+        />
+      </Tab>
+      <Tab title="Workflow variables">
+
+        - When creating a workflow, at the bottom of the form, you'll see a section called `Variables`.
+        - When editing a form, `Variables` will have it's own tab in the left panel.
+        - While the workflow is in edit mode, click `+ Add key value` to add a `Variable name` and `value`.
+      
+      <Image
+        src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/workspace/variables/Variables-WorkflowsUI.png"
+        alt="Workflow variables"
+      />
+      </Tab>
+    </Tabs>
+  </Tab>
+  <Tab title="API">
+    Variables can be attached to any endpoint without the need for calling a variable endpoint directly.
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Account variables">
+        ```json showLineNumbers {} custom_tag
+        {
+          "name": "Account for:{{_variables.user_info}}",
+          "unit_ids": [
+              "dbff8f21-f979-4da4-a6ad-a2b7a569701f"
+          ],
+          "variables": {
+              "user_info": "some info here"
+          }
+        }
+        ```
+      </Tab>
+        <Tab title="Transaction variables">
+      ```json showLineNumbers {} custom_tag
+      {
+        "name": "Transaction with Vars",
+        "status": "pending",
+        "variables": {
+            "subscription_fee": "25.00"
+        },
+        "lines": [
+            {
+                "account_id": "8c9aeab1-bcdb-4c5c-a302-e9061730eed5",
+                "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                "amount": "-{{_variables.subscription_fee}}"
+            },
+            {
+                "account_id": "ea591138-8edb-490b-932a-0158f245188f",
+                "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                "amount": "{{_variables.subscription_fee}}"
+            },
+        ]
+      }
+      ```
+      </Tab>
+      <Tab title="Workflow variables">
+      ```json showLineNumbers {} custom_tag
+      {
+        "name": "Workflow with vars",
+        "version": {
+            "name": "Workflow version with generic step",
+            "description": "Template workflow verison and template step",
+            "status": "published",
+            "variables": {
+                "workflow_var": "some_var"
+            },
+            "version_type": "large",
+            "steps": [
+                {
+                    "name": "",
+                    "description": "",
+                    "variables": {
+                      "{{_variables.workflow_var}}"
+                    },
+                    "parameters": {},
+                    "steps": [],
+                    "type": "format | return | reply | condition | for_each | workspace_operation | connection_query | function | pause | action | search"
+                }
+            ]
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+

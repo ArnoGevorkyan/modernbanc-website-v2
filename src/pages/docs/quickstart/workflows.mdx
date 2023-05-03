@@ -1,0 +1,326 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed
+} from '~/views/docs/components/content/all'
+
+# Workflows
+
+Now that we have a basic understanding of accounts and transactions, let's dive into [workflows](/docs/workspace/workflows). Workflows allow you to automate behavior both within Modernbanc and with external services. For example, you could create a workflow that sends a notification to Slack whenever a transaction is created in Modernbanc.
+
+Let's build an example of this.
+
+<hr />
+
+<Process title="Create trigger to listen for transactions" index={1}>
+
+  <Operation method="post" title="Create trigger" path="/v1/triggers" />
+  <Tabs>
+    <Tab title="UI">
+      - Navigate to the `Triggers` tab in the settings dropdown or press `G` and then `I`.
+      - Click the `Create` button in the top right corner.
+      - This URL will be used to receive a webhook payload from Stripe when a new transaction is created or completed.
+    </Tab>
+    <Tab title="API">
+      <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+          <Tab title="Request">
+              ```bash showLineNumbers {} custom_tag
+              curl --location --request POST 'http://api.modernbanc.com/v1/triggers' \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: Bearer YOUR_API_KEY_HERE' \
+              --header 'x-workspace: mdb' \
+              --header 'x-environment: test' \
+              --data-raw '{
+              {
+                  "name": "Transaction Trigger",
+                  "description": "triggers workflow on transaction",
+                  "version": {
+                      "version_type": "large",
+                      "type": "workspace_event",
+                      "workspace_event_type": "created",
+                      "workspace_event_model": "transaction",
+                      "workspace_event_timing": "after",
+                      "status": "published"
+                  }
+              }
+              }'
+              ```
+          </Tab>
+
+          <Tab title='Response'>
+          ```bash showLineNumbers {} custom_tag
+          {
+              "result": {
+                  "created_at": "2022-12-22T03:54:50.146Z",
+                  "updated_at": "2022-12-22T03:54:50.146Z",
+                  "id": "bbd18ae5-a0e1-4500-bc56-8e0edf377c0d",
+                  "archived_at": null,
+                  "name": "Transaction Trigger",
+                  "description": "triggers workflow on transaction",
+                  "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                  "source_trigger_id": null,
+                  "identifier_prefix": "WFT",
+                  "identifier_value": "5",
+                  "versions": [
+                      {
+                          "created_at": "2022-12-22T03:54:50.146Z",
+                          "updated_at": "2022-12-22T03:54:50.146Z",
+                          "id": "bc4b784b-8e46-4cd3-b991-70f39414f0fb",
+                          "archived_at": null,
+                          "name": "Transaction Trigger 1.0.0",
+                          "description": null,
+                          "trigger_id": "bbd18ae5-a0e1-4500-bc56-8e0edf377c0d",
+                          "version": "1.0.0",
+                          "status": "published",
+                          "type": "workspace_event",
+                          "start_date": "2022-12-22T03:54:50.158Z",
+                          "is_valid": true,
+                          "end_date": null,
+                          "schedule": null,
+                          "workspace_event_type": "created",
+                          "workspace_event_model": "transaction",
+                          "workspace_event_timing": "after",
+                          "link": {
+                              "created_at": "2022-12-22T03:54:50.146Z",
+                              "updated_at": "2022-12-22T03:54:50.146Z",
+                              "id": "62bd61c5-3e89-444b-b111-5090b953bb24",
+                              "trigger_id": "bbd18ae5-a0e1-4500-bc56-8e0edf377c0d",
+                              "trigger_version_id": "bc4b784b-8e46-4cd3-b991-70f39414f0fb",
+                              "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                              "variables": null
+                          }
+                      }
+                  ]
+              }
+          }
+          ```
+          </Tab>
+      </Tabs>
+    </Tab>
+  </Tabs>
+</Process>
+
+<Process title="Setup your Slack to handle external webhooks" index={2}>
+
+In order to enable your Slack workspace to receive webhooks, you need to create an app and enable incoming webhooks. You can find more information on how to do this [here](https://api.slack.com/messaging/webhooks#getting_started).
+
+</Process>
+
+<Process title="Define steps of the workflow" index={3}>
+
+Workflows are make up of steps. Each step executes the intended functionality. For our example, there is only one step, but there could be many:
+
+1. Connection query step - to connect to the Slack API and send a notification message to the intended channel
+
+<br />
+
+{' '}
+<Operation method="post" title="Create workflow" path="/v1/workflows" />
+
+<Tabs>
+  <Tab title="UI">
+    - Navigate to the `Workflows` tab in the settings dropdown or press `G` and then `W`.
+    - Click the `Create` button in the top right corner.
+    - Click the `+` button to the left of the `Add the first step` in the workflow builder.
+    - Select `Query` from the dropdown.
+    - Click the `+` button on the right of the step, and add the Trigger we created in the previous step.
+    - In the workflow step editor on the right, under Query select `Query` from the dropdown, and `Http api` for the type.
+      - In the Parameters section, set `Method` to `POST`, `URL` to `https://hooks.slack.com/services/<YOUR WEBHOOK URL HERE>`, and `Content-Type` to `json`.
+      - In the body, add the following:
+        ```json showLineNumbers {} custom_tag
+        {
+          "text": "Transaction created"
+        }
+        ```
+  </Tab>
+  <Tab title="API">
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Request">
+        ```bash showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/workflows' \
+        --header 'Content-Type: application/json' \
+        --header 'Authorization: Bearer YOUR_API_KEY_HERE' \
+        --header 'x-workspace: mdb' \
+        --header 'x-environment: test' \
+        --data-raw '{
+            "name": "Transaction Slack Notification",
+            "description": "Workflow to create a transaction between two accounts, create a notification with the status in slack, and return if it was successful.",
+            "version": {
+                "name": "Transaction Slack Notification v1",
+                "description": "Template workflow verison and template step",
+                "status": "published",
+                "variables": {},
+                "version_type": "large",
+                "steps": [
+                    {
+                        "name": "Connection Query - call slack webhook",
+                        "parameters": {
+                            "type": "http_api",
+                            "query": {
+                                "url": "https://hooks.slack.com/services/<YOUR WEBHOOK URL HERE>",
+                                "method": "post",
+                                "headers": {
+                                    "Content-Type": "application/json"
+                                },
+                                "body": {
+                                    "text": "Transaction Created!"
+                                }
+                            },
+                            "fail_execution_on_error_response": true
+                        },
+                        "type": "connection_query",
+                        "trigger_version_ids": [
+                            "bc4b784b-8e46-4cd3-b991-70f39414f0fb"
+                        ]
+                    }
+                ],
+                "active_in_current_environment": true
+            }
+        }'
+        ```
+      </Tab>
+
+      <Tab title="Response">
+        ```bash showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2022-12-22T16:01:25.529Z",
+              "updated_at": "2022-12-22T16:01:25.529Z",
+              "id": "aa80509a-c8a3-4821-b66a-19ab30ec6a28",
+              "archived_at": null,
+              "name": "Transaction Slack Notification",
+              "description": "Workflow to create a transaction between two accounts, create a notification with the status in slack, and return if it was successful.",
+              "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+              "identifier_prefix": "WFL",
+              "identifier_value": "8",
+              "versions": [
+                  {
+                      "created_at": "2022-12-22T16:01:25.529Z",
+                      "updated_at": "2022-12-22T16:01:25.529Z",
+                      "id": "f26ca1fb-d429-4d63-907a-e479a1ca69d2",
+                      "archived_at": null,
+                      "name": "Transaction Slack Notification 1.0.0",
+                      "description": null,
+                      "workflow_id": "aa80509a-c8a3-4821-b66a-19ab30ec6a28",
+                      "version": "1.0.0",
+                      "is_valid": true,
+                      "status": "published",
+                      "steps": [
+                          {
+                              "id": "be25b528-1c46-44e7-a3bf-edc95548c495",
+                              "name": "Connection Query - call slack webhook",
+                              "description": null,
+                              "step_number": 1,
+                              "variables": null,
+                              "type": "connection_query",
+                              "parameters": {
+                                  "type": "http_api",
+                                  "query": {
+                                      "url": "https://hooks.slack.com/services/<YOUR WEBHOOK URL HERE>",
+                                      "body": {
+                                          "text": "Transaction Created!"
+                                      },
+                                      "method": "post",
+                                      "headers": {
+                                          "Content-Type": "application/json"
+                                      }
+                                  },
+                                  "fail_execution_on_error_response": true
+                              },
+                              "condition_path": null,
+                              "connection_version_id": null,
+                              "workflow_version_id": "f26ca1fb-d429-4d63-907a-e479a1ca69d2",
+                              "parent_step_id": null,
+                              "parent_action_version_id": null,
+                              "child_action_version_id": null,
+                              "created_at": "2022-12-22T16:01:25.529Z",
+                              "updated_at": "2022-12-22T16:01:25.529Z",
+                              "archived_at": null,
+                              "trigger_versions": [
+                                  {
+                                      "created_at": "2022-12-22T03:54:50.146Z",
+                                      "updated_at": "2022-12-22T03:54:50.146Z",
+                                      "id": "bc4b784b-8e46-4cd3-b991-70f39414f0fb",
+                                      "archived_at": null,
+                                      "name": "Transaction Trigger 1.0.0",
+                                      "description": null,
+                                      "trigger_id": "bbd18ae5-a0e1-4500-bc56-8e0edf377c0d",
+                                      "version": "1.0.0",
+                                      "status": "published",
+                                      "type": "workspace_event",
+                                      "start_date": "2022-12-22T03:54:50.158Z",
+                                      "is_valid": true,
+                                      "end_date": null,
+                                      "schedule": null,
+                                      "workspace_event_type": "created",
+                                      "workspace_event_model": "transaction",
+                                      "workspace_event_timing": "after",
+                                      "link": {
+                                          "created_at": "2022-12-22T03:54:50.146Z",
+                                          "updated_at": "2022-12-22T03:54:50.146Z",
+                                          "id": "62bd61c5-3e89-444b-b111-5090b953bb24",
+                                          "trigger_id": "bbd18ae5-a0e1-4500-bc56-8e0edf377c0d",
+                                          "trigger_version_id": "bc4b784b-8e46-4cd3-b991-70f39414f0fb",
+                                          "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                                          "variables": null
+                                      }
+                                  }
+                              ],
+                              "steps": []
+                          }
+                      ],
+                      "link": {
+                          "created_at": "2022-12-22T16:01:25.529Z",
+                          "updated_at": "2022-12-22T16:01:25.529Z",
+                          "id": "b74f6fd4-feeb-4414-8f48-f45524ac6ae3",
+                          "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                          "workflow_id": "aa80509a-c8a3-4821-b66a-19ab30ec6a28",
+                          "workflow_version_id": "f26ca1fb-d429-4d63-907a-e479a1ca69d2",
+                          "environment_config": {
+                              "created_at": "2022-12-22T16:01:25.529Z",
+                              "updated_at": "2022-12-22T16:01:25.529Z",
+                              "id": "d95856ef-992e-45ef-97c7-4154797a6078",
+                              "workflow_link_id": "b74f6fd4-feeb-4414-8f48-f45524ac6ae3",
+                              "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                              "status": "active",
+                              "variables": {}
+                          }
+                      }
+                  }
+              ]
+          }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+</Process>
+
+<br />
+Now, when transactions occur in your workspace, you will be notified in a dedicated Slack channel. You could alter this to be just for failed transactions, or ones that are above a certain amount, or any condition you want.
+
+<br />
+<Image
+  title="Success!"
+  description="Slack notification on transaction"
+  max_height="500px"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/setting-up/quickstart/workflows/Screenshot%20from%202022-12-22%2011-02-35.png"
+/>
+
+<hr />
+
+Congratulations! You have created your first workflow in Modernbanc.
+
+{/* Next up: [Complex Worksflows: Receive Stripe webhooks on payment and generate transactions](/docs/workflows/complex-workflows) */}

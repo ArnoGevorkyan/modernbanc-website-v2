@@ -1,0 +1,272 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed
+} from '~/views/docs/components/content/all'
+
+### Intro to Modernbanc
+
+As part of your application, there are certain financial interactions that need to happen. To integrate with your Modernbanc workspace, all you have to do is setup a workflow. In the workflow there are triggers and steps. Triggers determine when to do something, steps determine what to do. Let's say your user wants to pay for something using their bank account. They press the button in your app which triggers Modernbanc's API. Using the banks webhooks, Modernbanc initiates the transaction, and accounts for where it's going and the status of each step along the way.
+
+Now that we have an understanding of how Modernbanc can help us quickly build complex financial movements, let's take an example.
+
+### Marketplaces
+
+Marketplaces are a key aspect of the digital economy. Think about companies like Airbnb, Uber, and eBay. These companies make our lives easier by connecting us to the people who provide the services or products we need as we go about our lives. One of the most difficult parts of building these applications, is dealing with all different types of complex accounting and transactions. That's where Modernbanc comes in. Let's take an example. Say we want to build a service that matches dogs breeders with people that want to get a dog. Breeders post their puppies, users can buy them, the company handles transportation. To do this, we need need a few key things to occur.
+
+- Breeder account balances
+- Breeder withdraw to bank account
+- User payment from bank account, paypal, credit, or debit card
+- Platform fee for services rendered
+
+### How to use Modernbanc to Enable Financial Transactions
+
+Modernbanc enables you to these complex sensitive financial interactions with ease.
+
+<Image
+  title="Marketplace Flow"
+  description="without Modernbanc"
+  max_height="500px"
+  src="https://storage.cloud.google.com/mdb-public-prod-bucket/docs-assets/tutorials/marketplace/marketplace-flow-0.png"
+/>
+<Image
+  title="Marketplace Flow"
+  description="with Modernbanc enabled financial transactions"
+  max_height="500px"
+  src="https://storage.cloud.google.com/mdb-public-prod-bucket/docs-assets/tutorials/marketplace/marketplace-flow-1.png"
+/>
+
+<br />
+Steps to Enable this in Modernbanc in the context of our dog breeder app:
+<br />
+
+<Process title="Login, Join Workspace" index={1}>
+
+- Login to your Modernbanc account
+- Join/create a workspace for your organization
+- grab API Keys from the settings page to use in your requests
+
+<Image
+  title="create new workspace for your org"
+  description=""
+  max_height="500px"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/tutorials/marketplace/create-workspace.png"
+/>
+<Image
+  title="OR join an existing workspace"
+  description=""
+  max_height="500px"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/tutorials/marketplace/select-workspace.png"
+/>
+<Image
+  title="Select settings from dropdown"
+  description=""
+  max_height="250px"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/tutorials/marketplace/select-settings.png"
+/>
+<Image
+  title="Select api keys from dropdown"
+  description=""
+  max_height="250px"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/tutorials/marketplace/select-apikeys.png"
+/>
+<Image
+  title="Create new api key"
+  description=""
+  max_height="250px"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/tutorials/marketplace/create-apikeys.png"
+/>
+<Image
+  title="Create new api key"
+  description=""
+  max_height="250px"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/tutorials/marketplace/create-apikeys-dogx-admin.png"
+/>
+
+</Process>
+
+<Process title="Select environment" index={2}>
+
+- Currently, Modernbanc gives you 'test' and 'live' environments
+- Test is for development and testing
+- Live is for production apps with actual end users
+- Environment needs to be defined in your request 'x-environment' header to either 'test' or 'live'
+
+</Process>
+
+<Process title="Login to get bearer auth">
+  - Since the UI isn't launched yet, we will use postman or curl for this tutorial
+  - Login to your Modernbanc account
+<br/>
+   ```bash showLineNumbers {3} custom_tag
+    curl --location --request POST 'https://api.modernbanc.com/v1/auth/login' \
+    --header 'Content-Type: application/json' \
+    --header 'Cookie: mdb__4e9ca3b2-f215-4ebd-a8e8-8610a0ad2c31__refresh_token=U2FsdGVkX1%2B2FHli5P2%2FJ65Gly4%2F3Uenj9JZd7UAk%2FwCN03fTThxsZUNyrykGUlZ9%2F7aEcTB2SGWmHOnnyL2Oqj4OXqTDc8Je7yVR5hsr05c0YgzaY%2BzlIOSmLmRUCxQFgkIi%2FyEl8IJjT2IgHbKkg%3D%3D' \
+    --data-raw '{
+        "email": "your_email_here",
+        "password" : "your_password_here"
+    }'
+    ```
+
+</Process>
+
+<Process title="get workspaces">
+
+```bash showLineNumbers {3} custom_tag
+curl --location -g --request GET 'https://api.modernbanc.com/v1/users/current?include={workspace_memberships:{workspace:true}}' \
+--header 'Cookie: mdb__4e9ca3b2-f215-4ebd-a8e8-8610a0ad2c31__refresh_token=U2FsdGVkX1%2B2FHli5P2%2FJ65Gly4%2F3Uenj9JZd7UAk%2FwCN03fTThxsZUNyrykGUlZ9%2F7aEcTB2SGWmHOnnyL2Oqj4OXqTDc8Je7yVR5hsr05c0YgzaY%2BzlIOSmLmRUCxQFgkIi%2FyEl8IJjT2IgHbKkg%3D%3D'
+```
+
+Reponse
+
+```js
+{
+  "result": {
+      "created_at": "2022-10-06T18:39:33.081Z",
+      "updated_at": "2022-11-15T22:00:27.825Z",
+      "id": "4e9ca3b2-f215-4ebd-a8e8-8610a0ad2c31",
+      "archived_at": null,
+      "full_name": "Anthony Dattolo",
+      "username": null,
+      "email": "tony@modernbanc.com",
+      "email_is_verified": true,
+      "password_is_set": true,
+      "profile_image_url": "https://lh3.googleusercontent.com/a/ALm5wu1ieikKzR2ar6jbGTCuTAUs25JqKuyV1UWX5vNd=s96-c",
+      "google_email": "tony@modernbanc.com",
+      "color": "#DF77B6",
+      "whitelisted": true,
+      "workspace_memberships": [
+          {
+              "created_at": "2022-11-15T22:00:27.826Z",
+              "updated_at": "2022-11-15T22:00:27.826Z",
+              "id": "aeb08943-9148-4b4b-97e6-5487b59cc3a0",
+              "archived_at": null,
+              "user_id": "4e9ca3b2-f215-4ebd-a8e8-8610a0ad2c31",
+              "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+              "status": "active",
+              "role_id": "7e336ad6-ff34-40a0-960f-7322abb7d5ca",
+              "workspace": {
+                  "created_at": "2022-07-22T12:06:05.233Z",
+                  "updated_at": "2022-09-30T15:16:06.876Z",
+                  "id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+                  "archived_at": null,
+                  "name": "Modernbanc",
+                  "identifier": "mdb",
+                  "logo_url": "https://storage.googleapis.com/mdb-public-prod-bucket/workspace-logo/d60cfbea-4a60-4a16-ab7e-e3363211e02f_logo.jpg?hash=DhxQML32th4xDctUHL2wA",
+                  "color": "#00FFFF"
+              }
+          },
+          {
+              "created_at": "2022-11-15T22:38:37.551Z",
+              "updated_at": "2022-11-15T22:38:37.551Z",
+              "id": "7a564117-9dd7-4b04-83f7-94294d248f6b",
+              "archived_at": null,
+              "user_id": "4e9ca3b2-f215-4ebd-a8e8-8610a0ad2c31",
+              "workspace_id": "b98274c7-81a4-4dfc-b38a-abbcca15f250",
+              "status": "active",
+              "role_id": "db523ce6-1d9d-4fb2-b766-89dc46203116",
+              "workspace": {
+                  "created_at": "2022-11-15T22:38:37.551Z",
+                  "updated_at": "2022-11-15T22:38:37.551Z",
+                  "id": "b98274c7-81a4-4dfc-b38a-abbcca15f250",
+                  "archived_at": null,
+                  "name": "dogx",
+                  "identifier": "dogx",
+                  "logo_url": null,
+                  "color": "#30D5C8"
+              }
+          }
+      ],
+  }
+}
+```
+
+- Notice our workspace id is `b98274c7-81a4-4dfc-b38a-abbcca15f250`
+
+</Process>
+
+<Process title="create trigger to attach to step to use in workflow for external account webhook">
+  - because we need to connect to the external bank account using webhooks, and our url endpoint to collect webhook data relies on having a workflow and trigger id \
+  we need to create a workflow and trigger _first_ to get the ids we need to connect to the external bank account
+
+```bash showLineNumbers {3} custom_tag
+curl --location --request POST 'https://api.modernbanc.com/v1/triggers' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: mdb__4e9ca3b2-f215-4ebd-a8e8-8610a0ad2c31__refresh_token=U2FsdGVkX1%2BqhO70lWzhDsGUtMVgQKiO8Bwe5yoQeVT9Tzp8efX2427OQChlbcOQdtUPuOZXukvkLoIGfI1wNjEuyawCngsu9ONfpEry%2FpywdklaSlmPGVHu8YfaChyBtXc9nrc5OYTKN6HzjRX%2B7g%3D%3D' \
+--data-raw '{
+    "name": "Increase bank account webhook trigger",
+    "description": "trigger for increase webhook that will be attached to workflow step",
+    "version": {
+        "name": "Testing cron syntax",
+        "version_type": "small",
+        "type": "webhook"
+    }
+}'
+
+```
+
+</Process>
+<Process title="create workflow without webhook trigger">
+  - because we need a workflow id to attach the webhook to, we need to create a workflow with a dummy step, and then come back later and update it to add the webhook trigger step
+
+- using our workspace id, we'll now create a workflow specific to that workspace
+
+```bash showLineNumbers {3} custom_tag
+
+```
+
+</Process>
+
+<Process>
+
+</Process>
+
+<Process title="Create entities/accounts" index={3}>
+
+2. Create entities/accounts for each breeder, buyer, and the marketplace itself. These are interacted with via webhook or api, which we handle
+
+Show more detailed steps
+
+- Hello world
+- Second bullet
+
+</Process>
+
+<Process title="Create workflow" index={4}>
+
+Create a **workflow** to handle the wanted payment flow
+
+Show more detailed steps
+
+- Hello world
+- Second bullet
+
+</Process>
+
+<Process title="Create triggers" index={5}>
+
+Set **triggers** for when to initiate a set of **steps**
+
+Show more detailed steps
+
+</Process>
+
+<Process title="Create steps" index={6}>
+
+Create **steps** for each flow of payment, using ****\*\*****routes****\*\***** to initiate **transactions** to facilitate the flow of funds
+
+Show more detailed steps
+
+</Process>
+```

@@ -1,0 +1,995 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed
+} from '~/views/docs/components/content/all'
+import CopyLinkHelper from '~/views/docs/components/content/copy-link-helper'
+import CollapseCode from '~/views/docs/components/content/collapse-code'
+
+<Label text="" />
+_Checkout Widget_
+
+### Using the Modernbanc widget for user payments
+
+The Modernbanc widget is a pre-built UI component that allows you to easily collect payments from your users. It uses enterprise-grade PCI-DSS/SOC-2 compliant encryption and can be used to collect credit card information, bank account information, and other payment methods.
+
+If you haven't yet signed up or got your API keys, check out our [Quickstart](/docs/quickstart) guide.
+
+<br />
+
+You can learn more about encryption in our [encryption docs](/docs/workspace/encryption).
+
+<hr />
+<br />
+
+<Process title="Create account for user to store information" index={1}>
+  In order to store encrypted information, we need to create an account in Modernbanc for the user. This can be handled when a user creates an account on your platform, you can link a Modernbanc account to them.
+
+  <Operation method="post" title="Create account" path="/v1/accounts" />
+  <CodeBlock title="Create modernbanc account for user" >
+    ```bash showLineNumbers {} custom_tag
+    curl --location --request POST 'http://api.modernbanc.com/v1/accounts' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer qgVW6jydEqLFVIZiKiLUsNtOIMUom5' \
+    --header 'x-workspace: startupco' \
+    --header 'x-environment: live' \
+    --data-raw '{
+        "name": "StartupCo User - Some Identifier"
+    }'
+    ```
+  </CodeBlock>
+
+  <CollapseCode title='response'>
+    <CodeBlock title="Create modernbanc account for user, response" >
+      ```bash showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2022-12-15T03:05:50.070Z",
+            "updated_at": "2022-12-15T03:05:50.070Z",
+            "id": "6ca80a80-5753-4a51-a4a8-996bab698658",
+            "archived_at": null,
+            "name": "StartupCo User - Some Identifier",
+            "description": null,
+            "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+            "environment_id": "fb33fb0e-8216-4314-8951-ce6403b41371",
+            "resource_id": null,
+            "external_id": null,
+            "identifier_prefix": "ACT",
+            "identifier_value": "1",
+            "variables": null,
+            "minimum_lines": 1,
+            "maximum_lines": null,
+            "status": "active",
+            "balances": [],
+            "routes": [],
+            "labels": [],
+            "entity_relations": [],
+            "identifier": "ACT-1",
+            "account_relations": []
+        }
+      }
+      ```
+    </CodeBlock>
+  </CollapseCode>
+
+  <CodeBlock title="Create modernbanc account for your company" >
+    ```bash showLineNumbers {} custom_tag
+    curl --location --request POST 'http://api.modernbanc.com/v1/accounts' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer qgVW6jydEqLFVIZiKiLUsNtOIMUom5' \
+    --header 'x-workspace: startupco' \
+    --header 'x-environment: live' \
+    --data-raw '{
+        "name": "StartupCo - Holding Account"
+    }'
+    ```
+  </CodeBlock>
+  <CollapseCode title='response'>
+    <CodeBlock title="Create modernbanc account for your company, response" >
+      ```bash showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2022-12-15T03:16:20.265Z",
+            "updated_at": "2022-12-15T03:16:20.265Z",
+            "id": "41c8ea5c-e920-4956-aee5-87d9f665cbc6",
+            "archived_at": null,
+            "name": "StartupCo - Holding Account",
+            "description": null,
+            "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+            "environment_id": "fb33fb0e-8216-4314-8951-ce6403b41371",
+            "resource_id": null,
+            "external_id": null,
+            "identifier_prefix": "ACT",
+            "identifier_value": "2",
+            "variables": null,
+            "minimum_lines": 1,
+            "maximum_lines": null,
+            "status": "active",
+            "balances": [],
+            "routes": [],
+            "labels": [],
+            "entity_relations": [],
+            "identifier": "ACT-2",
+            "account_relations": []
+        }
+      }
+      ```
+    </CodeBlock>
+  </CollapseCode>
+</Process>
+
+<Process title="Route definitions" index={2}>
+In order to store information like credit card data and bank account information, we need to create a definition for them. This will be connected to routes, which we will create in the next step. Routes will then be connected to the user account, for reuse. In the dashboard, you won't have to do this step, you'll just be able to select from pre-existing definitions.
+
+Let's create one for bank accounts, and one for credit cards.
+
+  <Operation method="post" title="Create definition" path="/v1/routes/definitions" />
+  <CodeBlock title="Route definition - bank account" >
+    ```bash showLineNumbers {} custom_tag
+    curl --location --request POST 'https://api.modernbanc.com/v1/routes/definitions' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer qgVW6jydEqLFVIZiKiLUsNtOIMUom5' \
+    --header 'x-workspace: startupco' \
+    --header 'x-environment: live' \
+    --data-raw '{
+        "name": "Route Definition - Bank Account",
+        "description": "Object structure for making external transfers using bank accounts in routes",
+        "variable_definitions": {
+            "type": "object",
+            "properties": {
+                "account_number": {
+                    "description": "Account number",
+                    "type": "string"
+                },
+                "routing_number": {
+                    "description": "Account routing number",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "account_number", "routing_number"
+            ]
+        }
+    }'
+    ```
+  </CodeBlock>
+  <CollapseCode title='response'>
+    <CodeBlock title="Route definition - bank account, response" >
+      ```bash showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2022-12-15T03:40:16.352Z",
+            "updated_at": "2022-12-15T03:40:16.352Z",
+            "id": "9b65715e-9fc0-4c3b-b060-2744806fd8ff",
+            "name": "Route Definition - Bank Account",
+            "description": "Object structure for making external transfers using bank accounts in routes",
+            "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+            "variable_definitions": {
+                "type": "object",
+                "properties": {
+                    "account_number": {
+                        "description": "Account number",
+                        "type": "string"
+                    },
+                    "routing_number": {
+                        "description": "Account routing number",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "account_number",
+                    "routing_number"
+                ]
+            }
+        }
+      }
+      ```
+    </CodeBlock>
+  </CollapseCode>
+
+  <CodeBlock title="Route definition - credit card" >
+    ```bash showLineNumbers {} custom_tag
+    curl --location --request POST 'https://api.modernbanc.com/v1/routes/definitions' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer qgVW6jydEqLFVIZiKiLUsNtOIMUom5' \
+    --header 'x-workspace: startupco' \
+    --header 'x-environment: live' \
+    --data-raw '{
+        "name": "Route Definition - Credit Cards",
+        "description": "Object structure for making external transfers using credit cards in routes",
+        "variable_definitions": {
+            "type": "object",
+            "properties": {
+                "credit_card_name": {
+                    "description": "CC name",
+                    "type": "string"
+                },
+                "credit_card_number": {
+                    "description": "Credit card number",
+                    "type": "integer"
+                },
+                "credit_card_expiration": {
+                    "description": "Credit card expiration date mm/yy format",
+                    "type": "string"
+                },
+                "credit_card_cvv": {
+                    "description": "Credit card cvv number",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "credit_card_number", "credit_card_expiration", "credit_card_cvv"
+            ]
+        }
+    }'
+    ```
+  </CodeBlock>
+  <CollapseCode title='response'>
+    <CodeBlock title="Route definition - credit card, response" >
+      ```bash showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2022-12-14T14:53:43.342Z",
+            "updated_at": "2022-12-14T14:53:43.342Z",
+            "id": "f77bc0c7-600b-4078-8f7d-c3be89e2e781",
+            "name": "Route Definition - Credit Cards",
+            "description": "Object structure for making external transfers using credit cards in routes",
+            "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+            "variable_definitions": {
+                "type": "object",
+                "properties": {
+                    "credit_card_name": {
+                        "description": "CC name",
+                        "type": "string"
+                    },
+                    "credit_card_number": {
+                        "description": "Credit card number",
+                        "type": "integer"
+                    },
+                    "credit_card_expiration": {
+                        "description": "Credit card expiration date mm/yy format",
+                        "type": "string"
+                    },
+                    "credit_card_cvv": {
+                        "description": "Credit card cvv number",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "credit_card_number",
+                    "credit_card_expiration",
+                    "credit_card_cvv"
+                ]
+            }
+        }
+      }
+      ```
+    </CodeBlock>
+  </CollapseCode>
+</Process>
+
+<Process title="Create routes with definitions" index={3}>
+
+First, we need to link the unit for USD to the routes.
+
+<Operation method="post" title="Create unit" path="/v1/units?create_link=true" />
+<CodeBlock title="Create and link unit" >
+  ```bash showLineNumbers {} custom_tag
+  curl --location --request POST 'http://127.0.0.1:8080/v1/units?create_link=true' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+      "identifier": "USD",
+      "name": "USD",
+      "default_precision" : 2,
+      "default_mode": "floats"
+  }'
+  ```
+</CodeBlock>
+<CollapseCode title='response'>
+<CodeBlock title="Create and link unit, response" >
+  ```bash showLineNumbers {} custom_tag
+  {
+    "result": {
+        "created_at": "2022-12-15T14:53:01.538Z",
+        "updated_at": "2022-12-15T14:53:01.538Z",
+        "id": "244e744c-c2fe-4070-95b1-42b5b786df31",
+        "archived_at": null,
+        "name": "USD",
+        "description": null,
+        "identifier": "usd",
+        "default_precision": 2,
+        "default_mode": "floats",
+        "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+        "color": "#00FFFF",
+        "symbol": "u",
+        "link": {
+            "created_at": "2022-12-15T14:53:01.538Z",
+            "updated_at": "2022-12-15T14:53:01.538Z",
+            "id": "4dae11b2-1894-44d9-9c8f-1405dffa2eaf",
+            "unit_id": "244e744c-c2fe-4070-95b1-42b5b786df31",
+            "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+            "precision": 2,
+            "mode": "floats"
+        }
+    }
+  }
+  ```
+</CodeBlock>
+</CollapseCode>
+
+Now we can create routes for USD transfers.
+
+<Operation method="post" title="Create route" path="/v1/routes" />
+<CodeBlock title="Create route - with bank account definition" >
+  ```bash showLineNumbers {} custom_tag
+  curl --location --request POST 'http://127.0.0.1:8080/v1/routes' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+      "definition_id" : "9b65715e-9fc0-4c3b-b060-2744806fd8ff",
+      "unit_id": "244e744c-c2fe-4070-95b1-42b5b786df31",
+      "name": "Route with bank account definition",
+      "description": "route with bank account definition",
+      "variables": {
+          "account_number": "|111111111|",
+          "routing_number": 222222222
+      }
+  }'
+  ```
+</CodeBlock>
+<CollapseCode title='response'>
+<CodeBlock title="Create route - with bank account definition, response" >
+  ```bash showLineNumbers {} custom_tag
+  {
+    "result": {
+        "created_at": "2022-12-15T15:10:03.493Z",
+        "updated_at": "2022-12-15T15:10:03.493Z",
+        "id": "15bd9eea-a7f7-48d0-85dc-e9800e0cdbdb",
+        "archived_at": null,
+        "name": "Route with bank account definition",
+        "description": "route with bank account definition",
+        "identifier_prefix": "RTE",
+        "identifier_value": "0APDQC3C0",
+        "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+        "unit_id": "244e744c-c2fe-4070-95b1-42b5b786df31",
+        "environment_id": "fb33fb0e-8216-4314-8951-ce6403b41371",
+        "definition_id": "9b65715e-9fc0-4c3b-b060-2744806fd8ff",
+        "resource_id": null,
+        "variables": {
+            "account_number": "|111111111|",
+            "routing_number": 222222222
+        },
+        "labels": []
+    }
+  }
+  ```
+</CodeBlock>
+</CollapseCode>
+<CodeBlock title="Create route - with credit card definition" >
+  ```bash showLineNumbers {} custom_tag
+  curl --location --request POST 'http://127.0.0.1:8080/v1/routes' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+      "definition_id" : "da8e4e4e-3c2f-42f9-a870-1ad1f9e9fbc3",
+      "unit_id" : "244e744c-c2fe-4070-95b1-42b5b786df31",
+      "name": "Route with bank account definition",
+      "description": "",
+      "variables": {
+          "credit_card_name": "User XYZ - Credit Card",
+          "credit_card_number": 1234123412341234,
+          "credit_card_expiration": "12/25",
+          "credit_card_cvv": 777
+
+      }
+
+}'
+
+````
+</CodeBlock>
+<CollapseCode title='response'>
+<CodeBlock title="Create route - with credit card definition, response" >
+```bash showLineNumbers {} custom_tag
+{
+  "result": {
+      "created_at": "2022-12-15T15:28:12.328Z",
+      "updated_at": "2022-12-15T15:28:12.328Z",
+      "id": "05f697e5-5b71-4223-9942-816e7975f0da",
+      "archived_at": null,
+      "name": "Route with bank account definition",
+      "description": "",
+      "identifier_prefix": "RTE",
+      "identifier_value": "NA10LV20E",
+      "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+      "unit_id": "244e744c-c2fe-4070-95b1-42b5b786df31",
+      "environment_id": "fb33fb0e-8216-4314-8951-ce6403b41371",
+      "definition_id": "da8e4e4e-3c2f-42f9-a870-1ad1f9e9fbc3",
+      "resource_id": null,
+      "variables": {
+          "credit_card_name": "User XYZ - Credit Card",
+          "credit_card_number": 1234123412341234,
+          "credit_card_expiration": "12/25",
+          "credit_card_cvv": 777
+      },
+      "labels": []
+  }
+}
+````
+
+</CodeBlock>
+</CollapseCode>
+</Process>
+
+{/* collect data from widget, call widget from workflow, */}
+{/* when you call workflow with trigger from workflow, whatever you pass in the body, will be available in the workflow */}
+
+<Process title="Attach routes to accounts" index={4}>
+Now that we have our routes, we can attach them to our accounts. This will allow us to make external transfers with payment providers using the routes we created.
+
+  <Operation method="put" title="Update account" path="/v1/accounts/{id}" />
+  <CodeBlock title="Update user account with routes for bank and cc" >
+    ```bash showLineNumbers {} custom_tag
+    curl --location --request PUT 'http://127.0.0.1:8080/v1/accounts/ACT-1' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "routes": {
+            "connect": [
+                "05f697e5-5b71-4223-9942-816e7975f0da",
+                "15bd9eea-a7f7-48d0-85dc-e9800e0cdbdb"
+            ]
+        }
+    }'
+    ```
+  </CodeBlock>
+  <CollapseCode title='response'>
+    <CodeBlock title="Updated user account" >
+      ```bash showLineNumbers {} custom_tag
+      {
+      "result": {
+          "created_at": "2022-12-15T03:05:50.070Z",
+          "updated_at": "2022-12-16T01:08:18.176Z",
+          "id": "6ca80a80-5753-4a51-a4a8-996bab698658",
+          "archived_at": null,
+          "name": "StartupCo User - Some Identifier",
+          "description": null,
+          "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+          "environment_id": "fb33fb0e-8216-4314-8951-ce6403b41371",
+          "resource_id": null,
+          "external_id": null,
+          "identifier_prefix": "ACT",
+          "identifier_value": "1",
+          "variables": null,
+          "minimum_lines": 1,
+          "maximum_lines": null,
+          "status": "active",
+          "balances": [
+              {
+                  "created_at": "2022-12-16T01:08:18.176Z",
+                  "updated_at": "2022-12-16T01:08:18.176Z",
+                  "id": "ea8a4991-e944-4f86-a7c7-e3e8f30bec86",
+                  "archived_at": null,
+                  "name": "Main usd balance",
+                  "description": null,
+                  "identifier": "main.usd",
+                  "account_id": "6ca80a80-5753-4a51-a4a8-996bab698658",
+                  "unit_id": "244e744c-c2fe-4070-95b1-42b5b786df31",
+                  "type": "main",
+                  "balance": "0.00",
+                  "pending_balance": "0.00",
+                  "negative_pending_balance": "0.00"
+              }
+          ],
+          "routes": [
+              {
+                  "created_at": "2022-12-15T15:10:03.493Z",
+                  "updated_at": "2022-12-15T15:10:03.493Z",
+                  "id": "15bd9eea-a7f7-48d0-85dc-e9800e0cdbdb",
+                  "archived_at": null,
+                  "name": "Route with bank account definition",
+                  "description": "route with bank account definition",
+                  "identifier_prefix": "RTE",
+                  "identifier_value": "0APDQC3C0",
+                  "identifier": "RTE-0APDQC3C0",
+                  "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+                  "unit_id": "244e744c-c2fe-4070-95b1-42b5b786df31",
+                  "environment_id": "fb33fb0e-8216-4314-8951-ce6403b41371",
+                  "definition_id": "9b65715e-9fc0-4c3b-b060-2744806fd8ff",
+                  "external_id": null,
+                  "account_id": "6ca80a80-5753-4a51-a4a8-996bab698658",
+                  "resource_id": null,
+                  "variables": {
+                      "account_number": "|111111111|",
+                      "routing_number": 222222222
+                  }
+              },
+              {
+                  "created_at": "2022-12-15T15:28:12.328Z",
+                  "updated_at": "2022-12-15T15:28:12.328Z",
+                  "id": "05f697e5-5b71-4223-9942-816e7975f0da",
+                  "archived_at": null,
+                  "name": "Route with bank account definition",
+                  "description": "",
+                  "identifier_prefix": "RTE",
+                  "identifier_value": "NA10LV20E",
+                  "identifier": "RTE-NA10LV20E",
+                  "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab",
+                  "unit_id": "244e744c-c2fe-4070-95b1-42b5b786df31",
+                  "environment_id": "fb33fb0e-8216-4314-8951-ce6403b41371",
+                  "definition_id": "da8e4e4e-3c2f-42f9-a870-1ad1f9e9fbc3",
+                  "external_id": null,
+                  "account_id": "6ca80a80-5753-4a51-a4a8-996bab698658",
+                  "resource_id": null,
+                  "variables": {
+                      "credit_card_cvv": 777,
+                      "credit_card_name": "User XYZ - Credit Card",
+                      "credit_card_number": 1234123412341234,
+                      "credit_card_expiration": "12/25"
+                  }
+              }
+          ],
+          "labels": [],
+          "entity_relations": [],
+          "identifier": "ACT-1",
+          "account_relations": []
+      }
+    }
+      ```
+    </CodeBlock>
+  </CollapseCode>
+</Process>
+
+<Process title="Widget creation and configuration" index={5}>
+To create a widget, we need to decide on the configurations we want to use. The widget can be configured to collect different types of information, and we can also customize the look and feel of the widget.
+
+One of the most common use cases for the widget is to collect credit card information. To do this, we need to configure the widget to collect the following information:
+
+  <Operation method="post" title="Create widget" path="/v1/widgets" />
+  <CodeBlock title="credit card widget curl command" >
+    ```bash showLineNumbers {} custom_tag
+    curl --location --request POST 'http://api.modernbanc.com/v1/widgets' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer qgVW6jydEqLFVIZiKiLUsNtOIMUom5' \
+    --header 'x-workspace: startupco' \
+    --header 'x-environment: live' \
+    --data-raw '{
+      "name": "StartupCo User Credit Card Widget",
+      "component": {
+          "type": "container",
+          "layout": "vertical",
+          "title": "Credit card information",
+          "spacing": "small",
+          "components": [
+              {
+                  "placeholder_value": "Card number",
+                  "type": "input",
+                  "path": "credit_card_number",
+                  "encrypt": true,
+                  "validation": {
+                      "required": true,
+                      "min_length": 15,
+                      "max_length": 16
+                  }
+              },
+              {
+                  "placeholder_value": "exp. mm/yyyy.",
+                  "type": "input",
+                  "path": "credit_card_expiration",
+                  "encrypt": true,
+                  "validation": {
+                      "required": true,
+                      "pattern": "^(0[1-9]|1[0-2])\/(202[2-9]|203[0-2])$"
+                  }
+              },
+              {
+                  "placeholder_value": "cvv",
+                  "type": "input",
+                  "path": "credit_card_cvv",
+                  "encrypt": true,
+                  "validation": {
+                      "required": true,
+                      "min_length": 3
+                  }
+              }
+          ]
+      }
+    }'
+    ```
+  </CodeBlock>
+  <CollapseCode title='response'>
+    <CodeBlock>
+      ```bash showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2022-12-15T01:54:21.295Z",
+            "updated_at": "2022-12-15T01:54:21.295Z",
+            "id": "fd7ca18f-16e7-4e38-9fde-f174e9d698d1",
+            "name": "StartupCo User Credit Card Widget",
+            "component": {
+                "type": "container",
+                "components": [
+                    {
+                        "placeholder_value": "Card number",
+                        "type": "input",
+                        "path": "credit_card_number",
+                        "encrypt": true,
+                        "validation": {
+                            "required": true,
+                            "min_length": 15,
+                            "max_length": 16
+                        }
+                    },
+                    {
+                        "placeholder_value": "exp. mm/yyyy.",
+                        "type": "input",
+                        "path": "credit_card_expiration",
+                        "encrypt": true,
+                        "validation": {
+                            "required": true,
+                            "pattern": "^(0[1-9]|1[0-2])/(202[2-9]|203[0-2])$"
+                        }
+                    },
+                    {
+                        "placeholder_value": "cvv",
+                        "type": "input",
+                        "path": "credit_card_cvv",
+                        "encrypt": true,
+                        "validation": {
+                            "required": true,
+                            "min_length": 3
+                        }
+                    }
+                ],
+                "title": "Credit card information",
+                "spacing": "small",
+                "layout": "vertical"
+            },
+            "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab"
+        }
+      }
+      ```
+    </CodeBlock>
+  </CollapseCode>
+
+  <CodeBlock title="bank account widget curl command" >
+    ```bash showLineNumbers {} custom_tag
+    curl --location --request POST 'http://api.modernbanc.com/v1/widgets' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer qgVW6jydEqLFVIZiKiLUsNtOIMUom5' \
+    --header 'x-workspace: startupco' \
+    --header 'x-environment: live' \
+    --data-raw '{
+      "name": "StartupCo Widget - User Bank Account",
+      "component": {
+          "type": "container",
+          "layout": "vertical",
+          "title": "Bank account information",
+          "spacing": "small",
+          "components": [
+              {
+                  "placeholder_value": "Bank account number",
+                  "type": "input",
+                  "path": "account_number",
+                  "encrypt": true,
+                  "validation": {
+                      "required": true,
+                      "min_length": 8,
+                      "max_length": 17
+                  }
+              },
+              {
+                  "placeholder_value": "Bank account routing number",
+                  "type": "input",
+                  "path": "routing_number",
+                  "encrypt": true,
+                  "validation": {
+                      "required": true,
+                      "min_length": 9
+                  }
+              }
+          ]
+      }
+    }'
+    ```
+  </CodeBlock>
+  <CollapseCode title='response'>
+    <CodeBlock title="bank account widget curl command, response" >
+      ```bash showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2022-12-15T01:58:26.648Z",
+            "updated_at": "2022-12-15T01:58:26.648Z",
+            "id": "442fe5ec-f0ed-43e9-b596-f4fc4fabad58",
+            "name": "StartupCo Widget - User Bank Account",
+            "component": {
+                "type": "container",
+                "components": [
+                    {
+                        "placeholder_value": "Bank account number",
+                        "type": "input",
+                        "path": "account_number",
+                        "encrypt": true,
+                        "validation": {
+                            "required": true,
+                            "min_length": 8,
+                            "max_length": 17
+                        }
+                    },
+                    {
+                        "placeholder_value": "Bank account routing number",
+                        "type": "input",
+                        "path": "routing_number",
+                        "encrypt": true,
+                        "validation": {
+                            "required": true,
+                            "min_length": 9
+                        }
+                    }
+                ],
+                "title": "Bank account information",
+                "spacing": "small",
+                "layout": "vertical"
+            },
+            "workspace_id": "2bcd78fa-d648-4f4c-abb9-1fc75bd2dbab"
+        }
+      }
+      ```
+    </CodeBlock>
+  </CollapseCode>
+
+</Process>
+
+<br/>
+<Process title="Adding the widget to your app" index={6}>
+Now that we've created and configured the widget, we need to add it to our app. To do this, we need to add the [Modernbanc NPM package](https://www.npmjs.com/package/@modernbanc/ui-blocks), and then import the widget component.
+
+We also need to encrypt the data, and the store the encryption tokens in our route.
+
+<CollapseCode title='Encrypt curl command'>
+  <CodeBlock>
+    ```js showLineNumbers {} custom_tag
+        curl --location --request POST 'http://127.0.0.1:8080/encryption/tokens' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer qgVW6jydEqLFVIZiKiLUsNtOIMUom5' \
+    --header 'x-workspace: startupco' \
+    --header 'x-environment: live' \
+    --data-raw '{
+        "values": [
+            {
+                "key": "credit_card_name_token",
+                "value": "my-secret",
+                "object_model": "route",
+                "object_id": "05f697e5-5b71-4223-9942-816e7975f0da"
+            },
+            {
+                "key": "credit_card_number_token",
+                "value": "my-secret",
+                "object_model": "route",
+                "object_id": "05f697e5-5b71-4223-9942-816e7975f0da"
+            },
+            {
+                "key": "credit_card_expiration_token",
+                "value": "my-secret",
+                "object_model": "route",
+                "object_id": "05f697e5-5b71-4223-9942-816e7975f0da"
+            },
+            {
+                "key": "credit_card_cvv_token",
+                "value": "my-secret",
+                "object_model": "route",
+                "object_id": "05f697e5-5b71-4223-9942-816e7975f0da"
+            }
+        ]
+    }'
+    ```
+  </CodeBlock>
+</CollapseCode>
+
+If we take a look at what the curl command looks like, we can derive how we need to call this from within out widget.
+
+<CodeBlock title="Credit card widget" >
+  ```js showLineNumbers {} custom_tag
+  import React from 'react';
+  import './App.css';
+  import Widget from './lib/components/widget';
+
+const encrypt*data*= async (data: Record<string,unknown>) => {
+
+    await fetch('http://127.0.0.1:8080/encryption/tokens', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        values: [
+          {
+            key: 'credit_card_name_token',
+            value: data.credit_card_name,
+            object_model: 'route',
+            object_id: '05f697e5-5b71-4223-9942-816e7975f0da',
+          },
+          {
+            key: 'credit_card_number_token',
+            value: data.credit_card_number,
+            object_model: 'route',
+            object_id: '05f697e5-5b71-4223-9942-816e7975f0da',
+          },
+          {
+            key: 'credit_card_expiration_token',
+            value: data.credit_card_expiration,
+            object_model: 'route',
+            object_id: '05f697e5-5b71-4223-9942-816e7975f0da',
+          },
+          {
+            key: 'credit_card_cvv_token',
+            value: data.credit_card_cvv,
+            object_model: 'route',
+            object_id: '05f697e5-5b71-4223-9942-816e7975f0da',
+          },
+        ],
+      }),
+    })
+      .then((response) => {
+        response.json()
+        console.log('response: ', response)
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+
+};
+
+function App() {
+
+    return (
+      <div
+        className="App"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100vh' }}
+      >
+        <Widget
+          api_key="qgVW6jydEqLFVIZiKiLUsNtOIMUom5" // Add api key from Modernbanc workspace.
+          widget_id="d234f3c4-3a8d-4bf5-ac1e-7bb72068e560" // The id of the widget you created.
+          onSubmit={(data) => {
+            encrypt_data_(data);
+            console.log('User submitted data: ' + JSON.stringify(data));
+          }}
+          onShow={(data) => {
+            console.log('Shown data to user:' + JSON.stringify(data));
+          }}
+          onClose={() => {
+            console.log('Closed popup');
+          }}
+        />
+      </div>
+    );
+
+}
+
+export default App;
+
+````
+</CodeBlock>
+
+
+Here is what the widget looks like in our app:
+
+<Image
+  title="Credit card widget"
+  description=""
+  max_height="500px"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/tutorials/checkout-widget/widget-credit-card.png"
+/>
+<Image
+  title="Bank account widget"
+  description=""
+  max_height="500px"
+  src="https://storage.googleapis.com/mdb-public-prod-bucket/docs-assets/tutorials/checkout-widget/widget-bank-account.png"
+/>
+
+</Process>
+
+
+
+<Process title="Create the connection to stripe" index={7}>
+Now that we have the data encrypted and tokens stored in our routes for our user, we need to create a transction using Stripe's Payment Method API.
+
+
+<CodeBlock title="Create connection - stripe" >
+  ```bash showLineNumbers {} custom_tag
+  dsds
+  ```
+</CodeBlock>
+<CollapseCode title='response'>
+  <CodeBlock title="create connection response" >
+    ```bash showLineNumbers {} custom_tag
+    dsds
+    ```
+  </CodeBlock>
+</CollapseCode>
+
+
+</Process>
+
+<Process title="Create the connection to stripe" index={8}>
+Now that we have the data encrypted and tokens stored in our routes for our user, we need to create a transction using Stripe's Payment Method API.
+
+
+<CodeBlock title="Create connection - stripe" >
+  ```bash showLineNumbers {} custom_tag
+  dsds
+  ```
+</CodeBlock>
+<CollapseCode title='response'>
+  <CodeBlock title="create connection response" >
+    ```bash showLineNumbers {} custom_tag
+    dsds
+    ```
+  </CodeBlock>
+</CollapseCode>
+
+
+</Process>
+
+
+<Process title="Create workflow to make call to stripe" index={9}>
+
+Now that we have the connection to stripe, we need to create a workflow to call their backend with the information from our widget data collection.
+
+In the workflow we need to:
+- connect to our workspace
+- grab data stored in our routes
+- make a call to stripe to create a payment method with the data
+
+
+<CodeBlock title="Create workflow" >
+  ```bash showLineNumbers {} custom_tag
+  dsds
+  ```
+</CodeBlock>
+<CollapseCode title='response'>
+  <CodeBlock title="FILL" >
+    ```bash showLineNumbers {} custom_tag
+    dsds
+    ```
+  </CodeBlock>
+</CollapseCode>
+</Process>
+
+<Process title="fill" index={3}>
+<CodeBlock title="FILL" >
+  ```bash showLineNumbers {} custom_tag
+  dsds
+  ```
+</CodeBlock>
+<CollapseCode title='response'>
+  <CodeBlock title="FILL" >
+    ```bash showLineNumbers {} custom_tag
+    dsds
+    ```
+  </CodeBlock>
+</CollapseCode>
+</Process>
+
+<Process title="fill" index={3}>
+<CodeBlock title="FILL" >
+  ```bash showLineNumbers {} custom_tag
+  dsds
+  ```
+</CodeBlock>
+<CollapseCode title='response'>
+  <CodeBlock title="FILL" >
+    ```bash showLineNumbers {} custom_tag
+    dsds
+    ```
+  </CodeBlock>
+</CollapseCode>
+</Process>
+````

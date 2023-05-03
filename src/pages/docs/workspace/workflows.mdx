@@ -1,0 +1,868 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+# Workflows
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="Workflow" />
+
+### What are workflows?
+
+Workflows are a way to automate your processes. They allow you to create a series of steps that will be executed when a specific event occurs. For example, you can create a workflow that automatically sends an alert to your slack channel upon a stripe payment occurring on your site.
+
+### Triggers
+
+A variety of events can trigger workflows. These events can be webhooks, workspace events, or run on a schedule.
+
+Check out the [triggers](/docs/workspace/triggers) page to learn more about how triggers work.
+
+### Accessing workflow context data
+
+In workflows and steps, it is possible to access information about data passed to the trigger, variables stored in the workflow, or data resulting from steps that have already been executed. You can put any JavaScript code inside of `{{ }}`, including accessing variables.
+
+The syntax to access them is as follows:
+
+- `{{_trigger_version._input.body}}` - this will give you access to the response body that was passed to the trigger.
+- `{{steps[0].result.data}}` - you can access any step of the workflow with the `steps` array. The first step is at index 0.
+- `{{_variables.my_variable}}` - you can access any variable stored in the workflow with the `_variables` object.
+
+### Steps
+
+A variety of steps make up workflows. For example, steps can connect to external services, conduct workspace events within Modernbanc, or run custom code.
+
+To select a step, you must set `type` to one of the following values, for example, `"type": "connection_query"`.
+
+#### Step Types
+
+- `workspace_operation`: Do an operation on objects in your workspace, e.g., create, update or delete a transaction or account.
+- `connection_query`: Makes an HTTP request.
+- `condition`: Evaluates a condition and returns true or false. They can have children's steps that will execute conditionally only if the result is true or only if the result is false.
+- `pause`: Stops the execution of the workflow until it is later resumed. It can have triggers associated with determining when the execution will resume.
+- `function`: Executes custom JavaScript code.
+- `search`: Search your workspace for various objects.
+- `pause`: Stops the execution of the workflow until it is later resumed. It can have triggers associated with determining when the execution will resume.
+- `for_each`: Provide an array and performs all children's steps once for every element in the array.
+- `action`: Provide an array and performs all children's steps once for every element in the array.
+- `format`: Format any data throughout workflow execution.
+- `return`: Finish workflow execution and return with a status code and an error message or body.
+- `reply`: Reply to the initiating trigger. This does not stop the workflow. Currently can only reply to pre-event workspace triggers. The body of these replies is the same as the values passed in by these triggers.
+
+### General execution logic:
+
+- Execution statuses and codes:
+  - `execution.status` reflects current state of the workflow. (e.g `in-progress`, `completed`, `failed`) etc.
+  - `execution.code` reflects what http response code will API caller will receive.
+  - If `code` is specified by whoever built the workflow (e.g via `return` or `reply` steps) it will decide the `status` of the workflow:
+    - `code < 400` → `status: completed`
+    - `code >= 400` → `status: failed`
+  - If `code` is not specified then it'll be auto-decided by execution status. Completed executions will have 200 code while failed ones will have 420 code.
+
+
+
+# Usage
+
+#### Create workflow
+
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigating to the `Workflows` tab in the settings dropdown or by pressing `G` and then `W`.
+    - Click the `Create` button in the upper right corner. 
+    - Give your workflow a `Name`, and click `Create`.
+    - Select the workflow you want to amend, and click the `Edit` button in the top nav bar. 
+    - Add a new step by clicking the `+` button on the left of the step list.
+    - Add a trigger by clicking the `+` button on the right. 
+    <Label text="Steps" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Workspace operation">
+        - In the `Type` dropdown, select the type of operation you want to perform. The options are `Create`, `Update`, `Archive`, and `Delete`.
+        - In the `Model` dropdown, select the model you want to interact with. The options are `Transaction`, `Account`, `Balance`, `Entity`, `Route`, and `Secret token`.
+        - In the `Data/Parameters` field, enter the data you want to use for the operation. For example, if you want to create a transaction, you can enter the following:
+        ```json
+        {
+          "name": "My first transaction",
+          "description": "My first transaction",
+          "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+          "from_account_id": "ACT-33",
+          "to_account_id": "ACT-34",
+          "amount": "100",
+          "status": "completed"
+        }
+        ```
+      </Tab>
+      <Tab title="Query">
+        - In the `Query` dropdown, select the query type you want to run. The options are `Connection` and `Query`.
+          - For `Connection` queries, you can select from the following:
+            - In the `Connection` dropdown, select the connection you want to use. For example, if you have connections to Stripe or Slack.
+            - In the `Version` dropdown, select the version of the connection you want to use.
+          - For `Query` queries, you can select from the following:
+            - In the `Type` dropdown, select `Http Api`.
+        - In the `Parameters` form, select your `Method`, `Content-Type`, enter the `URL`, and add any `Headers` or `Body` if needed.
+      </Tab>
+      <Tab title="Function">
+        - The `Available libraries` tooltip will show you the libraries that are available to you in the function.
+        - In the `Code` field, enter the code you want to run. For example, you can access variables attached to the workflow.
+        ```js
+        console.log(_variables.my_variable)
+        ``` 
+      </Tab>
+      <Tab title="Return">
+        - In the `Status code` field, enter the status code you want to return. For example, `200`.
+        - In the `Body` field, enter the body you want to return. For example, `{"message": "success"}`.
+      </Tab>
+      <Tab title="Reply">
+        - In the `Status code` field, enter the status code you want to return. For example, `200`.
+        - In the `Body` field, enter the body you want to return to the trigger. For example, `{"message": "success"}`.
+      </Tab>
+      <Tab title="Format">
+        - In the `Parameters` field, enter the parameters you want to use for the format. For example, `{"format": "YYYY-MM-DD"}`.
+      </Tab>
+      <Tab title="Find">
+        - In the `Type` dropdown, select the type of search you want to run. The options are `One` and `Many`.
+        - In the `Model` dropdown, select the model you want to search. The options are `Transaction`, `Account`, `Balance`, `Entity`, `Route`, and `Secret token`.
+        - You can add `Filters`, `Sorts`, and `Include` to narrow your search. There is also pagination with `Take` and `Skip`.
+      </Tab>
+      <Tab title="Pause">
+        - You can attach a trigger to the pause step on the right side of the Pause step in the step builder. This will allow you to resume the workflow when the trigger is fired. The workflow pauses until this trigger goes off.
+      </Tab>
+      <Tab title="Condition">
+        - In the `Condition` field, enter the condition you want to check. For example, `{{steps[0].result.data}}`.
+        - Select the `+ Add condition` button to add additional conditions.
+      </Tab>
+      <Tab title="For each">
+        - In the `Items` field, enter the data you want to iterate over. For example, `{{steps[1].returned.accounts}}`.
+      </Tab>
+    </Tabs>
+    - Click the `Save` button in the top nav bar.
+    - Click the `Publish` button in the top nav bar.
+    - Your workflow is now published and actively running, listening for triggers, workspace operations, or any conditions you've set.
+        
+  </Tab>
+  <Tab title="API">
+    <Operation method="post" title="Create workflow" path="/v1/workflows" />
+    <Label text="Get parent account balance on schedule or webhook" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Balance report workflow, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/workflows' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "Transaction Slack Notification",
+            "description": "Workflow to create a transaction between two accounts, create a notification with the status in slack, and return if it was successful.",
+            "version": {
+                "status": "published",
+                "variables": {
+                    "parent_account": "ACT-28"
+                },
+                "version_type": "large",
+                "steps": [
+                    {
+                        "name": "Find parent account balance",
+                        "type": "find",
+                        "description": "Finds a requested object in your workspace and environment.",
+                        "parameters": {
+                            "model": "account",
+                            "type": "one",
+                            "where": {
+                                "identifier": "{{_variables.parent_account}}"
+                            },
+                            "include": {
+                                "routes": true,
+                                "balances": true
+                            }
+                        },
+                        "trigger_version_ids": [
+                            "83c231d6-7d3c-4cfb-a67b-8bf741e062f1",
+                            "6879a0b4-8f7b-4995-b951-7320f34f8b34"
+                        ]
+                    },
+                    {
+                        "name": "Connection Query - display data to slack message",
+                        "parameters": {
+                            "type": "http_api",
+                            "query": {
+                                "url": "https://hooks.slack.com/services/<your Slack webhook secret here>",
+                                "method": "post",
+                                "headers": {
+                                    "Content-Type": "application/json"
+                                },
+                                "body": {
+                                    "text": "{{steps[0].result.data}}"
+                                }
+                            },
+                            "fail_execution_on_error_response": true
+                        },
+                        "type": "connection_query"
+                    },
+                    {
+                        "type": "return",
+                        "name": "Return step",
+                        "description": "Stops workflow execution. Sets the workflow to parameters.status (defaults to completed). Sets the step.result as the step.parameters. Immediately returns the step result as the response for this workflow.",
+                        "parameters": {
+                            "code": "200",
+                            "return": {
+                                "data": "{{steps[0].result.data}}"
+                            }
+                        }
+                    }
+                ],
+                "active_in_current_environment": true
+            }
+        }'
+        ```
+      </Tab>
+      <Tab title="Balance report workflow, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-06T03:10:52.966Z",
+            "updated_at": "2023-01-06T03:10:52.966Z",
+            "id": "1e963418-3b3e-4662-8706-4051a5a7cd66",
+            "archived_at": null,
+            "name": "parent account balance report",
+            "description": "Find the parent account, grab the balance, display on a nightly cronjob to slack, or if a webhook is called.",
+            "description_data": {
+                "root": {
+                    "type": "root",
+                    "format": "",
+                    "indent": 0,
+                    "version": 1,
+                    "children": [
+                        {
+                            "type": "paragraph",
+                            "format": "",
+                            "indent": 0,
+                            "version": 1,
+                            "children": [
+                                {
+                                    "mode": "normal",
+                                    "text": "Workflow to create a transaction between two accounts, create a notification with the status in slack, and return if it was successful.",
+                                    "type": "text",
+                                    "style": "",
+                                    "detail": 0,
+                                    "format": 0,
+                                    "version": 1
+                                }
+                            ],
+                            "direction": "ltr"
+                        }
+                    ],
+                    "direction": "ltr"
+                }
+            },
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "identifier_prefix": "WFL",
+            "identifier_value": "12",
+            "versions": [
+                {
+                    "created_at": "2023-01-06T03:10:52.966Z",
+                    "updated_at": "2023-01-06T03:10:52.966Z",
+                    "id": "9b06f06d-b84d-485a-9979-8f861c8cff30",
+                    "archived_at": null,
+                    "name": "Transaction Slack Notification 1.0.0",
+                    "description": null,
+                    "description_data": null,
+                    "workflow_id": "1e963418-3b3e-4662-8706-4051a5a7cd66",
+                    "version": "1.0.0",
+                    "is_valid": true,
+                    "replace": null,
+                    "status": "published",
+                    "steps": [
+                        {
+                            "id": "70512303-4f6a-47cc-98ce-1528a4ad42e7",
+                            "name": "Find parent account balance",
+                            "description": "Finds a requested object in your workspace and environment.",
+                            "step_number": 1,
+                            "variables": null,
+                            "type": "find",
+                            "parameters": {
+                                "type": "one",
+                                "model": "account",
+                                "where": {
+                                    "identifier": "{{_variables.parent_account}}"
+                                },
+                                "include": {
+                                    "routes": true,
+                                    "balances": true
+                                }
+                            },
+                            "condition_path": null,
+                            "connection_version_id": null,
+                            "workflow_version_id": "9b06f06d-b84d-485a-9979-8f861c8cff30",
+                            "parent_step_id": null,
+                            "parent_action_version_id": null,
+                            "child_action_version_id": null,
+                            "created_at": "2023-01-06T03:10:52.966Z",
+                            "updated_at": "2023-01-06T03:10:52.966Z",
+                            "archived_at": null,
+                            "trigger_versions": [
+                                {
+                                    "created_at": "2023-01-05T19:21:37.249Z",
+                                    "updated_at": "2023-01-05T19:21:37.249Z",
+                                    "id": "83c231d6-7d3c-4cfb-a67b-8bf741e062f1",
+                                    "archived_at": null,
+                                    "name": "Scheduled trigger 1.0.0",
+                                    "description": null,
+                                    "description_data": null,
+                                    "trigger_id": "afc89fd5-5fd6-4c58-9328-aa8f69446306",
+                                    "version": "1.0.0",
+                                    "status": "published",
+                                    "type": "schedule",
+                                    "start_date": "2023-01-05T19:09:36.503Z",
+                                    "is_valid": true,
+                                    "end_date": null,
+                                    "schedule": "0 5 * * * *",
+                                    "workspace_event_type": null,
+                                    "workspace_event_model": null,
+                                    "workspace_event_timing": null,
+                                    "link": {
+                                        "created_at": "2023-01-05T19:21:37.249Z",
+                                        "updated_at": "2023-01-05T19:21:37.249Z",
+                                        "id": "27fc4bfd-47ce-4501-9858-54fc388ca6c6",
+                                        "trigger_id": "afc89fd5-5fd6-4c58-9328-aa8f69446306",
+                                        "trigger_version_id": "83c231d6-7d3c-4cfb-a67b-8bf741e062f1",
+                                        "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                                        "variables": {
+                                            "parent account identifier": "ACT-28"
+                                        }
+                                    }
+                                },
+                                {
+                                    "created_at": "2023-01-06T03:07:25.982Z",
+                                    "updated_at": "2023-01-06T03:07:25.982Z",
+                                    "id": "6879a0b4-8f7b-4995-b951-7320f34f8b34",
+                                    "archived_at": null,
+                                    "name": "Webhook Tester 0.0.1",
+                                    "description": null,
+                                    "description_data": null,
+                                    "trigger_id": "2ab2e190-5092-478d-983c-d505f0562969",
+                                    "version": "0.0.1",
+                                    "status": "published",
+                                    "type": "webhook",
+                                    "start_date": "2022-12-22T03:54:50.146Z",
+                                    "is_valid": true,
+                                    "end_date": null,
+                                    "schedule": null,
+                                    "workspace_event_type": null,
+                                    "workspace_event_model": null,
+                                    "workspace_event_timing": null,
+                                    "link": {
+                                        "created_at": "2023-01-06T03:07:25.982Z",
+                                        "updated_at": "2023-01-06T03:07:25.982Z",
+                                        "id": "2da94e97-cbb8-451b-aabe-677e6ef9cd9d",
+                                        "trigger_id": "2ab2e190-5092-478d-983c-d505f0562969",
+                                        "trigger_version_id": "6879a0b4-8f7b-4995-b951-7320f34f8b34",
+                                        "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                                        "variables": null
+                                    }
+                                }
+                            ],
+                            "steps": []
+                        },
+                        {
+                            "id": "de9d2acb-bc43-46a6-b1b7-3b008ccedded",
+                            "name": "Connection Query - display data to slack message",
+                            "description": null,
+                            "step_number": 2,
+                            "variables": null,
+                            "type": "connection_query",
+                            "parameters": {
+                                "type": "http_api",
+                                "query": {
+                                    "url": "https://hooks.slack.com/services/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",
+                                    "body": {
+                                        "text": "{{steps[0].result.data}}"
+                                    },
+                                    "method": "post",
+                                    "headers": {
+                                        "Content-Type": "application/json"
+                                    }
+                                },
+                                "fail_execution_on_error_response": true
+                            },
+                            "condition_path": null,
+                            "connection_version_id": null,
+                            "workflow_version_id": "9b06f06d-b84d-485a-9979-8f861c8cff30",
+                            "parent_step_id": null,
+                            "parent_action_version_id": null,
+                            "child_action_version_id": null,
+                            "created_at": "2023-01-06T03:10:52.966Z",
+                            "updated_at": "2023-01-06T03:10:52.966Z",
+                            "archived_at": null,
+                            "trigger_versions": [],
+                            "steps": []
+                        },
+                        {
+                            "id": "5742c4ce-3ccf-4e1d-bb7d-10588b0e6482",
+                            "name": "Return step",
+                            "description": "Stops workflow execution. Sets the workflow to parameters.status (defaults to completed). Sets the step.result as the step.parameters. Immediately returns the step result as the response for this workflow.",
+                            "step_number": 3,
+                            "variables": null,
+                            "type": "return",
+                            "parameters": {
+                                "code": "200",
+                                "return": {
+                                    "data": "{{steps[0].result.data}}"
+                                }
+                            },
+                            "condition_path": null,
+                            "connection_version_id": null,
+                            "workflow_version_id": "9b06f06d-b84d-485a-9979-8f861c8cff30",
+                            "parent_step_id": null,
+                            "parent_action_version_id": null,
+                            "child_action_version_id": null,
+                            "created_at": "2023-01-06T03:10:52.966Z",
+                            "updated_at": "2023-01-06T03:10:52.966Z",
+                            "archived_at": null,
+                            "trigger_versions": [],
+                            "steps": []
+                        }
+                    ],
+                    "link": {
+                        "created_at": "2023-01-06T03:10:52.966Z",
+                        "updated_at": "2023-01-06T03:10:52.966Z",
+                        "id": "0604634b-eba9-4400-a820-c976a9d0b60a",
+                        "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                        "workflow_id": "1e963418-3b3e-4662-8706-4051a5a7cd66",
+                        "workflow_version_id": "9b06f06d-b84d-485a-9979-8f861c8cff30",
+                        "environment_config": {
+                            "created_at": "2023-01-06T03:10:52.966Z",
+                            "updated_at": "2023-01-06T03:10:52.966Z",
+                            "id": "a423dfa9-a2ee-46c2-bbab-8cf7146001ae",
+                            "workflow_link_id": "0604634b-eba9-4400-a820-c976a9d0b60a",
+                            "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                            "status": "active",
+                            "variables": {
+                                "parent_account": "ACT-28"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+    <br/> 
+    <Label text="Steps" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Workspace operation">
+        ```json
+        {
+          "name": "Workspace Operation",
+          "description": "Executes a create or update workspace operation on select models. Sets step.result as the response from the server. If the server replies with an error http status code (e.g 400s, 500s) the step will be marked as failed and the workflow execution will stop.",
+          "parameters": {
+            "type": "create | update | archive",
+            "model": "transaction | account | balance | entity | route",
+            "id": "Required for update and archive",
+            "data": "Depends on the operation/model but follows the request body spec for the corresponding endpoints"
+          },
+          "type": "workspace_operation"
+        }
+        ```
+      </Tab>
+      <Tab title="Query">
+        ```json
+        {
+          "name": "Connection Query",
+          "description": "Executes a query. Connection not required but you can provide a connection and a pre-defined query. Currently only supports http_api requests.",
+          "parameters": {
+            "connection_id": "Optional id of a connection",
+            "connection_verison": "Required if connection_id is provided",
+            "query_id": "Optional but can ony be provided if the above two parameters are provided",
+            "type": "http_api",
+            "query": {
+              "NOTE": "All the below params are optional as is query itself. These will override the base_query and query provided by the connection (if they are specified). If no connection/query is provided this object is required",
+              "base_url": "[[_variables.url]]",
+              "url": "",
+              "method": "http method",
+              "content_type": "json | www-url-encoded",
+              "headers": {},
+              "query_params": {},
+              "body": {},
+              "certificate": {}
+            },
+            "fail_execution_on_error_response": true /* default - false. If true whenever query gets >400 response it'll fail the workflow. */
+          },
+          "type": "connection_query"
+        }
+        ```
+        Note: When a connection version is loaded into a workspace execution for the first time its variables are substituted right away.
+        1. This means that the connection_version cannot `see` the step during variable/json substitution.
+        2. If you want to use step specific information in your connection query it must go in `parameters.query`
+      </Tab>
+      <Tab title="Function">
+        ```json
+        {
+          "name": "Function Step",
+          "description": "Executes async or synchronous JavaScript code. The code must call 'callback(success?: any, error?: any)'. If callback is called with success the success value will be put in step.result. If callback is called with error the step will fail, the workflow will fail, and you will have { code: 'ERR_json_CODE_RUNNER_EXECUTION', exception: 'Your passed in error value' } in your execution.errors.",
+          "parameters": {
+            "code": "const result = 1 + 1; if(result === 2) callback('success!', null); else callback(null, 'Math is wrong')"
+          },
+          "type": "function"
+        }
+        ```
+
+      </Tab>
+      <Tab title="Return">
+        ```json
+        {
+          "type": "return",
+          "name": "Return step",
+          "description": "Stops workflow execution. Sets the workflow to parameters.status (defaults to completed). Sets the step.result as the step.parameters. Immediately returns the step result as the response for this workflow.",
+          "parameters": {
+            "code": "Valid http code" /* Goes into execution.code and response to api caller. */,
+            "return": {} /* Goes into execution.returned */
+          }
+        }
+        ```
+      </Tab>
+      <Tab title="Reply">
+        ```json
+        {
+          "name": "Reply step",
+          "description": "Sets the step.results as the step.parameters. Immediately returns the step result as the response body for this workflow. Continues execution afterwards.",
+          "parameters": {
+            "code": "Valid http code",
+            "body": {}
+          }
+        }
+        ```
+      </Tab>
+      <Tab title="Format">
+        ```json
+        {
+          "name": "Format Step",
+          "description": "Applies variable/json substitution on the parameters and sets the step.result as these paremters in the execution.",
+          "variables": {},
+          "parameters": {
+            "my_name": "[[_variables.name]]",
+            "json_result": "{{2+2*12}}"
+          },
+          "type": "format"
+        },
+        ```
+      </Tab>
+      <Tab title="Find">
+        ```json
+        {
+          "name": "Find Step",
+          "description": "Finds a requested object in your workspace and environment.",
+          "parameters": {
+            "model": "account",
+            "type": "many" /* or "one" */,
+            "where": {
+              "id": "optional string or list of strings",
+              "identifier": "optional list of strings",
+              "external_id": "string or null",
+              "status": "optional account status"
+            },
+            "include": {
+              "routes": true
+            }
+          }
+        }
+        ```
+      </Tab>
+      <Tab title="Pause">
+        ```json
+        {
+          "name": "Pause Step",
+          "description": "Temporarily stops workflow execution and saves the workflow_execution with status 'paused'. The workflow can only be resumed if there is a trigger attached to this step.",
+          "parameters": {
+            "NOTE": "You can put anything here."
+          },
+          "type": "pause",
+          "trigger_versions": [
+            {
+              "trigger_id": "uuid",
+              "version": "1.2.3"
+            }
+          ]
+        }
+        ```
+      </Tab>
+      <Tab title="Condition">
+        ```json
+        {
+          "name": "Condition step",
+          "description": "Executes the condition provided in parameters. If true will execute the steps.true path, otherwise will execute the steps.false path. If the path is empty will move to the next step.",
+          "parameters": {
+            "and": [],
+            "or": [],
+            "param_1": "anything",
+            "param_2": "anything",
+            "condition": "A valid comparison condition"
+          },
+          "type": "condition"
+        }
+        ```
+        <Label text="Possible conditions" />
+        ```json 
+        '(string) contains',
+        '(string) does not contain',
+        '(string) exactly matches',
+        '(string) does not exactly match',
+        '(string) is in',
+        '(string) is not in',
+        '(string) starts with',
+        '(string) does not start with',
+        '(string) ends with',
+        '(string) does not end with',
+        '(number) equals',
+        '(number) does not equal',
+        '(number) greater than',
+        '(number) lower than',
+        '(date/time) after',
+        '(date/time) before',
+        '(date/time) equals',
+        '(boolean) is true',
+        '(boolean) is false',
+        'exists',
+        'does not exist'
+        ```
+      </Tab>
+      <Tab title="For each">
+        ```json
+        {
+          "name": "For Each Step",
+          "description": "Executes all child steps for each element in the provided array. Child steps have access to the context varaibles: 'self.index' and 'self.array_element'",
+          "parameters": {
+            "array": "After variable/json substitution must be an array"
+          },
+          "type": "for_each",
+          "steps": []
+        }
+        ```
+      </Tab>
+      <Tab title="Action step">
+        ```json
+        {
+          "name": "Action Step",
+          "description": "Executes the specified 'child_action_version' as part of this workflow. Allows creating resuable 'actions' that are used across multiple workflows. Actions do not have access to the workflow execution scope and will only see what you show them via parameters.input.",
+          "parameters": {
+            "action_id": "uuid",
+            "action_version": "1.2.3",
+            "input": "What the action can see."
+          },
+          "type": "action"
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+#### List Workflows
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigate to the `Workflows` page, or press `G` and then `W`.
+    - The display will show a list of all workflows. To narrow the results, you can add `Filters` or `Sorts`.
+  </Tab>
+  <Tab title="API">
+    <Operation method="get" title="Get workflow" path="/v1/workflows/{id_or_identifier}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Get workflows, request.">
+        ```json
+          curl --location --request GET 'https://api.modernbanc.com/v1/workflows/69a241bc-408f-43ae-8733-c3d3724405d9?include=versions: true'
+        ```
+      </Tab>
+      <Tab title="Get workflows, response.">
+        ```json
+        {
+            "result": {
+                "created_at": "2023-03-30T03:26:07.821Z",
+                "updated_at": "2023-03-30T03:26:07.821Z",
+                "id": "69a241bc-408f-43ae-8733-c3d3724405d9",
+                "archived_at": null,
+                "name": "d;lkf;lsakd",
+                "description": "dslkf;alk\nsfd",
+                "description_data": {
+                    "root": {
+                        "type": "root",
+                        "format": "",
+                        "indent": 0,
+                        "version": 1,
+                        "children": [
+                            {
+                                "type": "paragraph",
+                                "format": "",
+                                "indent": 0,
+                                "version": 1,
+                                "children": [
+                                    {
+                                        "mode": "normal",
+                                        "text": "dslkf;alk\nsfd",
+                                        "type": "text",
+                                        "style": "",
+                                        "detail": 0,
+                                        "format": 0,
+                                        "version": 1
+                                    }
+                                ],
+                                "direction": "ltr"
+                            }
+                        ],
+                        "direction": "ltr"
+                    }
+                },
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "source_workflow_id": null,
+                "identifier_prefix": "WFL",
+                "identifier_value": "808",
+                "versions": [
+                    {
+                        "created_at": "2023-03-30T03:26:07.995Z",
+                        "updated_at": "2023-03-30T03:26:07.995Z",
+                        "id": "11b4df5e-9b22-4722-8b8b-c657e5a04ec2",
+                        "archived_at": null,
+                        "name": "d;lkf;lsakd 0.0.1",
+                        "description": null,
+                        "description_data": null,
+                        "workflow_id": "69a241bc-408f-43ae-8733-c3d3724405d9",
+                        "version": "0.0.1",
+                        "is_valid": false,
+                        "replace": null,
+                        "status": "draft"
+                    }
+                ]
+            }
+        }
+        ```
+      </Tab>
+    </Tabs>
+
+    <Operation method="get" title="List workflow" path="/v1/workflows" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="List workflows, request.">
+        ```json
+          curl --location --request GET 'https://api.modernbanc.com/v1/workflows?include=name: true&take=2'
+        ```
+      </Tab>
+      <Tab title="List workflows, response.">
+        ```json
+          {
+            "result": [
+                {
+                    "id": "69a241bc-408f-43ae-8733-c3d3724405d9",
+                    "name": "d;lkf;lsakd"
+                },
+                {
+                    "id": "f8ec31e8-9e34-4d78-afe8-e2ae5a631481",
+                    "name": "UI Stripe to Slack Tx"
+                }
+            ],
+            "pagination": {
+                "skip": 0,
+                "take": 2,
+                "has_next_page": true,
+                "has_previous_page": false,
+                "total_count": 4,
+                "after_cursor": "Y3JlYXRlZF9hdDoxNjgwMDEzODg5OTIxLGlkOmY4ZWMzMWU4LTllMzQtNGQ3OC1hZmU4LWUyYWU1YTYzMTQ4MQ=="
+            }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+
+#### Update Workflows
+<Tabs width="min">
+  <Tab title="UI">
+    - Navigating to the `Workflows` tab in the settings dropdown or by pressing `G` and then `W`.
+    - Clicking the `Edit` button in the top nav bar.
+    - To save your workflow, click the `Save` button in the top nav bar.
+      - Note: once a workflow is publised, you must create a new version to make additional changes.
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Update workflow" path="/v1/workflows/{id_or_identifier}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Update workflow, request.">
+        ```json
+        curl --location --request PUT 'https://api.modernbanc.com/v1/workflows/69a241bc-408f-43ae-8733-c3d3724405d9' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "name": "Updated workflow",
+            "description": "Only name and description can be updated for workflows."
+        }'
+        ```
+      </Tab>
+      <Tab title="Update workflow, response.">
+        ```json
+          {
+            "result": {
+                "created_at": "2023-03-30T03:26:07.821Z",
+                "updated_at": "2023-04-01T04:13:34.608Z",
+                "id": "69a241bc-408f-43ae-8733-c3d3724405d9",
+                "archived_at": null,
+                "name": "Updated workflow",
+                "description": "Only name and description can be updated for workflows.",
+                "description_data": {
+                    "root": {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "detail": 0,
+                                        "format": 0,
+                                        "mode": "normal",
+                                        "style": "",
+                                        "text": "Only name and description can be updated for workflows.",
+                                        "type": "text",
+                                        "version": 1
+                                    }
+                                ],
+                                "direction": "ltr",
+                                "format": "",
+                                "indent": 0,
+                                "type": "paragraph",
+                                "version": 1
+                            }
+                        ],
+                        "direction": "ltr",
+                        "format": "",
+                        "indent": 0,
+                        "type": "root",
+                        "version": 1
+                    }
+                },
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "source_workflow_id": null,
+                "identifier_prefix": "WFL",
+                "identifier_value": "808",
+                "identifier": "WFL-808"
+            }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+### Workflow Versions
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="WorkflowVersion" />
+Workflows are versioned objects. This means when you are working with a workflow **you are working with a version, since it contains most of the data**.
+Versions can have either `draft` or `published` status. **You can't edit published versions but you can use them.**
+
+<Operation method="post" title="Create new version" path="/v1/workflows/versions" />
+<Operation method="get" title="Get version" path="/v1/workflows/versions/{id}" />
+<Operation method="get" title="List versions" path="/v1/workflows/versions" />
+<Operation method="put" title="Update version" path="/v1/workflows/versions/{id}" style={{ marginBottom: '10px' }} />

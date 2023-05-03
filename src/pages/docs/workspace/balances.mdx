@@ -1,0 +1,318 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column
+} from '~/views/docs/components/content/all'
+
+# Balances
+
+<Schema style={{ marginTop: '8px', marginBottom: '20px' }} title="Balance" />
+
+### What are balances?
+
+Balances are the amount of a unit linked to an account. There are three `types` of balances, `main`, `children`, and `custom`. Accounts can have balances, and each balance has a unit.
+
+Balances contain:
+
+- `balance` - the sum of all completed transactions.
+- `available_balance` - a balance not including pending balance.
+- `pending_balance` - the sum of all pending transactions.
+- `negative_pending_balance` - the sum of all negative pending transactions.
+
+### Main balances
+
+Main balances are the balances belonging to the account directly.
+
+### Children balances
+
+Children balances are the sum of the balances belonging to the account's children. Custom balances do not get included in children's balances.
+
+### Custom balances
+
+Custom balances you can create, it's not managed by Modernbanc, and you need to assign the balance amount directly. This feature is helpful for syncing balances with external systems. Note to use a custom balance, you cannot attach the unit to the account on creation, or it will default to the main type. You must create an account without the unit and create a custom balance.
+
+# Usage
+
+#### Create balance
+
+You can add balance to accounts at any time. For example, when a new currency is added to the account. Another example could be if you're a grocery store and started carrying baguettes and want to track the number of baguettes you have in stock or that were sold. You can create the unit, link it to your workspace, and then create a balance to link it to a specific account.
+
+<Tabs width="min">
+  <Tab title="UI">
+    - On the UI, balances are created when you attach units to accounts.
+      - Navigate to the `Accounts` page, or press `G` and then `A`.
+      - Click the `Create` button in the top right.
+      - Select a unit from the `Units` dropdown, and now the account will have balances for each one attached to the account. 
+  </Tab>
+  <Tab title="API">
+    <Operation method="post" title="Create balance" path="/v1/balances" />
+    <Label text="Add new balance to account"/>
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Create main currency balance, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/balances' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "type" : "main",
+            "unit_id" : "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+            "account_id" : "ACT-23",
+            "identifier": "usd",
+            "name": "main usd balance",
+            "description": "attach usd balance to accounts that don'\''t have it already"
+        }'
+        ```
+      </Tab>
+      <Tab title="Create main currency balance, response..">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-05T02:56:21.388Z",
+            "updated_at": "2023-01-05T02:56:21.388Z",
+            "id": "c96b8303-cbf9-4740-8576-197fcd0fadae",
+            "archived_at": null,
+            "name": "main usd balance",
+            "description": "attach usd balance to accounts that don't have it already",
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+            "identifier": "main.usd",
+            "account_id": "bed6503a-0813-46a7-b6cd-483e1b3c445c",
+            "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+            "type": "main",
+            "balance": "0.00",
+            "pending_balance": "0.00",
+            "negative_pending_balance": "0.00",
+            "unit": {
+                "created_at": "2022-07-22T13:08:48.869Z",
+                "updated_at": "2022-07-22T13:11:41.975Z",
+                "id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                "archived_at": null,
+                "name": "United States dollar",
+                "description": "ISO Code: 840",
+                "identifier": "usd",
+                "max_precision": 12,
+                "default_precision": 2,
+                "default_mode": "floats",
+                "workspace_id": "ed87843a-8810-40ea-9f49-e339b136caf4",
+                "color": "#00FFFF",
+                "symbol": "$",
+                "background": null,
+                "link": {
+                    "created_at": "2023-01-05T01:09:33.863Z",
+                    "updated_at": "2023-01-05T01:09:33.863Z",
+                    "id": "5dea03d5-6309-42b4-ba5a-c826f97fdb8b",
+                    "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "precision": 2,
+                    "mode": "floats"
+                }
+            }
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+    <Label text="Add new custom balance to account" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Custom balance creation, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request POST 'https://api.modernbanc.com/v1/balances' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "type" : "custom",
+            "unit_id" : "c2de49d3-02f6-4a16-86fb-816221d70167",
+            "account_id" : "ACT-26",
+            "identifier": "glass",
+            "name": "Glasses in Stock"
+        }'
+        ```
+      </Tab>
+      <Tab title="Custom balance creation, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-05T03:13:30.703Z",
+            "updated_at": "2023-01-05T03:13:30.703Z",
+            "id": "678c64b8-ee06-4f2f-872b-285475ba46c2",
+            "archived_at": null,
+            "name": "Glasses in Stock",
+            "description": null,
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+            "identifier": "glass",
+            "account_id": "3cb5c632-e623-46df-b3cc-33eb72f045d7",
+            "unit_id": "c2de49d3-02f6-4a16-86fb-816221d70167",
+            "type": "custom",
+            "balance": "0",
+            "pending_balance": "0",
+            "negative_pending_balance": "0",
+            "unit": {
+                "created_at": "2023-01-05T02:01:03.847Z",
+                "updated_at": "2023-01-05T02:01:03.847Z",
+                "id": "c2de49d3-02f6-4a16-86fb-816221d70167",
+                "archived_at": null,
+                "name": "Glasses",
+                "description": null,
+                "identifier": "glass",
+                "max_precision": null,
+                "default_precision": 0,
+                "default_mode": "integers",
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "color": "#FA8072",
+                "symbol": "ᒡ◯ᵔ◯ᒢ",
+                "background": null,
+                "link": {
+                    "created_at": "2023-01-05T02:01:03.847Z",
+                    "updated_at": "2023-01-05T02:01:03.847Z",
+                    "id": "fb0def96-4135-4e36-afe0-032bf2f5cd38",
+                    "unit_id": "c2de49d3-02f6-4a16-86fb-816221d70167",
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "precision": 0,
+                    "mode": "integers"
+                }
+            }
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+#### Update balance
+Only custom balances can be updated manually. In the case of non-custom balances, the balance will be updated automatically when transactions are created and completed.
+
+For this example, let's pretend we're a retailer that sells glasses, and we want to update our starting inventory. So we'll use the glasses balance we created earlier and update the balance to 1000.
+<Tabs width="min">
+  <Tab title="UI">
+    - On the UI, balances are updated via transactions.
+    - To update a balance, create a transaction with the unit you want to update the balance for, and the transaction will handle updating the balance.
+  </Tab>
+  <Tab title="API">
+    <Operation method="put" title="Update balance" path="/v1/balances/{id}" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Update custom retailer inventory, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request PUT 'https://api.modernbanc.com/v1/balances/678c64b8-ee06-4f2f-872b-285475ba46c2' \
+        --header 'Content-Type: application/json' \
+        --data-raw '{
+            "unit_id": "c2de49d3-02f6-4a16-86fb-816221d70167",
+            "balance": "1000"
+        }'
+        ```
+      </Tab>
+      <Tab title="Update custom retailer inventory, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-05T03:13:30.703Z",
+            "updated_at": "2023-01-05T03:26:34.378Z",
+            "id": "678c64b8-ee06-4f2f-872b-285475ba46c2",
+            "archived_at": null,
+            "name": "Glasses in Stock",
+            "description": null,
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+            "identifier": "glass",
+            "account_id": "3cb5c632-e623-46df-b3cc-33eb72f045d7",
+            "unit_id": "c2de49d3-02f6-4a16-86fb-816221d70167",
+            "type": "custom",
+            "balance": "1000",
+            "pending_balance": "0",
+            "negative_pending_balance": "0",
+            "unit": {
+                "created_at": "2023-01-05T02:01:03.847Z",
+                "updated_at": "2023-01-05T02:01:03.847Z",
+                "id": "c2de49d3-02f6-4a16-86fb-816221d70167",
+                "archived_at": null,
+                "name": "Glasses",
+                "description": null,
+                "identifier": "glass",
+                "max_precision": null,
+                "default_precision": 0,
+                "default_mode": "integers",
+                "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                "color": "#FA8072",
+                "symbol": "ᒡ◯ᵔ◯ᒢ",
+                "background": null,
+                "link": {
+                    "created_at": "2023-01-05T02:01:03.847Z",
+                    "updated_at": "2023-01-05T02:01:03.847Z",
+                    "id": "fb0def96-4135-4e36-afe0-032bf2f5cd38",
+                    "unit_id": "c2de49d3-02f6-4a16-86fb-816221d70167",
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "precision": 0,
+                    "mode": "integers"
+                }
+            }
+        }
+      }
+      ```
+      </Tab>
+    </Tabs>
+    <Label text="Updated account with balance" />
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6" width="min">
+      <Tab title="Get updated account, request.">
+        ```json showLineNumbers {} custom_tag
+        curl --location --request GET 'https://api.modernbanc.com/v1/accounts/ACT-26?include=balances:true'
+        ```
+      </Tab>
+      <Tab title="Get updated account, response.">
+      ```json showLineNumbers {} custom_tag
+      {
+        "result": {
+            "created_at": "2023-01-05T03:13:13.068Z",
+            "updated_at": "2023-01-05T03:13:13.068Z",
+            "id": "3cb5c632-e623-46df-b3cc-33eb72f045d7",
+            "archived_at": null,
+            "name": "Example Account - Glasses Retailer",
+            "description": null,
+            "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+            "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+            "resource_id": null,
+            "external_id": null,
+            "identifier_prefix": "ACT",
+            "identifier_value": "26",
+            "variables": null,
+            "minimum_lines": 1,
+            "maximum_lines": null,
+            "status": "active",
+            "balances": [
+                {
+                    "created_at": "2023-01-05T03:13:30.703Z",
+                    "updated_at": "2023-01-05T03:26:34.378Z",
+                    "id": "678c64b8-ee06-4f2f-872b-285475ba46c2",
+                    "archived_at": null,
+                    "name": "Glasses in Stock",
+                    "description": null,
+                    "workspace_id": "b614f6e3-9a61-412b-86c2-77560707ab54",
+                    "environment_id": "7489421e-3114-4ca1-bb58-1216fe77c614",
+                    "identifier": "glass",
+                    "account_id": "3cb5c632-e623-46df-b3cc-33eb72f045d7",
+                    "unit_id": "c2de49d3-02f6-4a16-86fb-816221d70167",
+                    "type": "custom",
+                    "balance": "1000",
+                    "pending_balance": "0",
+                    "negative_pending_balance": "0"
+                }
+            ]
+        }
+      }  
+      ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+

@@ -1,0 +1,32 @@
+import { Schema, Operation } from '~/views/docs/components/content/all'
+
+# Background
+
+In Modernbanc we support our own custom powerful formula language. It’s currently only used in workflows and later will be used across the whole app.
+
+It aims to achieve 3 things:
+
+- Be a read-only, secure and highly performant way of accessing/calculating data in Modernbanc.
+- Have 90% resemblance with Excel to reduce the learning curve.
+- Have shortcuts and natively support references to Modernbanc models (e.g accounts).
+
+You typically can start writing formulas anywhere in the workflow by typing [[formula goes here]].
+
+For example, when I want workflow to return the number that was provided by user and multiply it by 4.
+
+```tsx
+Return step:
+{
+    "code" : 200,
+		"return" : "New value is [[_trigger_version._input.body*4]]"
+}
+```
+
+---
+
+#### Features
+
+- Binary operators: `+` (plus), `-` (minus) `*` (multiply) `/` (divide).
+- Object and member expressions similar to Javascript. E.g normal member expressions `account.balances` or computed member expressions `steps[3]` (by computed we mean you can put an expression e.g to access step 7 you can do `steps[3+4]`
+- Objects and arrays.
+- Coming soon: shortcut references to accounts and other models (e.g `#ACT-5.balance`)

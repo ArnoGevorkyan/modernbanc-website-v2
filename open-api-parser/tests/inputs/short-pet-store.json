@@ -1,0 +1,72 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Swagger Petstore",
+    "version": "0.0.1"
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "CircleNodeA": {
+        "type": "object",
+        "properties": {
+          "next_node": {
+            "$ref": "#/components/schemas/CircleNodeB"
+          },
+          "name_1": {
+            "type": "string"
+          },
+          "name_2": {
+            "type": "string"
+          },
+          "name_3": {
+            "type": "string"
+          },
+          "name_4": {
+            "type": "string"
+          },
+          "name_5": {
+            "type": "string"
+          }
+        }
+      },
+      "CircleNodeB": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CircleNodeC"
+        }
+      },
+      "CircleNodeC": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CircleNodeD"
+        }
+      },
+      "CircleNodeD": {
+        "type": "object",
+        "properties": {
+          "next_node": {
+            "$ref": "#/components/schemas/CircleNodeE"
+          },
+          "name_b": {
+            "type": "string"
+          }
+        }
+      },
+      "CircleNodeE": {
+        "type": "object",
+        "properties": {
+          "next_node": {
+            "$ref": "#/components/schemas/CircleNodeA"
+          },
+          "nested_array": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CircleNodeA"
+            }
+          }
+        }
+      }
+    }
+  }
+}

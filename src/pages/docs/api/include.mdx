@@ -1,0 +1,191 @@
+import { CodeBlock, Tab, Tabs, Callout, Schema, Operation, Label } from '~/views/docs/components/content/all'
+
+# Include
+
+For all **GET** endpoints you can include only the properties you want via the `include` parameter.
+
+You can do it two ways:
+
+- **Include** approach - include everything except chosen properties.
+- **Exclude** approach - exclude everything except chosen properties.
+
+#### General rules
+
+By default for every object (including relations) you'll get all primitive properties. By primitive properties we mean all non-relation properties such as `string`, `number`, `boolean`, `jsonb` and `date` properties. For example: `account_id` (string) is included, while `account` (relation) is not.
+
+```json
+GET /balances/{id}
+Result
+{
+  "id": "1f770c58-2393-4b49-bfb6-43f3766cb066",
+  "identifier": "a",
+  "name": "Main balance",
+  "description": "This is the main balance of the account",
+  "account_id": "c2b81c5a-1f18-4f5d-bdc0-85a64dd8d79d",
+  "unit_id": "51edd301-761b-4561-a8a9-b61a627c387b",
+  "type" : "main",
+  "balance": "52.00",
+  "available_balance": "52.00",
+  "negative_balance": "52.00",
+  "external_id": null,
+  "variables" : null,
+  "created_at": "2022-10-05T14:48:00.000Z",
+  "updated_at": "2022-10-05T14:48:00.000Z",
+  "archived_at": null
+}
+```
+
+Note that **include syntax doesn't affect** `id` - it is always included.
+
+#### Include approach
+
+As with [filters](docs/workspace/filters), `include` follows JSON format. To include only `name` of the Balance do following.
+
+```json
+GET /balances/{id}?include={"name":true}
+Result
+{
+  "id" : "6b91f9fc-2f0d-4bdb-86c8-f41bab748d49",
+  "name": "Main balance"
+}
+```
+
+It's the same to include related objects. Note that defaults will apply for that object. (i.e all primitives included by default) For example to also include Unit:
+
+```json
+GET /balances?include={"name":true, "unit": true }
+Result
+{
+  "id" : "6b91f9fc-2f0d-4bdb-86c8-f41bab748d49",
+  "name": "Main balance",
+  "unit" : {
+    "id" : "245088c9-ff7c-4b26-b4ae-6d512c01498c",
+    "name": "USD",
+    "description" : "United States Dollar",
+    "max_precision" : 2,
+    "default_precision" : 2,
+    "default_mode" : "floats",
+    "workspace_id": "0b6496ce-fd62-4831-9c9f-341143b021ac",
+    "background_color" : "#F0F0F0",
+    "color" : "#49678D",
+    "symbol" : "$",
+    "created_at": "2022-10-05T14:48:00.000Z",
+    "updated_at": "2022-10-05T14:48:00.000Z",
+    "archived_at": null
+  }
+}
+```
+
+```json
+GET /balances?include={"name": true, "unit": { "name": true } }
+Result
+{
+  "id" : "6b91f9fc-2f0d-4bdb-86c8-f41bab748d49",
+  "name": "Main balance",
+  "unit" : {
+    "id" : "245088c9-ff7c-4b26-b4ae-6d512c01498c",
+    "name": "USD"
+  }
+}
+```
+
+And again like with filters we accept relaxed JSON so you can drop top-level `{` `}` brackets or not use quotes in JSON keys.
+
+For example this will also work.
+
+```shell
+GET /transactions?include=status:true
+```
+
+#### Exclude approach.
+
+To include everything except `name` of the Balance do following:
+
+```json
+GET /balances/{id}?include{"name":false}
+Result
+{
+  "id": "1f770c58-2393-4b49-bfb6-43f3766cb066",
+  "identifier": "a",
+  "description": "This is the main balance of the account",
+  "account_id": "c2b81c5a-1f18-4f5d-bdc0-85a64dd8d79d",
+  "unit_id": "51edd301-761b-4561-a8a9-b61a627c387b",
+  "type" : "main",
+  "balance": "52.00",
+  "available_balance": "52.00",
+  "negative_balance": "52.00",
+  "external_id": null,
+  "variables" : null,
+  "created_at": "2022-10-05T14:48:00.000Z",
+  "updated_at": "2022-10-05T14:48:00.000Z",
+  "archived_at": null
+}
+```
+
+Same applies to related objects for example to also include Unit:
+
+```json
+GET /balances/{id}?include{"name":false,"unit":{"name": false}}
+Result
+{
+  "id": "1f770c58-2393-4b49-bfb6-43f3766cb066",
+  "identifier": "a",
+  "description": "This is the main balance of the account",
+  "account_id": "c2b81c5a-1f18-4f5d-bdc0-85a64dd8d79d",
+  "unit_id": "51edd301-761b-4561-a8a9-b61a627c387b",
+  "type" : "main",
+  "balance": "52.00",
+  "available_balance": "52.00",
+  "negative_balance": "52.00",
+  "external_id": null,
+  "variables" : null,
+  "created_at": "2022-10-05T14:48:00.000Z",
+  "updated_at": "2022-10-05T14:48:00.000Z",
+  "archived_at": null,
+  "unit" : {
+    "id" : "245088c9-ff7c-4b26-b4ae-6d512c01498c",
+    "description" : "United States Dollar",
+    "max_precision" : 2,
+    "default_precision" : 2,
+    "default_mode" : "floats",
+    "workspace_id": "0b6496ce-fd62-4831-9c9f-341143b021ac",
+    "background_color" : "#F0F0F0",
+    "color" : "#49678D",
+    "symbol" : "$",
+    "created_at": "2022-10-05T14:48:00.000Z",
+    "updated_at": "2022-10-05T14:48:00.000Z",
+    "archived_at": null
+  }
+}
+```
+
+#### Restrictions:
+
+You cannot combine **Include** and **Exclude** approach for primitives on same level. However you can use them together on different levels.
+
+For example this is **not allowed**:
+
+```json
+GET /balances/{id}?include={"name": true, "description": false}
+```
+
+While this **is allowed**:
+
+```json
+GET /balances/{id}?include={"name": true, "unit": {"name": false}}
+```
+
+And this **is allowed** (include all primitives except `name` and include relation `unit`:
+
+```json
+GET /balances/{id}?include={"name": false, "unit": true}
+```
+
+#### Exceptions:
+
+Some properties that look primitive are actually computed and are not included by default.
+
+An example of computed property is `identifier` (string) in **Account**,
+we don't store it in our database but auto-generate it from `identifier_prefix + '-' + identifier_value{:js}`.
+
+So to include `identifier` alongside with default properties you'd have to explicitly specify `include={"identifier": true}{:json}`.

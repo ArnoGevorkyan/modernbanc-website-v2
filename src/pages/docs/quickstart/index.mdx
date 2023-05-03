@@ -1,0 +1,51 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed,
+  Columns,
+  Column,
+  PageLink,
+  Shortcut,
+  Card,
+  CardGroup
+} from '~/views/docs/components/content/all'
+import { ShoppingCartIcon } from '@heroicons/react/outline'
+import PopularTopics from '~/views/docs/components/content/popular-topics'
+import PopularTopicsContainer from '~/views/docs/components/content/popular-topics-container'
+
+import { TbSettingsAutomation } from 'react-icons/tb'
+import { CiBank } from 'react-icons/ci'
+import { FaCcStripe, FaStripe, FaStripeS } from 'react-icons/fa'
+import { GrStripe } from 'react-icons/gr'
+
+# Setting Up
+
+A collection of guides to help you familiarize with how Modernbanc works. You can use the terminal to check endpoints/models at any time. To open the terminal, press `K` or click the button in the bottom-right corner.
+
+<br />
+
+<CardGroup>
+  <Card
+    url="/docs/quickstart/accounts-and-transactions"
+    title="Accounts and transactions ->"
+    description="Get API keys, create accounts, and transact with Modernbanc."
+  />
+
+  <Card url="/docs/quickstart/workflows" title="Workflows ->" description="Send a notification to your slack on new transactions." />
+  <Card url="/docs/quickstart/creditcard-to-provider" title="Credit Card to Provider ->" description="Collect credit card data in your app and send it to payment proivders." />
+
+  <Card url="/docs/quickstart/checkout" title="Custom checkout ->" description="Build a custom check-out to accept card payments." />
+</CardGroup>
+
+<br />

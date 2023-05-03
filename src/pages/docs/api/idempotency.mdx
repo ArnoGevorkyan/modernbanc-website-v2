@@ -1,0 +1,19 @@
+import {} from '~/views/docs/components/content/all'
+
+# Idempotency
+
+Modernbanc supports idempotency on its API calls, allowing you to safely
+retry requests without worrying about accidentally duplicating them.
+
+This is especially useful to avoid making the same payment twice, executing the same
+workflow several times or double-counting money in case there are connectivity issues.
+
+---
+
+To make use of this feature, simply provide an `Idempotency-Key` header on your request,
+which can be anything you choose but ideally a randomly-generated UUID.
+
+Note to keep in mind when making idempotent requests:
+
+- Idempotency keys expire after 24 hours.
+- It is best practice to wait for a failure response from the POST call before attempting to retry the call.

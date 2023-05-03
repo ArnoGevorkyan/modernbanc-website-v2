@@ -1,0 +1,332 @@
+import {
+  CodeBlock,
+  Tab,
+  Toggle,
+  Process,
+  Tabs,
+  SegmentedControl,
+  Schema,
+  Operation,
+  Table,
+  Callout,
+  Image,
+  Label,
+  SchemaIcon,
+  VideoEmbed
+} from '~/views/docs/components/content/all'
+
+# Accounts and Transactions
+
+A quick introduction to building with Modernbanc. In this example, we will create a basic transaction between two accounts.
+
+<hr />
+
+<Process title="Getting your API keys" index={1}>
+
+Lets get Modernbanc up and running by testing out our API. You can get API keys by signing up on the platform.
+Once registered, you can create a workspace. Here you will choose a name and a workspace identifier that will be used in API calls.
+You can learn more at [workspaces](/docs/workspaces).
+
+Once in your workspace, you can create an API key. Select the dropdown menu in the top left or press `G`, then select `Settings` or press `S`.
+Now, select `API keys` or press `A`. Click the `Create` button and you are now ready to copy your API key to get started.
+
+If you get stuck at any point in the Quickstart, help is just a click away! Join our Slack channel or send us a message to [hello@modernbanc.com](mailto:hello@modernbanc.com).
+
+<h4>Environment</h4>
+<Table inner_border="horizontal" responsive_cell>
+  <tbody>
+    <tr key="0">
+      <td>`test`</td>
+      <td>Testing, experiment without live users.</td>
+    </tr>
+    <tr key="1">
+      <td>`live`</td>
+      <td>Live environment to use with real customers.</td>
+    </tr>
+  </tbody>
+</Table>
+
+</Process>
+
+<Process title="Creating your first accounts" index={2}>
+
+Accounts are the core of Modernbanc's accounting system. They are used to store balances and to keep track of anything measured in [units](docs/workspace/units) (currency, tickets, materials, etc).
+
+In order to store balances in the account, we need to specify what unit, or currency, the account will use. We can do this by attaching units to the account during the creation process.
+
+{' '}
+
+
+<Operation method="post" title="Create account" path="/v1/accounts" />
+<Tabs>
+  <Tab title="UI">
+    - Naviate to the `Accounts` tab in the settings dropdown or press `G` and then `A`.
+    - Click the `Create` button in the upper right corner.
+    - Fill out the form with the following values:
+      - Name: `Quickstart - Account A`.
+      - Unit: `United States dollar`.
+    - Click `Create` on the bottom right of the form.
+    - Repeat the above steps to create `Quickstart - Account B`.
+    - **Note:** take note of the `Account identifier` on the left side of the list view for each account. You will need it in the next step. In this case `ACT-43` and `ACT-44`. 
+  </Tab>
+
+  <Tab title="API">
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Request">
+          ```bash showLineNumbers {} custom_tag
+          curl --location --request POST 'http://api.modernbanc.com/v1/accounts' \
+          --header 'Content-Type: application/json' \
+          --header 'Authorization: Bearer YOUR_API_KEY_HERE' \
+          --header 'x-workspace: mdb' \
+          --header 'x-environment: test' \
+          --data-raw '{
+            "name": "Quickstart - Account A",
+            "unit_ids": [
+                "dbff8f21-f979-4da4-a6ad-a2b7a569701f"
+            ]
+          }'
+          ```
+      </Tab>
+
+      <Tab title="Response">
+          ```bash showLineNumbers {} custom_tag
+          {
+            "result": {
+                "created_at": "2022-12-20T19:29:05.125Z",
+                "updated_at": "2022-12-20T19:29:05.125Z",
+                "id": "99452aae-a392-4e4b-881f-d623151f8e84",
+                "archived_at": null,
+                "name": "Quickstart - Account A",
+                "description": null,
+                "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+                "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                "resource_id": null,
+                "external_id": null,
+                "identifier_prefix": "ACT",
+                "identifier_value": "11",
+                "variables": null,
+                "minimum_lines": 1,
+                "maximum_lines": null,
+                "status": "active",
+                "balances": [
+                    {
+                        "created_at": "2022-12-20T19:29:05.125Z",
+                        "updated_at": "2022-12-20T19:29:05.125Z",
+                        "id": "b43b515f-c167-41b6-b9bd-842d645e3cae",
+                        "archived_at": null,
+                        "name": "Main usd balance",
+                        "description": null,
+                        "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+                        "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                        "identifier": "main.usd",
+                        "account_id": "99452aae-a392-4e4b-881f-d623151f8e84",
+                        "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                        "type": "main",
+                        "balance": "0.000",
+                        "pending_balance": "0.000",
+                        "negative_pending_balance": "0.000"
+                    }
+                ],
+                "routes": [],
+                "labels": [],
+                "entity_relations": [],
+                "identifier": "ACT-11",
+                "account_relations": []
+            }
+          }
+        ```
+      </Tab>
+    </Tabs>
+ 
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Request">
+          ```bash showLineNumbers {} custom_tag
+          curl --location --request POST 'http://api.modernbanc.com/v1/accounts' \
+          --header 'Content-Type: application/json' \
+          --header 'Authorization: Bearer YOUR_API_KEY_HERE' \
+          --header 'x-workspace: mdb' \
+          --header 'x-environment: test' \
+          --data-raw '{
+            "name": "Quickstart - Account B",
+            "unit_ids": [
+                "dbff8f21-f979-4da4-a6ad-a2b7a569701f"
+            ]
+          }'
+          ```
+      </Tab>
+
+      <Tab title="Response">
+        ```bash showLineNumbers {} custom_tag
+        {
+          "result": {
+              "created_at": "2022-12-20T19:28:03.885Z",
+              "updated_at": "2022-12-20T19:28:03.885Z",
+              "id": "858d1305-9a10-4eed-853c-0ddf5883baa2",
+              "archived_at": null,
+              "name": "Quickstart - Account B",
+              "description": null,
+              "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+              "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+              "resource_id": null,
+              "external_id": null,
+              "identifier_prefix": "ACT",
+              "identifier_value": "10",
+              "variables": null,
+              "minimum_lines": 1,
+              "maximum_lines": null,
+              "status": "active",
+              "balances": [
+                  {
+                      "created_at": "2022-12-20T19:28:03.885Z",
+                      "updated_at": "2022-12-20T19:28:03.885Z",
+                      "id": "2c2a0542-93d1-41a7-89d3-3abd25fdc593",
+                      "archived_at": null,
+                      "name": "Main usd balance",
+                      "description": null,
+                      "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+                      "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                      "identifier": "main.usd",
+                      "account_id": "858d1305-9a10-4eed-853c-0ddf5883baa2",
+                      "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                      "type": "main",
+                      "balance": "0.000",
+                      "pending_balance": "0.000",
+                      "negative_pending_balance": "0.000"
+                  }
+              ],
+              "routes": [],
+              "labels": [],
+              "entity_relations": [],
+              "identifier": "ACT-10",
+              "account_relations": []
+          }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+</Process>
+
+<Process title="Creating your first transaction" index={3}>
+
+Now that we have our two accounts, we can create a transaction between them. We will create a transaction from `Account A` to `Account B`.
+
+Note: amount format must match the unit mode and precision. If the unit mode is `floats`, and the precision is `2`, the format should look like `100.00`. You can read more about how units work [here](/docs/workspace/units).
+
+<Operation method="post" title="Create transaction" path="/v1/transactions" />
+<Tabs>
+  <Tab title="UI">
+    - Navigate to the `Transactions` tab in the settings dropdown or press `G` and then `T`.
+    - Click the `Create` button in the upper right corner.
+    - Fill out the form and click `Create`.
+      - Enter a sample amount, like `200`, in the `Amount` field.
+      - In the `From` and `To` fields, select the accounts you created in the previous step. You can search by name, in this case just type `quickstart` and they will show up.
+    - You should now see the transaction appear at the top of the transactions list.
+
+  </Tab>
+  <Tab title="API">
+    <Tabs bordered padded={false} size="sm" background_color="#F6F6F6">
+      <Tab title="Request">
+          ```bash showLineNumbers {} custom_tag
+          curl --location --request POST 'https://api.modernbanc.com/v1/transactions' \
+          --header 'Content-Type: application/json' \
+          --header 'Authorization: Bearer YOUR_API_KEY_HERE' \
+          --header 'x-workspace: mdb' \
+          --header 'x-environment: test' \
+          --data-raw '{
+              "name": "Sample Transaction A -> B ",
+              "description": "Same transaction of Account A sending 100 to Account B",
+              "status": "pending",
+              "lines": [
+                  {
+                      "account_id": "99452aae-a392-4e4b-881f-d623151f8e84",
+                      "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                      "amount": "-100.00"
+                  },
+                  {
+                      "account_id": "858d1305-9a10-4eed-853c-0ddf5883baa2",
+                      "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                      "amount": "100.00"
+                  }
+              ]
+          }'
+          ```
+      </Tab>
+      <Tab title="Response">
+          ```bash showLineNumbers {} custom_tag
+          {
+            "result": {
+                "created_at": "2022-12-20T20:03:04.046Z",
+                "updated_at": "2022-12-20T20:03:04.046Z",
+                "id": "fac0b32d-ae62-45e9-881b-0ec88a426985",
+                "archived_at": null,
+                "name": "Sample Transaction A -> B ",
+                "description": "Same transaction of Account A sending 100 to Account B",
+                "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+                "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                "resource_id": null,
+                "external_id": null,
+                "identifier_prefix": "TRN",
+                "identifier_value": "2",
+                "variables": null,
+                "start_date_time": null,
+                "end_date_time": null,
+                "start_date": null,
+                "end_date": null,
+                "status": "pending",
+                "scheduled_date_time": null,
+                "labels": [],
+                "lines": [
+                    {
+                        "created_at": "2022-12-20T20:03:04.046Z",
+                        "updated_at": "2022-12-20T20:03:04.046Z",
+                        "id": "fc747465-6add-4882-9d85-2db31ea1758d",
+                        "archived_at": null,
+                        "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+                        "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                        "transaction_id": "fac0b32d-ae62-45e9-881b-0ec88a426985",
+                        "route_id": null,
+                        "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                        "account_id": "858d1305-9a10-4eed-853c-0ddf5883baa2",
+                        "external_id": null,
+                        "name": null,
+                        "description": null,
+                        "variables": null,
+                        "amount": "100.000",
+                        "items": []
+                    },
+                    {
+                        "created_at": "2022-12-20T20:03:04.046Z",
+                        "updated_at": "2022-12-20T20:03:04.046Z",
+                        "id": "fef5cf63-36ca-49fc-927b-4690df9c478a",
+                        "archived_at": null,
+                        "workspace_id": "d60cfbea-4a60-4a16-ab7e-e3363211e02f",
+                        "environment_id": "a48a2128-062e-463c-8e0e-2452e39ca015",
+                        "transaction_id": "fac0b32d-ae62-45e9-881b-0ec88a426985",
+                        "route_id": null,
+                        "unit_id": "dbff8f21-f979-4da4-a6ad-a2b7a569701f",
+                        "account_id": "99452aae-a392-4e4b-881f-d623151f8e84",
+                        "external_id": null,
+                        "name": null,
+                        "description": null,
+                        "variables": null,
+                        "amount": "-100.000",
+                        "items": []
+                    }
+                ]
+            }
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
+
+</Tabs>
+</Process>
+
+<hr />
+
+Congratulations! You have created your first transaction in Modernbanc.
+
+Next up: [Workflows: Send Slack notification on transaction creation](/docs/quickstart/workflows)
